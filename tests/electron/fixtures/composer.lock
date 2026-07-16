@@ -1,0 +1,21 @@
+{
+	"_readme": [
+		"Not a real lockfile — the fields the Craft detector reads, and nothing else.",
+		"`craftcms/cms`'s version here is what pins this fixture to Craft 5 semantics."
+	],
+	"content-hash": "0000000000000000000000000000000000000000",
+	"packages": [
+		{
+			"name": "craftcms/cms",
+			"version": "5.10.11"
+		},
+		{
+			"name": "yiisoft/yii2",
+			"version": "2.0.49"
+		}
+	],
+	"packages-dev": [],
+	"platform": {
+		"php": ">=8.2"
+	}
+}

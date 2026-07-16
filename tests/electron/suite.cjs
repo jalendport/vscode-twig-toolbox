@@ -25,6 +25,7 @@ module.exports.run = async function run() {
 	assert.deepEqual(diagnostic.range.end, new vscode.Position(0, 12));
 
 	await testCompletions();
+	await testCraftPack();
 	await testTemplateNavigation();
 	await testEmbedded();
 	await testEmmet();
@@ -60,6 +61,45 @@ async function testCompletions() {
 	const item = find(expressions, 'item');
 	assert.ok(item, 'expected the loop variable `item`');
 	assert.equal(item.kind, vscode.CompletionItemKind.Variable);
+}
+
+/**
+ * The Craft pack, through the real client and the real catalog load.
+ *
+ * The fixture workspace is a Craft project — `composer.json` requires
+ * `craftcms/cms` and `composer.lock` pins 5.10.11 — so this is the one test
+ * that shows detection, the shipped `craft.json`, and the member provider all
+ * reaching a real editor together.
+ */
+async function testCraftPack() {
+	const uri = vscode.Uri.file(path.join(__dirname, 'fixtures', 'templates', 'craft.twig'));
+	const document = await vscode.workspace.openTextDocument(uri);
+	await vscode.window.showTextDocument(document);
+
+	// `{% cache %}` — a tag only the Craft pack has an opinion about here.
+	const tags = await completionsAt(uri, new vscode.Position(0, 3));
+	const nav = find(tags, 'nav');
+	assert.ok(nav, 'expected the Craft `nav` tag');
+	assert.equal(labelOf(nav).description, 'CraftCMS', 'Craft provenance reaches the client');
+
+	// `{{ craft.‸entries }}` — the member provider, over the shipped catalog.
+	const members = await completionsAt(uri, new vscode.Position(1, 10));
+	const entries = find(members, 'entries');
+	assert.ok(entries, 'expected `craft.entries`');
+	assert.equal(entries.kind, vscode.CompletionItemKind.Property);
+	assert.ok(!find(members, 'matrixBlocks'), 'Craft 4 members stay out of a Craft 5 project');
+
+	// `{{ entry.summary|mark‸down }}` — hover with Craft provenance and docs.
+	const hovers = await vscode.commands.executeCommand(
+		'vscode.executeHoverProvider',
+		uri,
+		new vscode.Position(2, 21),
+	);
+	const markdown = hovers
+		.flatMap((hover) => hover.contents.map((content) => content.value ?? String(content)))
+		.join('\n');
+	assert.match(markdown, /Processes a string as Markdown/, 'expected the Craft docs on hover');
+	assert.match(markdown, /\*\*Source:\*\* CraftCMS/, 'expected Craft provenance on hover');
 }
 
 async function testTemplateNavigation() {

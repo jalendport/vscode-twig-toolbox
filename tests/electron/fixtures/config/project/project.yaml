@@ -1,0 +1,16 @@
+# Minimal Craft project config: enough to look like a real Craft install here,
+# and the file milestone 10 grows into for real section and field handles.
+dateModified: 1700000000
+siteGroups:
+  8c3d7d13-f2b8-4a68-9b6c-2a90b3f0f1e1:
+    name: Fixture
+sites:
+  a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d:
+    baseUrl: 'http://fixture.test/'
+    handle: default
+    hasUrls: true
+    language: en-US
+    name: Fixture
+    primary: true
+    siteGroup: 8c3d7d13-f2b8-4a68-9b6c-2a90b3f0f1e1
+    sortOrder: 1
