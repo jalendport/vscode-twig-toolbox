@@ -1,8 +1,10 @@
-import type { Diagnostic } from 'vscode-languageserver/node';
+import type { CompletionItem, Diagnostic, Position } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogRegistry, WorkspaceCatalogContext } from './catalog';
+import { getCompletions } from './completions';
 import { getDiagnostics } from './diagnostics';
 import { DocumentStore, type DocumentStoreOptions, type ParsedDocument } from './document-store';
+import type { MemberProvider } from './members';
 import type { TwigToolboxSettings } from './settings';
 
 export interface TwigServerCoreOptions {
@@ -11,6 +13,8 @@ export interface TwigServerCoreOptions {
 	readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[]) => void;
 	readonly parseDelayMs?: number;
 	readonly resolveWorkspaceContext?: (uri: string) => WorkspaceCatalogContext;
+	/** Defaults to the builtins; milestone 10 adds project-typed members here. */
+	readonly memberProviders?: readonly MemberProvider[];
 }
 
 export class TwigServerCore {
@@ -18,11 +22,13 @@ export class TwigServerCore {
 	private readonly getSettings: (uri: string) => Promise<TwigToolboxSettings>;
 	private readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[]) => void;
 	private readonly documents: DocumentStore;
+	private readonly memberProviders: readonly MemberProvider[] | undefined;
 
 	constructor(options: TwigServerCoreOptions) {
 		this.catalogRegistry = options.catalogRegistry;
 		this.getSettings = options.getSettings;
 		this.publishDiagnostics = options.publishDiagnostics;
+		this.memberProviders = options.memberProviders;
 		const storeOptions: DocumentStoreOptions = {
 			onParsed: (document) => {
 				void this.publishParsedDiagnostics(document);
@@ -50,6 +56,20 @@ export class TwigServerCore {
 
 	getParsedDocument(uri: string): ParsedDocument | undefined {
 		return this.documents.getParsed(uri);
+	}
+
+	complete(uri: string, position: Position): CompletionItem[] {
+		const parsed = this.documents.getParsed(uri);
+		if (parsed === undefined) {
+			return [];
+		}
+
+		return getCompletions(parsed, parsed.document.offsetAt(position), {
+			catalogRegistry: this.catalogRegistry,
+			...(this.memberProviders === undefined
+				? {}
+				: { memberProviders: this.memberProviders }),
+		});
 	}
 
 	async refreshDiagnostics(uri: string): Promise<void> {

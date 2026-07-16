@@ -45,6 +45,13 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 	return {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
+			completionProvider: {
+				// Space is deliberately absent: it would fire on every word of
+				// every HTML attribute. `{` and `%` catch a region being
+				// opened, the rest catch a slot being created.
+				triggerCharacters: ['{', '%', '|', '.', '"', "'"],
+				resolveProvider: false,
+			},
 		},
 		serverInfo: {
 			name: 'Twig Toolbox Language Server',
@@ -74,6 +81,10 @@ documents.onDidClose(({ document }) => {
 	server?.closeDocument(document.uri);
 	settingsCache.delete(document.uri);
 });
+
+connection.onCompletion(
+	({ textDocument, position }) => server?.complete(textDocument.uri, position) ?? [],
+);
 
 connection.onDidChangeConfiguration(() => {
 	settingsCache = new Map();
