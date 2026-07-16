@@ -1,10 +1,9 @@
-import { parse } from '@twig-toolbox/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItemKind, type CompletionItem } from 'vscode-languageserver/node';
 import { describe, expect, it } from 'vitest';
 import { CatalogRegistry, type CatalogEntry, type DialectPack } from './catalog';
 import { getCompletions } from './completions';
-import type { ParsedDocument } from './document-store';
+import { createParsedDocument } from './document-store';
 import type { MemberProvider } from './members';
 
 /**
@@ -20,13 +19,7 @@ function completionsAt(marked: string, providers?: readonly MemberProvider[]): C
 	}
 	const text = marked.slice(0, offset) + marked.slice(offset + 1);
 	const uri = 'file:///project/templates/index.twig';
-	const parsed: ParsedDocument = {
-		uri,
-		version: 1,
-		document: TextDocument.create(uri, 'twig', 1, text),
-		result: parse(text),
-		workspaceContext: {},
-	};
+	const parsed = createParsedDocument(TextDocument.create(uri, 'twig', 1, text));
 	return getCompletions(parsed, offset, {
 		catalogRegistry: CatalogRegistry.fromPacks([corePack]),
 		...(providers === undefined ? {} : { memberProviders: providers }),

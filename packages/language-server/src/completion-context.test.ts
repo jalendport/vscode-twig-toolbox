@@ -1,8 +1,7 @@
-import { parse } from '@twig-toolbox/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { describe, expect, it } from 'vitest';
 import { classifyCompletion, type CompletionContext } from './completion-context';
-import type { ParsedDocument } from './document-store';
+import { createParsedDocument } from './document-store';
 
 /**
  * Fixtures mark the cursor with `‸`, which `|` could not do without fighting
@@ -14,13 +13,9 @@ function at(marked: string): { context: CompletionContext; text: string; offset:
 		throw new Error(`fixture has no ‸ cursor: ${marked}`);
 	}
 	const text = marked.slice(0, offset) + marked.slice(offset + 1);
-	const parsed: ParsedDocument = {
-		uri: 'file:///project/templates/index.twig',
-		version: 1,
-		document: TextDocument.create('file:///project/templates/index.twig', 'twig', 1, text),
-		result: parse(text),
-		workspaceContext: {},
-	};
+	const parsed = createParsedDocument(
+		TextDocument.create('file:///project/templates/index.twig', 'twig', 1, text),
+	);
 	return { context: classifyCompletion(parsed, offset), text, offset };
 }
 

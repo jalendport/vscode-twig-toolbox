@@ -1,16 +1,17 @@
 import type {
 	CompletionItem,
 	Diagnostic,
+	DocumentHighlight,
 	Hover,
 	Position,
 	SignatureHelp,
 } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogRegistry, WorkspaceCatalogContext } from './catalog';
-import { getCompletions } from './completions';
 import { getDiagnostics } from './diagnostics';
 import { DocumentStore, type DocumentStoreOptions, type ParsedDocument } from './document-store';
-import { getHover } from './hover';
+import { getEmbeddedHighlights, getTagCompletion } from './embedded';
+import { getMergedCompletions, getMergedHover } from './merge';
 import type { MemberProvider } from './members';
 import type { TwigToolboxSettings } from './settings';
 import { getSignatureHelp } from './signatures';
@@ -72,7 +73,7 @@ export class TwigServerCore {
 			return [];
 		}
 
-		return getCompletions(parsed, parsed.document.offsetAt(position), {
+		return getMergedCompletions(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
 			...(this.memberProviders === undefined
 				? {}
@@ -86,12 +87,23 @@ export class TwigServerCore {
 			return undefined;
 		}
 
-		return getHover(parsed, parsed.document.offsetAt(position), {
+		return getMergedHover(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
 		});
+	}
+
+	documentHighlights(uri: string, position: Position): DocumentHighlight[] {
+		const parsed = this.documents.getParsed(uri);
+		return parsed === undefined ? [] : getEmbeddedHighlights(parsed, position);
+	}
+
+	/** Answers the client's `html/tag` request. See `getTagCompletion`. */
+	tagCompletion(uri: string, position: Position, trigger: string): string | undefined {
+		const parsed = this.documents.getParsed(uri);
+		return parsed === undefined ? undefined : getTagCompletion(parsed, position, trigger);
 	}
 
 	signatureHelp(uri: string, position: Position): SignatureHelp | undefined {

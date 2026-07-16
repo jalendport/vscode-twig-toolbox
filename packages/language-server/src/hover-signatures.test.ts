@@ -1,8 +1,7 @@
-import { parse } from '@twig-toolbox/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { describe, expect, it } from 'vitest';
 import { CatalogRegistry, type CatalogEntry, type DialectPack } from './catalog';
-import type { ParsedDocument } from './document-store';
+import { createParsedDocument, type ParsedDocument } from './document-store';
 import { getHover } from './hover';
 import { getSignatureHelp } from './signatures';
 
@@ -15,13 +14,7 @@ function parsedAt(marked: string): { parsed: ParsedDocument; offset: number } {
 	const uri = 'file:///project/templates/index.twig';
 	return {
 		offset,
-		parsed: {
-			uri,
-			version: 1,
-			document: TextDocument.create(uri, 'twig', 1, text),
-			result: parse(text),
-			workspaceContext: {},
-		},
+		parsed: createParsedDocument(TextDocument.create(uri, 'twig', 1, text)),
 	};
 }
 

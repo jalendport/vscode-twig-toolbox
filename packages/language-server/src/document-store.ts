@@ -1,6 +1,8 @@
 import { parse, type ParseResult } from '@twig-toolbox/parser';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { WorkspaceCatalogContext } from './catalog';
+import { createEmbeddedDocuments, type EmbeddedDocuments } from './embedded-documents';
+import { findRegions } from './regions';
 
 export interface ParsedDocument {
 	readonly uri: string;
@@ -8,6 +10,44 @@ export interface ParsedDocument {
 	readonly document: TextDocument;
 	readonly result: ParseResult;
 	readonly workspaceContext: WorkspaceCatalogContext;
+	/**
+	 * Virtual HTML/CSS shadow copies, cached alongside the parse and invalidated
+	 * with it. Built on first read: a document nobody asks HTML questions about
+	 * — one that only ever gets diagnostics — never pays for them.
+	 */
+	readonly embedded: EmbeddedDocuments;
+}
+
+/**
+ * A parse plus everything derived from it, for one version of one document.
+ *
+ * The store builds these, and so do tests: both go through here so a fixture
+ * document behaves exactly like a real one.
+ */
+export function createParsedDocument(
+	document: TextDocument,
+	workspaceContext: WorkspaceCatalogContext = {},
+): ParsedDocument {
+	const source = document.getText();
+	const result = parse(source);
+	let embedded: EmbeddedDocuments | undefined;
+
+	return {
+		uri: document.uri,
+		version: document.version,
+		document,
+		result,
+		workspaceContext,
+		get embedded(): EmbeddedDocuments {
+			embedded ??= createEmbeddedDocuments(
+				document.uri,
+				document.version,
+				source,
+				findRegions(result.tokens, source.length),
+			);
+			return embedded;
+		},
+	};
 }
 
 export interface DocumentStoreOptions {
@@ -99,13 +139,7 @@ export class DocumentStore {
 		}
 
 		this.clearTimer(uri);
-		const parsed: ParsedDocument = {
-			uri,
-			version: entry.document.version,
-			document: entry.document,
-			result: parse(entry.document.getText()),
-			workspaceContext: this.resolveWorkspaceContext(uri),
-		};
+		const parsed = createParsedDocument(entry.document, this.resolveWorkspaceContext(uri));
 		entry.parsed = parsed;
 		entry.stale = false;
 		this.onParsed?.(parsed);

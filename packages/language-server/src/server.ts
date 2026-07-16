@@ -6,6 +6,8 @@ import {
 	TextDocumentSyncKind,
 	type InitializeParams,
 	type InitializeResult,
+	type Position,
+	type TextDocumentIdentifier,
 	type WorkspaceFolder,
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -48,11 +50,13 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 			completionProvider: {
 				// Space is deliberately absent: it would fire on every word of
 				// every HTML attribute. `{` and `%` catch a region being
-				// opened, the rest catch a slot being created.
-				triggerCharacters: ['{', '%', '|', '.', '"', "'"],
+				// opened, `<` and `/` an HTML tag, `:` a CSS declaration, the
+				// rest a slot being created.
+				triggerCharacters: ['{', '%', '|', '.', '"', "'", '<', '/', ':', '&'],
 				resolveProvider: false,
 			},
 			hoverProvider: true,
+			documentHighlightProvider: true,
 			signatureHelpProvider: {
 				triggerCharacters: ['(', ','],
 			},
@@ -91,6 +95,23 @@ connection.onCompletion(
 );
 
 connection.onHover(({ textDocument, position }) => server?.hover(textDocument.uri, position));
+
+connection.onDocumentHighlight(
+	({ textDocument, position }) => server?.documentHighlights(textDocument.uri, position) ?? [],
+);
+
+/**
+ * `html/tag` — the same custom request VS Code's built-in HTML support uses.
+ *
+ * Auto-closing a tag is an edit the user did not ask for by name, so it cannot
+ * come back as a completion item; the client watches for the trigger character
+ * and applies whatever this returns as a snippet.
+ */
+connection.onRequest(
+	'html/tag',
+	(params: { textDocument: TextDocumentIdentifier; position: Position; trigger: string }) =>
+		server?.tagCompletion(params.textDocument.uri, params.position, params.trigger) ?? null,
+);
 
 connection.onSignatureHelp(({ textDocument, position }) =>
 	server?.signatureHelp(textDocument.uri, position),
