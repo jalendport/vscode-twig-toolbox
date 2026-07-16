@@ -1,4 +1,15 @@
 .DS_Store
 node_modules
+dist
 *.vsix
 .env
+.vscode-test
+
+# Build-time copies of the root assets into the extension package (see scripts/assets.mjs).
+packages/extension/syntaxes/
+packages/extension/language-configuration.json
+packages/extension/images/
+packages/extension/catalogs/
+packages/extension/README.md
+packages/extension/CHANGELOG.md
+packages/extension/LICENSE

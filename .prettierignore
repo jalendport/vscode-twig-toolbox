@@ -1,0 +1,16 @@
+node_modules
+dist
+*.vsix
+.plan
+
+# Grammar + language config are hand-maintained (milestone 01 owns their formatting).
+syntaxes/twig.tmLanguage.json
+language-configuration.json
+
+# Build-time copies of the root assets above.
+packages/extension/syntaxes
+packages/extension/language-configuration.json
+packages/extension/images
+packages/extension/README.md
+packages/extension/CHANGELOG.md
+packages/extension/LICENSE

@@ -1,0 +1,8 @@
+{
+	"name": "@twig-toolbox/parser",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Tolerant Twig 3 lexer, parser and AST. No vscode dependencies.",
+	"main": "src/index.ts",
+	"types": "src/index.ts"
+}

@@ -1,29 +1,32 @@
 {
-  "name": "twig",
-  "displayName": "Twig",
-  "description": "Adds Twig language support to VSCode",
-  "version": "1.0.0",
-	"publisher": "jalendport",
-  "engines": {
-    "vscode": "^1.101.0"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-	"icon": "images/icon.png",
-  "contributes": {
-    "languages": [{
-      "id": "twig",
-      "aliases": ["Twig", "twig"],
-      "extensions": [".twig"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [
-      {
-        "language": "twig",
-        "scopeName": "text.html.twig",
-        "path": "./syntaxes/twig.tmLanguage.json"
-      }
-    ]
-  }
+	"name": "twig-toolbox-monorepo",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Monorepo root for the Twig Toolbox VS Code extension",
+	"engines": {
+		"node": ">=20"
+	},
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"build": "npm run typecheck && node scripts/build.mjs",
+		"watch": "node scripts/build.mjs --watch",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"lint": "eslint . && prettier --check .",
+		"format": "prettier --write .",
+		"package": "npm run build && node scripts/package.mjs",
+		"clean": "node scripts/clean.mjs"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.2",
+		"@vscode/vsce": "^3.9.2",
+		"esbuild": "^0.28.1",
+		"eslint": "^9.39.5",
+		"prettier": "^3.9.5",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.64.0",
+		"vitest": "^4.1.10"
+	}
 }
