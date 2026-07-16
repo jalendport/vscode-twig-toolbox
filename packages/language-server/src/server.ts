@@ -15,6 +15,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { TWIG_VERSION } from '@twig-toolbox/parser';
 import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
+import { ProjectContextResolver } from './project-context';
 import { DEFAULT_SETTINGS, normalizeSettings, type TwigToolboxSettings } from './settings';
 import { createWorkspaceContextResolver } from './workspace';
 import { TemplateResolver } from './template-resolver';
@@ -35,8 +36,11 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		params.capabilities.workspace?.didChangeWatchedFiles?.dynamicRegistration === true;
 	workspaceFolders = params.workspaceFolders ?? [];
 	catalogRegistry = CatalogRegistry.loadDefault();
-	const workspaceContextResolver = createWorkspaceContextResolver(workspaceFolders);
-	const templateResolver = new TemplateResolver(workspaceFolders);
+	// One detector behind all three: pack activation, template roots, and the
+	// project introspection milestone 10 hangs off the same context.
+	const projects = new ProjectContextResolver(workspaceFolders);
+	const workspaceContextResolver = createWorkspaceContextResolver(projects);
+	const templateResolver = new TemplateResolver(workspaceFolders, projects);
 	server = new TwigServerCore({
 		catalogRegistry,
 		getSettings,
@@ -89,6 +93,7 @@ connection.onInitialized(() => {
 				{ globPattern: '**/*.twig' },
 				{ globPattern: '**/*.html.twig' },
 				{ globPattern: '**/composer.json' },
+				{ globPattern: '**/composer.lock' },
 				{ globPattern: '**/.env' },
 			],
 		});

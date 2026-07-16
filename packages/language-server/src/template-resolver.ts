@@ -3,6 +3,7 @@ import { basename, extname, isAbsolute, relative, resolve, sep } from 'node:path
 import { CompletionItemKind, type CompletionItem, type Range } from 'vscode-languageserver/node';
 import type { WorkspaceFolder } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { ProjectContextResolver } from './project-context';
 import type { TwigToolboxSettings } from './settings';
 import { filePathToUri, isInside, uriToFilePath } from './workspace';
 
@@ -28,18 +29,17 @@ interface WorkspaceRoot {
 	readonly path: string;
 }
 
-interface RootCache {
-	readonly composerPackages: readonly string[];
-	readonly roots: readonly TemplateRoot[];
-}
-
 const TEMPLATE_EXTENSIONS = ['.twig', '.html.twig', '.html'] as const;
+
+/** Files whose contents decide where a project's templates live. */
+const INVALIDATING_FILES = new Set(['composer.json', 'composer.lock', '.env']);
 
 export class TemplateResolver {
 	private readonly workspaces: readonly WorkspaceRoot[];
-	private readonly rootCache = new Map<string, RootCache>();
+	private readonly projects: ProjectContextResolver;
+	private readonly rootCache = new Map<string, readonly TemplateRoot[]>();
 
-	constructor(workspaceFolders: readonly WorkspaceFolder[]) {
+	constructor(workspaceFolders: readonly WorkspaceFolder[], projects?: ProjectContextResolver) {
 		this.workspaces = workspaceFolders
 			.map((folder) => {
 				const path = uriToFilePath(folder.uri);
@@ -47,6 +47,7 @@ export class TemplateResolver {
 			})
 			.filter((root): root is WorkspaceRoot => root !== undefined)
 			.sort((a, b) => b.path.length - a.path.length);
+		this.projects = projects ?? new ProjectContextResolver(workspaceFolders);
 	}
 
 	getTemplateRoots(uri: string, settings: TwigToolboxSettings): readonly TemplateRoot[] {
@@ -67,7 +68,7 @@ export class TemplateResolver {
 			cached = this.detectRoots(workspace.path);
 			this.rootCache.set(workspace.path, cached);
 		}
-		return cached.roots;
+		return cached;
 	}
 
 	resolve(
@@ -156,15 +157,13 @@ export class TemplateResolver {
 	}
 
 	invalidate(uri: string): void {
+		this.projects.invalidate(uri);
 		const filePath = uriToFilePath(uri);
 		if (filePath === undefined) {
 			return;
 		}
 		for (const root of this.workspaces) {
-			if (
-				isInside(filePath, root.path) &&
-				(basename(filePath) === 'composer.json' || basename(filePath) === '.env')
-			) {
+			if (isInside(filePath, root.path) && INVALIDATING_FILES.has(basename(filePath))) {
 				this.rootCache.delete(root.path);
 			}
 		}
@@ -177,45 +176,24 @@ export class TemplateResolver {
 			: this.workspaces.find((root) => isInside(filePath, root.path));
 	}
 
-	private detectRoots(workspacePath: string): RootCache {
-		const composerPackages = readComposerPackages(workspacePath);
+	private detectRoots(workspacePath: string): readonly TemplateRoot[] {
+		const project = this.projects.forRoot(workspacePath);
 		const templatesPath = normalizePath(resolve(workspacePath, 'templates'));
-		if (composerPackages.includes('craftcms/cms')) {
-			return {
-				composerPackages,
-				roots: [
-					{
-						path: readCraftTemplatesPath(workspacePath) ?? templatesPath,
-						source: 'craft',
-					},
-				],
-			};
+		if (project.kind === 'craft') {
+			return [
+				{
+					path: readCraftTemplatesPath(workspacePath) ?? templatesPath,
+					source: 'craft',
+				},
+			];
 		}
-		if (composerPackages.includes('symfony/framework-bundle')) {
-			return { composerPackages, roots: [{ path: templatesPath, source: 'symfony' }] };
+		if (project.composerPackages.includes('symfony/framework-bundle')) {
+			return [{ path: templatesPath, source: 'symfony' }];
 		}
 		if (existsAsDirectory(templatesPath)) {
-			return { composerPackages, roots: [{ path: templatesPath, source: 'templates' }] };
+			return [{ path: templatesPath, source: 'templates' }];
 		}
-		return {
-			composerPackages,
-			roots: [{ path: normalizePath(workspacePath), source: 'workspace' }],
-		};
-	}
-}
-
-function readComposerPackages(root: string): string[] {
-	try {
-		const composer = JSON.parse(readFileSync(resolve(root, 'composer.json'), 'utf8')) as {
-			require?: Record<string, unknown>;
-			'require-dev'?: Record<string, unknown>;
-		};
-		return [
-			...Object.keys(composer.require ?? {}),
-			...Object.keys(composer['require-dev'] ?? {}),
-		];
-	} catch {
-		return [];
+		return [{ path: normalizePath(workspacePath), source: 'workspace' }];
 	}
 }
 

@@ -1,59 +1,25 @@
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { WorkspaceFolder } from 'vscode-languageserver/node';
 import type { WorkspaceCatalogContext } from './catalog';
+import { toCatalogContext, type ProjectContextResolver } from './project-context';
 
 export interface WorkspaceContextResolver {
 	resolve(uri: string): WorkspaceCatalogContext;
 }
 
+/**
+ * Dialect-pack activation, in the shape the catalog wants it.
+ *
+ * The detection itself belongs to `ProjectContextResolver` — template roots and
+ * project introspection ask the same question, and one cache answering all of
+ * them is the only way they cannot disagree.
+ */
 export function createWorkspaceContextResolver(
-	workspaceFolders: readonly WorkspaceFolder[],
+	projects: ProjectContextResolver,
 ): WorkspaceContextResolver {
-	const roots = workspaceFolders
-		.map((folder) => uriToFilePath(folder.uri))
-		.filter((path) => path !== undefined)
-		.sort((a, b) => b.length - a.length);
-
-	const packageCache = new Map<string, string[]>();
-
 	return {
-		resolve(uri) {
-			const filePath = uriToFilePath(uri);
-			const root =
-				filePath === undefined
-					? undefined
-					: roots.find((candidate) => isInside(filePath, candidate));
-			if (root === undefined) {
-				return {};
-			}
-
-			let composerPackages = packageCache.get(root);
-			if (composerPackages === undefined) {
-				composerPackages = readComposerPackages(root);
-				packageCache.set(root, composerPackages);
-			}
-
-			return { composerPackages };
-		},
+		resolve: (uri) => toCatalogContext(projects.forUri(uri)),
 	};
-}
-
-function readComposerPackages(root: string): string[] {
-	try {
-		const composerPath = resolve(root, 'composer.json');
-		const composer = JSON.parse(readFileSync(composerPath, 'utf8')) as {
-			require?: Record<string, unknown>;
-			'require-dev'?: Record<string, unknown>;
-		};
-		return [
-			...Object.keys(composer.require ?? {}),
-			...Object.keys(composer['require-dev'] ?? {}),
-		];
-	} catch {
-		return [];
-	}
 }
 
 export function uriToFilePath(uri: string): string | undefined {
