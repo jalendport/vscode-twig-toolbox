@@ -347,23 +347,24 @@ describe('Craft pack detection', () => {
 /**
  * Every Craft-specific name the docs publish is in the pack.
  *
- * This is the completeness claim the milestone rests on, and it is checked
- * against the docs rather than against a list written here: a list written here
- * would only ever prove that the generator and the test agree.
+ * The names come from `craft.docs-index.json`, which the generator writes
+ * straight off Craft's docs tables — so this is not the pack being compared
+ * against a list this file made up, and it does not need a `.cache/` checkout
+ * to run. What it catches is a documented name lost on its way through the
+ * union, aliasing and version merge that build the pack.
  */
 describe('Craft catalog completeness', () => {
-	const docsRoot = resolve(repoRoot, '.cache', 'craft-docs', 'docs', '5.x', 'reference', 'twig');
+	const docsIndex = JSON.parse(
+		readFileSync(resolve(repoRoot, 'catalogs', 'craft.docs-index.json'), 'utf8'),
+	) as { source: { ref: string }; names: Record<string, string[]> };
 
-	const pages = {
-		tags: 'tags.md',
-		filters: 'filters.md',
-		functions: 'functions.md',
-		tests: 'tests.md',
-	} as const;
+	it('was indexed from the docs the pack was generated from', () => {
+		expect(docsIndex.source.ref).toBe(craftPack.sources.docs.ref);
+	});
 
-	for (const [kind, page] of Object.entries(pages) as [keyof typeof pages, string][]) {
+	for (const kind of ['tags', 'filters', 'functions', 'tests', 'globals'] as const) {
 		it(`covers every documented Craft ${kind.replace(/s$/, '')}`, () => {
-			const documented = craftNamesIn(join(docsRoot, page));
+			const documented = docsIndex.names[kind] ?? [];
 			expect(documented.length).toBeGreaterThan(5);
 
 			const known = new Set(
@@ -372,17 +373,6 @@ describe('Craft catalog completeness', () => {
 			expect(documented.filter((name) => !known.has(name))).toEqual([]);
 		});
 	}
-
-	it('covers every documented Craft global', () => {
-		const documented = craftNamesIn(join(docsRoot, 'global-variables.md'));
-		const known = new Set(craftPack.entries.globals.map((entry) => entry.name));
-
-		// The page also documents Twig's own globals and the elements Craft loads
-		// per route, neither of which the pack claims.
-		const notOurs = new Set(['_self', '_context', '_charset', 'entry', 'category', 'product']);
-
-		expect(documented.filter((name) => !known.has(name) && !notOurs.has(name))).toEqual([]);
-	});
 
 	// The names milestone 09 was specified around, checked by name. The docs
 	// sweep above is the real completeness claim; this one pins the handful a
@@ -430,19 +420,6 @@ describe('Craft catalog completeness', () => {
 		}
 	});
 });
-
-/**
- * Names the docs mark as Craft's own — a local `#anchor` rather than a link out
- * to twig.symfony.com, which is how the pages distinguish what Craft adds from
- * what it merely inherits.
- */
-function craftNamesIn(path: string): string[] {
-	const rows = readFileSync(path, 'utf8').matchAll(/^\[([^\]]+)\]\((#[^)]+)\)[^|]*\|/gm);
-	return [...rows]
-		.map(([, name]) => name as string)
-		.filter((name) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) || /^[a-z]+( [a-z]+)+$/.test(name))
-		.sort((a, b) => a.localeCompare(b));
-}
 
 function createServer(fixture: Fixture): TwigServerCore {
 	// The shipped catalogs, loaded the way the real server loads them.

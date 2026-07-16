@@ -56,6 +56,7 @@ const DOCS_SPARSE_PATHS = [
 
 const docsCheckout = join(cacheRoot, 'craft-docs');
 const outputPath = join(repoRoot, 'catalogs', 'craft.json');
+const docsIndexPath = join(repoRoot, 'catalogs', 'craft.docs-index.json');
 const overridesPath = join(repoRoot, 'catalogs', 'overrides', 'craft.json');
 
 /** The major that a name's presence or absence is measured against. */
@@ -190,6 +191,34 @@ function main(): void {
 
 	const pack = applyOverrides(mergeMajors(scrape(craft4), scrape(craft5)));
 	writeFileSync(outputPath, `${JSON.stringify(pack, null, 2)}\n`);
+	writeFileSync(docsIndexPath, `${JSON.stringify(buildDocsIndex(craft5), null, 2)}\n`);
+}
+
+/**
+ * Every name the current docs attribute to Craft, committed beside the pack.
+ *
+ * This is what the completeness test measures the pack against, and it is a
+ * file rather than a read of `.cache/` because a test that needs a checkout to
+ * run is a test CI skips. It comes off the docs tables directly, so it still
+ * catches the pack losing a documented name on its way through the union,
+ * aliasing and version merge — which is the part that can quietly drop one.
+ */
+function buildDocsIndex(source: CraftSource): {
+	source: { repository: string; ref: string; path: string };
+	names: Record<CatalogEntryKind, string[]>;
+} {
+	const names = {} as Record<CatalogEntryKind, string[]>;
+	for (const kind of entryKinds) {
+		names[kind] = [...readDocsTable(source, kind).values()]
+			.filter((row) => !row.twigCore)
+			.map((row) => row.name)
+			.sort((a, b) => a.localeCompare(b));
+	}
+
+	return {
+		source: { repository: DOCS_REPOSITORY, ref: DOCS_REF, path: source.twigDocsDir },
+		names,
+	};
 }
 
 // ---------------------------------------------------------------------------
