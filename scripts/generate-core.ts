@@ -9,6 +9,14 @@ import type {
 	CatalogParameter,
 	DialectPack,
 } from '../packages/language-server/src/catalog';
+import {
+	buildSignature,
+	deepMerge,
+	normalizeType,
+	parsePhpParameters,
+	pruneUndefined,
+	type PhpParameter,
+} from './lib/php';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cacheRoot = join(repoRoot, '.cache');
@@ -32,13 +40,6 @@ type SourceEntry = Partial<CatalogEntry> & Pick<CatalogEntry, 'name'>;
 type OverrideCatalog = {
 	entries?: Partial<Record<CatalogEntryKind, SourceEntry[]>>;
 };
-
-interface PhpParameter {
-	name: string;
-	type?: string;
-	optional: boolean;
-	default?: string;
-}
 
 interface DocumentationEntry {
 	name: string;
@@ -356,35 +357,6 @@ function readSyntheticParameters(
 	return [];
 }
 
-function parsePhpParameters(parameterSource: string): PhpParameter[] {
-	if (!parameterSource.trim()) {
-		return [];
-	}
-
-	return splitTopLevel(parameterSource, ',').map((rawParameter) => {
-		const source = rawParameter.trim();
-		const [leftSide, defaultValue] = splitTopLevel(source, '=') as [string, string?];
-		const name = leftSide.match(/\$([A-Za-z_][A-Za-z0-9_]*)/)?.[1];
-
-		if (!name) {
-			throw new Error(`Unable to parse PHP parameter: ${source}`);
-		}
-
-		const type = leftSide
-			.replace(/=.*$/, '')
-			.replace(/&?\s*\.\.\.\s*/, '')
-			.replace(new RegExp(`\\$${name}\\b`), '')
-			.trim();
-
-		return pruneUndefined({
-			name,
-			type: type || undefined,
-			optional: defaultValue !== undefined,
-			default: defaultValue?.trim(),
-		});
-	});
-}
-
 function stripHiddenParameters(parameters: PhpParameter[], options: string): PhpParameter[] {
 	const stripped = [...parameters];
 	const hiddenOptions = [
@@ -570,21 +542,6 @@ function mergeParameters(
 	});
 }
 
-function buildSignature(name: string, parameters: CatalogParameter[]): string {
-	if (parameters.length === 0) {
-		return name;
-	}
-
-	return `${name}(${parameters
-		.map((parameter) => {
-			const defaultValue = parameter.default ? ` = ${parameter.default}` : '';
-			return parameter.optional
-				? `${parameter.name}?${defaultValue}`
-				: `${parameter.name}${defaultValue}`;
-		})
-		.join(', ')})`;
-}
-
 function buildCompletionSnippet(
 	kind: Exclude<CatalogEntryKind, 'globals'>,
 	name: string,
@@ -637,30 +594,6 @@ function applyOverrides(pack: DialectPack): DialectPack {
 	return pack;
 }
 
-function deepMerge<T extends Record<string, unknown>>(base: T, override: Partial<T>): T {
-	const merged: Record<string, unknown> = { ...base };
-
-	for (const [key, value] of Object.entries(override)) {
-		if (
-			value &&
-			!Array.isArray(value) &&
-			typeof value === 'object' &&
-			base[key] &&
-			!Array.isArray(base[key]) &&
-			typeof base[key] === 'object'
-		) {
-			merged[key] = deepMerge(
-				base[key] as Record<string, unknown>,
-				value as Record<string, unknown>,
-			);
-		} else if (value !== undefined) {
-			merged[key] = value;
-		}
-	}
-
-	return merged as T;
-}
-
 function createEntryMaps<T>(): Record<CatalogEntryKind, Map<string, T>> {
 	return {
 		tags: new Map(),
@@ -671,66 +604,12 @@ function createEntryMaps<T>(): Record<CatalogEntryKind, Map<string, T>> {
 	};
 }
 
-function splitTopLevel(source: string, separator: string): string[] {
-	const parts: string[] = [];
-	let current = '';
-	let depth = 0;
-	let quote: string | undefined;
-
-	for (const character of source) {
-		if (quote) {
-			current += character;
-			if (character === quote) {
-				quote = undefined;
-			}
-			continue;
-		}
-
-		if (character === '"' || character === "'") {
-			quote = character;
-			current += character;
-			continue;
-		}
-
-		if (character === '[' || character === '(') {
-			depth += 1;
-		}
-
-		if (character === ']' || character === ')') {
-			depth -= 1;
-		}
-
-		if (character === separator && depth === 0) {
-			parts.push(current.trim());
-			current = '';
-			continue;
-		}
-
-		current += character;
-	}
-
-	parts.push(current.trim());
-	return parts;
-}
-
 function normalizeRst(source: string): string {
 	return source
 		.replace(/``([^`]+)``/g, '`$1`')
 		.replace(/:doc:`([^`<]+)\s*<[^`]+>`/g, '$1')
 		.replace(/:ref:`([^`]+)`/g, '$1')
 		.replace(/`([^`]+)`_/g, '$1')
-		.replace(/\s+/g, ' ')
-		.trim();
-}
-
-function normalizeType(type: string | undefined): string | undefined {
-	if (!type) {
-		return undefined;
-	}
-
-	return type
-		.replace(/^\\/, '')
-		.replace(/\\([A-Za-z]+)/g, '$1')
 		.replace(/\s+/g, ' ')
 		.trim();
 }
@@ -753,10 +632,4 @@ function extensionForParser(className: string): string {
 	}
 
 	return 'CoreExtension';
-}
-
-function pruneUndefined<T extends Record<string, unknown>>(value: T): T {
-	return Object.fromEntries(
-		Object.entries(value).filter(([, propertyValue]) => propertyValue !== undefined),
-	) as T;
 }
