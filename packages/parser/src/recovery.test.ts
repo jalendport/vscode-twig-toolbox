@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { ParseErrorCode } from './errors';
+import { nodeAt } from './navigation';
 import { parse } from './parser';
+
+/** Type of the innermost node at the `‸` cursor marker in `source`. */
+function nodeTypeAtCursor(source: string): string | undefined {
+	const offset = source.indexOf('‸');
+	const result = parse(source.slice(0, offset) + source.slice(offset + 1));
+	return nodeAt(result.template, offset)?.type;
+}
 
 function codes(source: string): ParseErrorCode[] {
 	return parse(source).errors.map((error) => error.code);
@@ -80,6 +88,33 @@ describe('incomplete filter', () => {
 			type: 'FilterExpression',
 			name: { name: 'upper' },
 		});
+	});
+});
+
+// A node whose name is missing has to span the hole where that name goes,
+// because that hole is exactly where the cursor sits while the name is typed.
+// Stopping at the last real token drops the cursor out of the node and leaves
+// the offset resolving to some useless ancestor.
+describe('holes left by missing names', () => {
+	it('spans the hole after `.`, `|` and `is`', () => {
+		expect(nodeTypeAtCursor('{{ user. ‸}}')).toBe('MemberAccess');
+		expect(nodeTypeAtCursor('{{ name | ‸}}')).toBe('FilterExpression');
+		expect(nodeTypeAtCursor('{% if x is ‸%}{% endif %}')).toBe('TestExpression');
+		expect(nodeTypeAtCursor('{% if x is not ‸%}{% endif %}')).toBe('TestExpression');
+	});
+
+	it('spans the hole after `{%` when the tag name is missing', () => {
+		expect(nodeTypeAtCursor('{% ‸%}')).toBe('GenericTag');
+		expect(nodeTypeAtCursor('{% ‸')).toBe('GenericTag');
+	});
+
+	it('stops the hole at the next token rather than swallowing it', () => {
+		const result = parse('{{ user. }}');
+		const output = result.template.body[0];
+		if (output?.type !== 'Output') throw new Error('expected Output');
+		// The `}}` at 9 is not part of the access; the hole is the gap before it.
+		expect(output.expression).toMatchObject({ type: 'MemberAccess', end: 9 });
+		expect(ranges('{{ user. }}')).toEqual(['missing-property@8-8']);
 	});
 });
 

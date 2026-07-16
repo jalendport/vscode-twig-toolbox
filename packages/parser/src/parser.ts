@@ -198,7 +198,9 @@ class Parser extends ExpressionParser {
 		const nameToken = this.accept('name');
 		if (nameToken === undefined) {
 			this.missing('missing-tag-name', 'Expected a tag name after "{%".', open.end);
-			const end = this.expectRegionEnd('block-end') ?? this.previousEnd();
+			// `{% ` — the hole where the name belongs is the whole point of this
+			// node; stopping at `{%` would leave the cursor outside the tree.
+			const end = this.expectRegionEnd('block-end') ?? this.holeEnd(this.previousEnd());
 			return {
 				type: 'GenericTag',
 				name: '',

@@ -290,6 +290,16 @@ export class ExpressionParser {
 		return previous?.end ?? 0;
 	}
 
+	/**
+	 * End offset for a node whose expected element is missing, stretching over
+	 * the hole to the next token. `{{ name | }}` must stay a `FilterExpression`
+	 * covering offset 9, not stop at the `|` — a cursor resting in the hole is
+	 * exactly where completions get asked what belongs there.
+	 */
+	protected holeEnd(from: number): number {
+		return Math.max(from, this.current.start);
+	}
+
 	private parsePrimary(): Expression | undefined {
 		const token = this.current;
 
@@ -610,7 +620,7 @@ export class ExpressionParser {
 			property: undefined,
 			computed: false,
 			start: object.start,
-			end: dot.end,
+			end: this.holeEnd(dot.end),
 		};
 	}
 
@@ -678,7 +688,7 @@ export class ExpressionParser {
 				name: undefined,
 				args: [],
 				start: target.start,
-				end: pipe.end,
+				end: this.holeEnd(pipe.end),
 			};
 		}
 		const name: Identifier = {
@@ -717,7 +727,7 @@ export class ExpressionParser {
 				name: undefined,
 				args: [],
 				start: target.start,
-				end: operatorRange.end,
+				end: this.holeEnd(operatorRange.end),
 			};
 		}
 
