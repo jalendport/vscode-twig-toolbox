@@ -87,7 +87,10 @@ export class CatalogRegistry {
 	}
 
 	static loadDefault(): CatalogRegistry {
-		const catalogPath = resolveDefaultCatalogPath();
+		const catalogPath = resolveCatalogPath(
+			typeof __dirname === 'string' ? __dirname : undefined,
+			process.cwd(),
+		);
 		if (!catalogPath) {
 			return new CatalogRegistry([]);
 		}
@@ -145,13 +148,27 @@ function createEmptyEntryMap(): CatalogEntryMap {
 	};
 }
 
-function resolveDefaultCatalogPath(): string | undefined {
+/**
+ * Where the shipped `twig-core.json` lives.
+ *
+ * `moduleDir` is tried before `cwd` because it is the only anchor that holds up
+ * in a real install: the server runs as a child of the extension host, whose
+ * working directory belongs to VS Code, not to the extension. The `cwd`
+ * candidates are for running out of the repo — tests and `tsx`.
+ *
+ * Exported for tests: the layout that matters is the packaged one, which no
+ * in-repo run reproduces.
+ */
+export function resolveCatalogPath(moduleDir: string | undefined, cwd: string): string | undefined {
 	const candidates = [
 		process.env.TWIG_TOOLBOX_CATALOG_ROOT
 			? resolve(process.env.TWIG_TOOLBOX_CATALOG_ROOT, 'twig-core.json')
 			: undefined,
-		resolve(process.cwd(), 'catalogs', 'twig-core.json'),
-		resolve(process.cwd(), 'packages', 'extension', 'catalogs', 'twig-core.json'),
+		// The packaged layout: dist/server.js next to catalogs/twig-core.json.
+		moduleDir ? resolve(moduleDir, '..', 'catalogs', 'twig-core.json') : undefined,
+		moduleDir ? resolve(moduleDir, 'catalogs', 'twig-core.json') : undefined,
+		resolve(cwd, 'catalogs', 'twig-core.json'),
+		resolve(cwd, 'packages', 'extension', 'catalogs', 'twig-core.json'),
 	].filter((path) => path !== undefined);
 
 	return candidates.find((path) => existsSync(path));

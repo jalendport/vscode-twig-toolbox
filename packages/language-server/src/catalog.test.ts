@@ -1,11 +1,12 @@
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import Ajv2020 from 'ajv/dist/2020';
 import { describe, expect, it } from 'vitest';
 
-import { CatalogRegistry, type DialectPack } from './catalog';
+import { CatalogRegistry, resolveCatalogPath, type DialectPack } from './catalog';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const schema = JSON.parse(
@@ -176,6 +177,39 @@ describe('Twig catalog pack', () => {
 				expect(entry.completionSnippet.length).toBeGreaterThan(0);
 			}
 		}
+	});
+});
+
+describe('resolveCatalogPath', () => {
+	/** The packaged extension: `dist/server.js` beside `catalogs/`. */
+	function createInstall(): { moduleDir: string; catalog: string } {
+		const root = mkdtempSync(join(tmpdir(), 'twig-toolbox-'));
+		const moduleDir = join(root, 'dist');
+		mkdirSync(moduleDir);
+		mkdirSync(join(root, 'catalogs'));
+		const catalog = join(root, 'catalogs', 'twig-core.json');
+		writeFileSync(catalog, '{}');
+		return { moduleDir, catalog };
+	}
+
+	// The server is a child of the extension host, so its working directory is
+	// VS Code's. Resolving the catalog from `cwd` alone finds nothing at all in
+	// an installed extension, and every completion comes up empty.
+	it('finds the packaged catalog from the module, whatever the cwd is', () => {
+		const { moduleDir, catalog } = createInstall();
+		expect(resolveCatalogPath(moduleDir, tmpdir())).toBe(catalog);
+	});
+
+	it('falls back to the working directory when running from the repo', () => {
+		expect(resolveCatalogPath(undefined, repoRoot)).toBe(
+			resolve(repoRoot, 'catalogs', 'twig-core.json'),
+		);
+	});
+
+	it('gives up rather than guessing when there is no catalog anywhere', () => {
+		expect(
+			resolveCatalogPath(join(tmpdir(), 'nope', 'dist'), join(tmpdir(), 'nope')),
+		).toBeUndefined();
 	});
 });
 
