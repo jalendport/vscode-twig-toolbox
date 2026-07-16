@@ -23,8 +23,11 @@
 			"minLength": 1
 		},
 		"sources": {
+			"description": "Pinned checkouts the pack was generated from. Packs spanning several major versions of their subject may name extra refs (e.g. twigPrevious).",
 			"type": "object",
-			"additionalProperties": false,
+			"additionalProperties": {
+				"$ref": "#/$defs/sourceRef"
+			},
 			"required": ["twig", "docs"],
 			"properties": {
 				"twig": {
@@ -62,6 +65,11 @@
 								"type": "string",
 								"minLength": 1
 							}
+						},
+						"versionFrom": {
+							"description": "Package whose installed version gates this pack's sinceVersion/removedVersion.",
+							"type": "string",
+							"minLength": 1
 						}
 					}
 				}
@@ -87,6 +95,13 @@
 				"globals": {
 					"$ref": "#/$defs/entryArray"
 				}
+			}
+		},
+		"objects": {
+			"description": "Dotted API surfaces: a global's object type, and the types its members yield.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/object"
 			}
 		}
 	},
@@ -139,6 +154,11 @@
 						"minLength": 1
 					}
 				},
+				"objectType": {
+					"description": "For globals: the objects[] entry describing what dotting into this yields.",
+					"type": "string",
+					"minLength": 1
+				},
 				"signature": {
 					"type": "string",
 					"minLength": 1
@@ -161,42 +181,146 @@
 					"type": "string",
 					"minLength": 1
 				},
+				"removedVersion": {
+					"description": "First version without this item — exclusive, so \"5.0.0\" means gone in 5.",
+					"type": "string",
+					"minLength": 1
+				},
 				"deprecated": {
-					"type": "object",
-					"additionalProperties": false,
-					"required": ["sinceVersion"],
-					"properties": {
-						"sinceVersion": {
-							"type": "string",
-							"minLength": 1
-						},
-						"message": {
-							"type": "string",
-							"minLength": 1
-						}
-					}
+					"$ref": "#/$defs/deprecation"
 				},
 				"completionSnippet": {
 					"type": "string",
 					"minLength": 1
 				},
 				"source": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"extension": {
-							"type": "string",
-							"minLength": 1
-						},
-						"phpClass": {
-							"type": "string",
-							"minLength": 1
-						},
-						"docsPath": {
-							"type": "string",
-							"minLength": 1
-						}
+					"$ref": "#/$defs/source"
+				}
+			}
+		},
+		"deprecation": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["sinceVersion"],
+			"properties": {
+				"sinceVersion": {
+					"type": "string",
+					"minLength": 1
+				},
+				"message": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		},
+		"source": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"extension": {
+					"type": "string",
+					"minLength": 1
+				},
+				"phpClass": {
+					"type": "string",
+					"minLength": 1
+				},
+				"docsPath": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		},
+		"object": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["name", "description", "docsUrl", "members"],
+			"properties": {
+				"name": {
+					"type": "string",
+					"minLength": 1
+				},
+				"extends": {
+					"description": "Object whose members this one also has.",
+					"type": "string",
+					"minLength": 1
+				},
+				"description": {
+					"type": "string",
+					"minLength": 8
+				},
+				"docsUrl": {
+					"type": "string",
+					"format": "uri"
+				},
+				"members": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/member"
 					}
+				}
+			}
+		},
+		"member": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"name",
+				"kind",
+				"signature",
+				"parameters",
+				"description",
+				"docsUrl",
+				"completionSnippet"
+			],
+			"properties": {
+				"name": {
+					"type": "string",
+					"minLength": 1
+				},
+				"kind": {
+					"enum": ["property", "method"]
+				},
+				"type": {
+					"description": "Object this member evaluates to. Absent when the chain ends here.",
+					"type": "string",
+					"minLength": 1
+				},
+				"signature": {
+					"type": "string",
+					"minLength": 1
+				},
+				"parameters": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/parameter"
+					}
+				},
+				"description": {
+					"type": "string",
+					"minLength": 8
+				},
+				"docsUrl": {
+					"type": "string",
+					"format": "uri"
+				},
+				"sinceVersion": {
+					"type": "string",
+					"minLength": 1
+				},
+				"removedVersion": {
+					"type": "string",
+					"minLength": 1
+				},
+				"deprecated": {
+					"$ref": "#/$defs/deprecation"
+				},
+				"completionSnippet": {
+					"type": "string",
+					"minLength": 1
+				},
+				"source": {
+					"$ref": "#/$defs/source"
 				}
 			}
 		},
