@@ -82,7 +82,11 @@ export function getCompletions(
 		return [];
 	}
 
-	const entries = options.catalogRegistry.getMergedEntries(parsed.workspaceContext);
+	// Version-gated: a Craft 5 filter is not an option in a Craft 4 project.
+	// Hover and signature help deliberately do not gate — see `getMergedEntries`.
+	const entries = options.catalogRegistry.getMergedEntries(parsed.workspaceContext, {
+		availableOnly: true,
+	});
 	const symbols =
 		options.symbolResolver?.collect(parsed) ??
 		collectSymbols(
@@ -282,7 +286,12 @@ function memberItems(
 		document: parsed,
 		offset,
 	});
-	return members.map((member) => memberItem(member, range));
+	// Members the project's version does not have are still hoverable, but
+	// offering `craft.matrixBlocks` in a Craft 5 project would be offering a
+	// template that cannot render.
+	return members
+		.filter((member) => member.available !== false)
+		.map((member) => memberItem(member, range));
 }
 
 function memberItem(member: MemberCompletion, range: Range): CompletionItem {

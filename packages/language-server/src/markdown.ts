@@ -24,9 +24,7 @@ export function catalogMarkdown(entry: CatalogEntryWithProvenance): string {
 		parts.push(parameterTable(entry.parameters));
 	}
 	parts.push(`**Source:** ${entry.pack.displayName}`);
-	if (entry.sinceVersion !== undefined) {
-		parts.push(`Available since ${entry.pack.displayName} ${entry.sinceVersion}.`);
-	}
+	parts.push(...availabilityNotes(entry.pack.displayName, entry));
 	parts.push(`[Documentation ↗](${entry.docsUrl})`);
 	return parts.join('\n\n');
 }
@@ -37,15 +35,53 @@ export function catalogMarkup(entry: CatalogEntryWithProvenance): MarkupContent 
 
 export function memberMarkdown(member: MemberCompletion): string {
 	const parts = [
-		codeBlock(member.detail === undefined ? member.name : `${member.name}: ${member.detail}`),
+		codeBlock(
+			member.signature ??
+				(member.detail === undefined ? member.name : `${member.name}: ${member.detail}`),
+		),
 	];
+	if (member.deprecated !== undefined) {
+		const detail = member.deprecated.message ?? '';
+		parts.push(
+			`**Deprecated** since ${member.deprecated.sinceVersion}.${detail === '' ? '' : ` ${detail}`}`,
+		);
+	}
 	if (member.documentation !== undefined) {
 		parts.push(member.documentation);
+	}
+	if (member.parameters !== undefined && member.parameters.length > 0) {
+		parts.push(parameterTable(member.parameters));
 	}
 	if (member.source !== undefined) {
 		parts.push(`**Source:** ${member.source}`);
 	}
+	parts.push(...availabilityNotes(member.source, member));
+	if (member.docsUrl !== undefined) {
+		parts.push(`[Documentation ↗](${member.docsUrl})`);
+	}
 	return parts.join('\n\n');
+}
+
+/**
+ * Why a name that exists is not on offer here.
+ *
+ * Hover reaches items completion filtered out, and this is the line that earns
+ * that: someone reading `craft.matrixBlocks` in a Craft 5 project has a broken
+ * template and a question, and "Removed in CraftCMS 5.0.0" is the answer.
+ */
+function availabilityNotes(
+	subject: string | undefined,
+	item: { sinceVersion?: string; removedVersion?: string },
+): string[] {
+	const name = subject ?? 'this pack';
+	const notes: string[] = [];
+	if (item.sinceVersion !== undefined) {
+		notes.push(`Available since ${name} ${item.sinceVersion}.`);
+	}
+	if (item.removedVersion !== undefined) {
+		notes.push(`Removed in ${name} ${item.removedVersion}.`);
+	}
+	return notes;
 }
 
 export function symbolMarkdown(symbol: TwigSymbol, source: string): string {

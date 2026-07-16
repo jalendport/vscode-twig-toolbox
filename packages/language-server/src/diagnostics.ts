@@ -29,7 +29,11 @@ export function getDiagnostics(
 	catalogRegistry: CatalogRegistry,
 	templateResolver?: TemplateResolver,
 ): Diagnostic[] {
-	const entries = catalogRegistry.getMergedEntries(parsed.workspaceContext);
+	// Gated: a name this project's Craft does not have is exactly the kind of
+	// unknown name the check exists to report.
+	const entries = catalogRegistry.getMergedEntries(parsed.workspaceContext, {
+		availableOnly: true,
+	});
 	return [
 		...parsed.result.errors.map((error) => parseErrorToDiagnostic(error, parsed)),
 		...getUnknownNameDiagnostics(parsed, settings, entries),

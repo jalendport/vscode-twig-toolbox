@@ -1,4 +1,5 @@
 import type { Expression } from '@twig-toolbox/parser';
+import type { CatalogParameter } from './catalog';
 import type { ParsedDocument } from './document-store';
 import type { MacroDefinition, SymbolTable, TwigSymbol } from './symbols';
 
@@ -27,6 +28,23 @@ export interface MemberCompletion {
 	/** Snippet body; defaults to the plain name. */
 	readonly insertText?: string;
 	readonly macro?: MacroDefinition;
+	/**
+	 * False for a member the project's version does not have. Providers flag
+	 * rather than drop these: completion hides them, but hover still explains
+	 * the name — which is the whole answer someone reading `craft.matrixBlocks`
+	 * in a Craft 5 project needs.
+	 */
+	readonly available?: boolean;
+	/** Callable members: the label and parameters signature help reads. */
+	readonly signature?: string;
+	readonly parameters?: readonly CatalogParameter[];
+	readonly sinceVersion?: string;
+	readonly removedVersion?: string;
+	readonly docsUrl?: string;
+	readonly deprecated?: {
+		readonly sinceVersion: string;
+		readonly message?: string;
+	};
 }
 
 export interface MemberContext {

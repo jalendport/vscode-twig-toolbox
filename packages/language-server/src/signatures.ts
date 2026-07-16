@@ -11,9 +11,15 @@ import {
 	localMacroMarkdown,
 	localParameterMarkdown,
 	markdown,
+	memberMarkdown,
 	type LocalParameter,
 } from './markdown';
-import { BUILTIN_MEMBER_PROVIDERS, provideMembers, type MemberProvider } from './members';
+import {
+	BUILTIN_MEMBER_PROVIDERS,
+	provideMembers,
+	type MemberCompletion,
+	type MemberProvider,
+} from './members';
 import { findRegions, regionAt, type TwigRegion } from './regions';
 import { collectSymbols, type MacroDefinition, type SymbolTable } from './symbols';
 import type { TemplateSymbolResolver } from './template-symbols';
@@ -34,6 +40,11 @@ type SignatureTarget =
 			readonly kind: 'macro';
 			readonly macro: MacroDefinition;
 			readonly source: string;
+			readonly argOpen: Token;
+	  }
+	| {
+			readonly kind: 'member';
+			readonly member: MemberCompletion;
 			readonly argOpen: Token;
 	  };
 
@@ -108,6 +119,11 @@ function signatureTarget(
 					return { kind: 'catalog', entry, argOpen };
 				}
 			}
+			// `craft.entries.section(‸` — a method on a catalog object.
+			const member = memberForCall(node.callee, symbols, offset, parsed, options);
+			if (member?.signature !== undefined) {
+				return { kind: 'member', member, argOpen };
+			}
 		}
 
 		if (node?.type === 'FilterExpression' && node.name !== undefined) {
@@ -181,14 +197,7 @@ function macroForCall(
 		};
 	}
 
-	const members = provideMembers(options.memberProviders ?? BUILTIN_MEMBER_PROVIDERS, {
-		object: callee.object,
-		symbol: namespace,
-		symbols,
-		document: parsed,
-		offset,
-	});
-	const member = members.find((candidate) => candidate.name === property.name);
+	const member = memberForCall(callee, symbols, offset, parsed, options);
 	if (member?.macro !== undefined) {
 		return { macro: member.macro, source: namespace?.definitionSource ?? parsed.result.source };
 	}
@@ -199,7 +208,50 @@ function macroForCall(
 	return macro === undefined ? undefined : { macro, source: parsed.result.source };
 }
 
+/** Whatever a provider knows about `a.b` in `a.b(‸)`. */
+function memberForCall(
+	callee: Extract<AnyNode, { type: 'CallExpression' }>['callee'],
+	symbols: SymbolTable,
+	offset: number,
+	parsed: ParsedDocument,
+	options: SignatureOptions,
+): MemberCompletion | undefined {
+	if (
+		callee.type !== 'MemberAccess' ||
+		callee.computed ||
+		callee.property?.type !== 'Identifier'
+	) {
+		return undefined;
+	}
+	const property = callee.property;
+	const members = provideMembers(options.memberProviders ?? BUILTIN_MEMBER_PROVIDERS, {
+		object: callee.object,
+		symbol:
+			callee.object.type === 'Identifier'
+				? symbols.resolve(callee.object.name, offset)
+				: undefined,
+		symbols,
+		document: parsed,
+		offset,
+	});
+	return members.find((candidate) => candidate.name === property.name);
+}
+
 function signatureInformation(target: SignatureTarget): SignatureInformation {
+	if (target.kind === 'member') {
+		const signature = target.member.signature ?? target.member.name;
+		return {
+			label: signature,
+			documentation: markdown(memberMarkdown(target.member)),
+			parameters: (target.member.parameters ?? []).map((parameter) => ({
+				label: parameterLabel(signature, parameter.name),
+				...(parameter.description === undefined
+					? {}
+					: { documentation: markdown(parameter.description) }),
+			})),
+		};
+	}
+
 	if (target.kind === 'catalog') {
 		return {
 			label: target.entry.signature,
@@ -278,7 +330,11 @@ function activeParameterAt(region: TwigRegion, argOpen: Token, offset: number): 
 
 function clampActiveParameter(activeParameter: number, target: SignatureTarget): number {
 	const count =
-		target.kind === 'catalog' ? target.entry.parameters.length : target.macro.params.length;
+		target.kind === 'catalog'
+			? target.entry.parameters.length
+			: target.kind === 'member'
+				? (target.member.parameters?.length ?? 0)
+				: target.macro.params.length;
 	return count === 0 ? 0 : Math.min(activeParameter, count - 1);
 }
 

@@ -15,6 +15,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { TWIG_VERSION } from '@twig-toolbox/parser';
 import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
+import { createCraftMemberProvider } from './craft-members';
+import { BUILTIN_MEMBER_PROVIDERS } from './members';
 import { ProjectContextResolver } from './project-context';
 import { DEFAULT_SETTINGS, normalizeSettings, type TwigToolboxSettings } from './settings';
 import { createWorkspaceContextResolver } from './workspace';
@@ -49,6 +51,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		},
 		resolveWorkspaceContext: (uri) => workspaceContextResolver.resolve(uri),
 		templateResolver,
+		memberProviders: [...BUILTIN_MEMBER_PROVIDERS, createCraftMemberProvider(catalogRegistry)],
 	});
 
 	connection.console.info(`Twig Toolbox language server starting (client: ${client})`);
