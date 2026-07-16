@@ -3,6 +3,9 @@ dist
 *.vsix
 .plan
 
+# Generated catalog output (byte-determinism owned by scripts/generate-core.ts).
+catalogs/twig-core.json
+
 # Grammar + language config are hand-maintained (milestone 01 owns their formatting).
 syntaxes/twig.tmLanguage.json
 language-configuration.json
