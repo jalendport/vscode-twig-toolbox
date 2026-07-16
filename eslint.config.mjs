@@ -8,6 +8,7 @@ export default tseslint.config(
 		ignores: [
 			'**/dist/**',
 			'**/node_modules/**',
+			'**/.vscode-test/**',
 			'**/*.vsix',
 			'packages/extension/syntaxes/**',
 			'packages/extension/language-configuration.json',
@@ -34,10 +35,13 @@ export default tseslint.config(
 		},
 	},
 	{
-		files: ['scripts/**/*.mjs', '*.mjs'],
+		files: ['scripts/**/*.mjs', '*.mjs', 'tests/electron/**/*.mjs', 'tests/electron/**/*.cjs'],
 		extends: [tseslint.configs.disableTypeChecked],
 		languageOptions: {
 			globals: globals.node,
+		},
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off',
 		},
 	},
 );

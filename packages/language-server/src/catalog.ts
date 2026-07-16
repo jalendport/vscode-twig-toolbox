@@ -115,14 +115,18 @@ export class CatalogRegistry {
 		for (const pack of this.getActivePacks(context)) {
 			for (const kind of entryKinds) {
 				for (const entry of pack.entries[kind]) {
-					merged[kind].set(entry.name, {
+					const entryWithProvenance = {
 						...entry,
 						pack: {
 							name: pack.name,
 							displayName: pack.displayName,
 							version: pack.version,
 						},
-					});
+					};
+					merged[kind].set(entry.name, entryWithProvenance);
+					for (const alias of entry.aliases ?? []) {
+						merged[kind].set(alias, entryWithProvenance);
+					}
 				}
 			}
 		}

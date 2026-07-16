@@ -66,6 +66,27 @@
 					],
 					"default": "off",
 					"description": "Traces the communication between VS Code and the Twig Toolbox language server."
+				},
+				"twigToolbox.diagnostics.unknownNames": {
+					"scope": "resource",
+					"type": "string",
+					"enum": [
+						"off",
+						"hint",
+						"warning",
+						"error"
+					],
+					"default": "off",
+					"description": "Controls diagnostics for unknown Twig tag, filter, function, and test names."
+				},
+				"twigToolbox.diagnostics.ignoredNames": {
+					"scope": "resource",
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"description": "Twig tag, filter, function, and test names ignored by unknown-name diagnostics."
 				}
 			}
 		}

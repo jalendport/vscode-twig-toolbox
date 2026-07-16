@@ -215,6 +215,14 @@ describe('CatalogRegistry', () => {
 		expect(entries.functions.get('craft')?.pack.displayName).toBe('CraftCMS');
 		expect(entries.functions.get('include')?.pack.displayName).toBe('Twig');
 	});
+
+	it('indexes aliases as the same catalog entry', () => {
+		const registry = CatalogRegistry.fromPacks([corePack]);
+		const entries = registry.getMergedEntries();
+
+		expect(entries.filters.get('e')?.name).toBe('escape');
+		expect(entries.filters.get('e')?.pack.displayName).toBe('Twig');
+	});
 });
 
 function createPack(name: string, displayName: string, detect: DialectPack['detect']): DialectPack {
