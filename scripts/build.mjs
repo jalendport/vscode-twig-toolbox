@@ -15,6 +15,12 @@ const shared = {
 	minify: production,
 	// Provided by the VS Code extension host, never bundled.
 	external: ['vscode'],
+	// `vscode-html-languageservice` and `vscode-css-languageservice` point
+	// `main` at a UMD build whose inner `require('./parser/cssParser')` calls
+	// esbuild cannot follow — it bundles, then throws on load. Their `module`
+	// builds are plain ESM and bundle correctly. VS Code's own
+	// html-language-features resolves them the same way.
+	mainFields: ['module', 'main'],
 	logLevel: 'info',
 };
 
