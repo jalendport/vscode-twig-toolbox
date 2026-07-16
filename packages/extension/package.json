@@ -87,7 +87,24 @@
 					},
 					"default": [],
 					"description": "Twig tag, filter, function, and test names ignored by unknown-name diagnostics."
+				},
+				"twigToolbox.autoClosingTags": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically closes HTML tags in Twig files."
+				},
+				"twigToolbox.autoCreateQuotes": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically adds quotes after typing '=' in an HTML attribute in Twig files."
 				}
+			}
+		},
+		"configurationDefaults": {
+			"emmet.includeLanguages": {
+				"twig": "html"
 			}
 		}
 	},

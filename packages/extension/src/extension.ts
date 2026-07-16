@@ -6,6 +6,7 @@ import {
 	type LanguageClientOptions,
 	type ServerOptions,
 } from 'vscode-languageclient/node';
+import { registerAutoInsert } from './auto-insert';
 
 let client: LanguageClient | undefined;
 
@@ -30,6 +31,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	context.subscriptions.push(client);
 
 	await client.start();
+	context.subscriptions.push(registerAutoInsert(client));
 }
 
 export async function deactivate(): Promise<void> {
