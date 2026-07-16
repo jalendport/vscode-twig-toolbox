@@ -172,10 +172,12 @@ function tagItems(
 		return endItems;
 	}
 
-	const tagItems = [...new Set(entries.tags.values())].map((entry) =>
+	// Tags are offered under their canonical name only: an alias has no snippet
+	// of its own to insert.
+	const catalogTags = [...new Set(entries.tags.values())].map((entry) =>
 		item(entry.name, entry.completionSnippet, RANK.catalog, describe(entry, 'tags')),
 	);
-	return [...endItems, ...tagItems];
+	return [...endItems, ...catalogTags];
 }
 
 /**

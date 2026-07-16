@@ -247,10 +247,11 @@ function classifyExpression(
 	region: TwigRegion,
 	offset: number,
 ): CompletionContext | undefined {
+	const replace = wordSlot(region, offset);
+
 	for (let at = path.length - 1; at >= 0; at--) {
 		const node = path[at] as AnyNode;
 		const child = path[at + 1];
-		const replace = wordSlot(region, offset);
 
 		if (child !== undefined && isBindingSlot(node, child)) {
 			return { kind: 'none' };

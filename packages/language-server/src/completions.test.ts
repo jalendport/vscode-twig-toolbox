@@ -105,6 +105,10 @@ describe('tag names', () => {
 	it('offers no tags inside an output', () => {
 		expect(labelsAt('{{ ‸ }}')).not.toContain('for');
 	});
+
+	it('offers no filters at a tag name', () => {
+		expect(labelsAt('{% ‸ %}')).not.toContain('upper');
+	});
 });
 
 describe('filters', () => {
@@ -178,6 +182,11 @@ describe('variables', () => {
 			(item) => item.label === 'date' && item.kind === CompletionItemKind.Function,
 		);
 		expect(variable?.sortText?.localeCompare(fn?.sortText ?? '')).toBeLessThan(0);
+	});
+
+	it('offers globals from the active packs', () => {
+		const labels = labelsAt('{{ ‸ }}');
+		expect(labels).toContain('app');
 	});
 
 	it('offers functions and variables together in an expression', () => {
@@ -356,7 +365,7 @@ const corePack: DialectPack = {
 			entry('empty', { completionSnippet: 'is empty' }),
 			entry('divisible by', { completionSnippet: 'is divisible by($1)' }),
 		],
-		globals: [],
+		globals: [entry('app', { description: 'The application context.' })],
 	},
 };
 
