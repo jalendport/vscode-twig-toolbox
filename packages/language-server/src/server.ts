@@ -8,14 +8,19 @@ import {
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { TWIG_VERSION } from '@twig-toolbox/parser';
+import { CatalogRegistry } from './catalog';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
+let catalogRegistry = CatalogRegistry.fromPacks([]);
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
 	const client = params.clientInfo?.name ?? 'unknown client';
+	catalogRegistry = CatalogRegistry.loadDefault();
+
 	connection.console.info(`Twig Toolbox language server starting (client: ${client})`);
 	connection.console.info(`Twig dialect: ${TWIG_VERSION}`);
+	connection.console.info(`Loaded ${catalogRegistry.packs.length} dialect catalog pack(s)`);
 
 	return {
 		capabilities: {

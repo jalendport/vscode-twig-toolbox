@@ -1,0 +1,2302 @@
+{
+  "schemaVersion": 1,
+  "name": "twig-core",
+  "displayName": "Twig",
+  "version": "3.x",
+  "sources": {
+    "twig": {
+      "repository": "https://github.com/twigphp/Twig.git",
+      "ref": "da8bd407000b6ef1adfce829ac9921f12b544617"
+    },
+    "docs": {
+      "repository": "https://github.com/twigphp/Twig.git",
+      "ref": "da8bd407000b6ef1adfce829ac9921f12b544617",
+      "path": "doc"
+    }
+  },
+  "detect": {
+    "kind": "always"
+  },
+  "entries": {
+    "tags": [
+      {
+        "name": "apply",
+        "signature": "apply",
+        "parameters": [],
+        "description": "The `apply` tag allows you to apply Twig filters on a block of template data:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/apply.html",
+        "completionSnippet": "{% apply $1 %}\n\t$0\n{% endapply %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "ApplyTokenParser",
+          "docsPath": "doc/tags/apply.rst"
+        }
+      },
+      {
+        "name": "autoescape",
+        "signature": "autoescape",
+        "parameters": [],
+        "description": "Whether automatic escaping is enabled or not, you can mark a section of a template to be escaped or not by using the `autoescape` tag:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/autoescape.html",
+        "completionSnippet": "{% autoescape '$1' %}\n\t$0\n{% endautoescape %}",
+        "source": {
+          "extension": "EscaperExtension",
+          "phpClass": "AutoEscapeTokenParser",
+          "docsPath": "doc/tags/autoescape.rst"
+        }
+      },
+      {
+        "name": "block",
+        "signature": "block",
+        "parameters": [],
+        "description": "Blocks are used for inheritance and act as placeholders and replacements at the same time. They are documented in detail in the documentation for the extends tag.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/block.html",
+        "completionSnippet": "{% block $1 %}\n\t$0\n{% endblock %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "BlockTokenParser",
+          "docsPath": "doc/tags/block.rst"
+        }
+      },
+      {
+        "name": "cache",
+        "signature": "cache",
+        "parameters": [],
+        "description": "The `cache` tag tells Twig to cache a template fragment:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/cache.html",
+        "sinceVersion": "3.2",
+        "completionSnippet": "{% cache \"$1\" %}\n\t$0\n{% endcache %}",
+        "source": {
+          "docsPath": "doc/tags/cache.rst"
+        }
+      },
+      {
+        "name": "deprecated",
+        "signature": "deprecated",
+        "parameters": [],
+        "description": "Twig generates a deprecation notice (via a call to the `trigger_error()` PHP function) where the `deprecated` tag is used in a template:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/deprecated.html",
+        "sinceVersion": "3.11",
+        "completionSnippet": "{% deprecated '$1' %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "DeprecatedTokenParser",
+          "docsPath": "doc/tags/deprecated.rst"
+        }
+      },
+      {
+        "name": "do",
+        "signature": "do",
+        "parameters": [],
+        "description": "The `do` tag works exactly like the regular variable expression (``{{ ...",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/do.html",
+        "completionSnippet": "{% do $1 %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "DoTokenParser",
+          "docsPath": "doc/tags/do.rst"
+        }
+      },
+      {
+        "name": "embed",
+        "signature": "embed",
+        "parameters": [],
+        "description": "The `embed` tag combines the behavior of include and extends.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/embed.html",
+        "completionSnippet": "{% embed '$1' %}\n\t$0\n{% endembed %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "EmbedTokenParser",
+          "docsPath": "doc/tags/embed.rst"
+        }
+      },
+      {
+        "name": "extends",
+        "signature": "extends",
+        "parameters": [],
+        "description": "The `extends` tag can be used to extend a template from another one.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/extends.html",
+        "completionSnippet": "{% extends '$1' %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "ExtendsTokenParser",
+          "docsPath": "doc/tags/extends.rst"
+        }
+      },
+      {
+        "name": "flush",
+        "signature": "flush",
+        "parameters": [],
+        "description": "The `flush` tag tells Twig to flush the output buffer:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/flush.html",
+        "completionSnippet": "{% flush %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "FlushTokenParser",
+          "docsPath": "doc/tags/flush.rst"
+        }
+      },
+      {
+        "name": "for",
+        "signature": "for",
+        "parameters": [],
+        "description": "Loop over each item in a sequence or a mapping. For example, to display a list of users provided in a variable called `users`:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/for.html",
+        "completionSnippet": "{% for $1 in $2 %}\n\t$0\n{% endfor %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "ForTokenParser",
+          "docsPath": "doc/tags/for.rst"
+        }
+      },
+      {
+        "name": "from",
+        "signature": "from",
+        "parameters": [],
+        "description": "The `from` tag imports macro names into the current namespace. The tag is documented in detail in the documentation for the macro tag.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/from.html",
+        "completionSnippet": "{% from '$1' import $2 %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "FromTokenParser",
+          "docsPath": "doc/tags/from.rst"
+        }
+      },
+      {
+        "name": "guard",
+        "signature": "guard",
+        "parameters": [],
+        "description": "The `guard` statement checks if some Twig callables are available at **compilation time** to bypass code compilation that would otherwise fail.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/guard.html",
+        "sinceVersion": "3.15",
+        "completionSnippet": "{% guard function $1 %}\n\t$0\n{% endguard %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "GuardTokenParser",
+          "docsPath": "doc/tags/guard.rst"
+        }
+      },
+      {
+        "name": "if",
+        "signature": "if",
+        "parameters": [],
+        "description": "The `if` statement in Twig is comparable with the if statements of PHP.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/if.html",
+        "completionSnippet": "{% if $1 %}\n\t$0\n{% endif %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "IfTokenParser",
+          "docsPath": "doc/tags/if.rst"
+        }
+      },
+      {
+        "name": "import",
+        "signature": "import",
+        "parameters": [],
+        "description": "The `import` tag imports macro names in a local variable. The tag is documented in detail in the documentation for the macro tag.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/import.html",
+        "completionSnippet": "{% import '$1' as $2 %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "ImportTokenParser",
+          "docsPath": "doc/tags/import.rst"
+        }
+      },
+      {
+        "name": "include",
+        "signature": "include",
+        "parameters": [],
+        "description": "The `include` statement includes a template and outputs the rendered content of that file:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/include.html",
+        "completionSnippet": "{% include '$1' %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "IncludeTokenParser",
+          "docsPath": "doc/tags/include.rst"
+        }
+      },
+      {
+        "name": "macro",
+        "signature": "macro",
+        "parameters": [],
+        "description": "Macros are comparable with functions in regular programming languages. They are useful to reuse template fragments to not repeat yourself.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/macro.html",
+        "sinceVersion": "3.28",
+        "completionSnippet": "{% macro $1($2) %}\n\t$0\n{% endmacro %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "MacroTokenParser",
+          "docsPath": "doc/tags/macro.rst"
+        }
+      },
+      {
+        "name": "sandbox",
+        "signature": "sandbox",
+        "parameters": [],
+        "description": "The `sandbox` tag can be used to enable the sandboxing mode for an included template, when sandboxing is not enabled globally for the Twig environment:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/sandbox.html",
+        "completionSnippet": "{% sandbox %}\n\t$0\n{% endsandbox %}",
+        "source": {
+          "extension": "SandboxExtension",
+          "phpClass": "SandboxTokenParser",
+          "docsPath": "doc/tags/sandbox.rst"
+        }
+      },
+      {
+        "name": "set",
+        "signature": "set",
+        "parameters": [],
+        "description": "Inside code blocks you can also assign values to variables. Assignments use the `set` tag and can have multiple targets.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/set.html",
+        "completionSnippet": "{% set $1 = $2 %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "SetTokenParser",
+          "docsPath": "doc/tags/set.rst"
+        }
+      },
+      {
+        "name": "types",
+        "signature": "types",
+        "parameters": [],
+        "description": "Use the `types` tag to declare the type of a variable:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/types.html",
+        "sinceVersion": "3.13",
+        "completionSnippet": "{% types { $1: '$2' } %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "TypesTokenParser",
+          "docsPath": "doc/tags/types.rst"
+        }
+      },
+      {
+        "name": "use",
+        "signature": "use",
+        "parameters": [],
+        "description": "Template inheritance is one of the most powerful features of Twig but it is limited to single inheritance; a template can only extend one other template.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/use.html",
+        "completionSnippet": "{% use '$1' %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "UseTokenParser",
+          "docsPath": "doc/tags/use.rst"
+        }
+      },
+      {
+        "name": "verbatim",
+        "signature": "verbatim",
+        "parameters": [],
+        "description": "The `verbatim` tag marks sections as being raw text that should not be parsed. For example to put Twig syntax as example into a template you can use this snippet:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/verbatim.html",
+        "completionSnippet": "{% verbatim %}\n\t$0\n{% endverbatim %}",
+        "source": {
+          "extension": "Lexer",
+          "phpClass": "VerbatimTokenParser",
+          "docsPath": "doc/tags/verbatim.rst"
+        }
+      },
+      {
+        "name": "with",
+        "signature": "with",
+        "parameters": [],
+        "description": "Use the `with` tag to create a new inner scope. Variables set within this scope are not visible outside of the scope:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tags/with.html",
+        "completionSnippet": "{% with $1 %}\n\t$0\n{% endwith %}",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "WithTokenParser",
+          "docsPath": "doc/tags/with.rst"
+        }
+      }
+    ],
+    "filters": [
+      {
+        "name": "abs",
+        "signature": "abs",
+        "parameters": [],
+        "description": "The `abs` filter returns the absolute value.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/abs.html",
+        "completionSnippet": "|abs",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/filters/abs.rst"
+        }
+      },
+      {
+        "name": "batch",
+        "signature": "batch(size, fill? = null, preserveKeys? = true)",
+        "parameters": [
+          {
+            "name": "size",
+            "optional": false,
+            "description": "The size of the batch; fractional numbers will be rounded up"
+          },
+          {
+            "name": "fill",
+            "optional": true,
+            "default": "null",
+            "description": "Used to fill in missing items"
+          },
+          {
+            "name": "preserveKeys",
+            "optional": true,
+            "default": "true"
+          }
+        ],
+        "description": "The `batch` filter \"batches\" items by returning a list of lists with the given number of items. A second parameter can be provided and used to fill in missing items:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/batch.html",
+        "completionSnippet": "|batch($1, $2, $3)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::batch",
+          "docsPath": "doc/filters/batch.rst"
+        }
+      },
+      {
+        "name": "capitalize",
+        "signature": "capitalize",
+        "parameters": [],
+        "description": "The `capitalize` filter capitalizes a value. The first character will be uppercase, all others lowercase:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/capitalize.html",
+        "completionSnippet": "|capitalize",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::capitalize",
+          "docsPath": "doc/filters/capitalize.rst"
+        }
+      },
+      {
+        "name": "column",
+        "signature": "column(name, index? = null)",
+        "parameters": [
+          {
+            "name": "name",
+            "optional": false,
+            "description": "The column name to extract"
+          },
+          {
+            "name": "index",
+            "optional": true,
+            "default": "null"
+          }
+        ],
+        "description": "The `column` filter returns the values from a single column in the input array.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/column.html",
+        "completionSnippet": "|column($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::column",
+          "docsPath": "doc/filters/column.rst"
+        }
+      },
+      {
+        "name": "convert_encoding",
+        "signature": "convert_encoding(to, from)",
+        "parameters": [
+          {
+            "name": "to",
+            "optional": false,
+            "description": "The output charset"
+          },
+          {
+            "name": "from",
+            "optional": false,
+            "description": "The input charset"
+          }
+        ],
+        "description": "The `convert_encoding` filter converts a string from one encoding to another. The first argument is the expected output charset and the second one is the input charset:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/convert_encoding.html",
+        "completionSnippet": "|convert_encoding($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::convertEncoding",
+          "docsPath": "doc/filters/convert_encoding.rst"
+        }
+      },
+      {
+        "name": "country_name",
+        "signature": "country_name(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `country_name` filter returns the country name given its ISO-3166 code:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/country_name.html",
+        "completionSnippet": "|country_name($1)",
+        "source": {
+          "docsPath": "doc/filters/country_name.rst"
+        }
+      },
+      {
+        "name": "currency_name",
+        "signature": "currency_name(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `currency_name` filter returns the currency name given its ISO 4217 code:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/currency_name.html",
+        "completionSnippet": "|currency_name($1)",
+        "source": {
+          "docsPath": "doc/filters/currency_name.rst"
+        }
+      },
+      {
+        "name": "currency_symbol",
+        "signature": "currency_symbol(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `currency_symbol` filter returns the currency symbol given its ISO 4217 code:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/currency_symbol.html",
+        "completionSnippet": "|currency_symbol($1)",
+        "source": {
+          "docsPath": "doc/filters/currency_symbol.rst"
+        }
+      },
+      {
+        "name": "data_uri",
+        "signature": "data_uri(mime, parameters)",
+        "parameters": [
+          {
+            "name": "mime",
+            "optional": false,
+            "description": "The mime type"
+          },
+          {
+            "name": "parameters",
+            "optional": false,
+            "description": "A mapping of parameters"
+          }
+        ],
+        "description": "The `data_uri` filter generates a URL using the data scheme as defined in RFC 2397:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/data_uri.html",
+        "completionSnippet": "|data_uri($1, $2)",
+        "source": {
+          "docsPath": "doc/filters/data_uri.rst"
+        }
+      },
+      {
+        "name": "date",
+        "signature": "date(format? = null, timezone? = null)",
+        "parameters": [
+          {
+            "name": "format",
+            "optional": true,
+            "default": "null",
+            "description": "The date format (default format is `F j, Y H:i`, which will render as `January 11, 2024 15:17`)"
+          },
+          {
+            "name": "timezone",
+            "optional": true,
+            "default": "null",
+            "description": "The date timezone"
+          }
+        ],
+        "description": "The `date` filter formats a date to a given format:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/date.html",
+        "completionSnippet": "|date($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::formatDate",
+          "docsPath": "doc/filters/date.rst"
+        }
+      },
+      {
+        "name": "date_modify",
+        "signature": "date_modify(modifier)",
+        "parameters": [
+          {
+            "name": "modifier",
+            "optional": false,
+            "description": "The modifier"
+          }
+        ],
+        "description": "The `date_modify` filter modifies a date with a given modifier string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/date_modify.html",
+        "completionSnippet": "|date_modify($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::modifyDate",
+          "docsPath": "doc/filters/date_modify.rst"
+        }
+      },
+      {
+        "name": "default",
+        "signature": "default(default? = '')",
+        "parameters": [
+          {
+            "name": "default",
+            "optional": true,
+            "default": "''",
+            "description": "The default value"
+          }
+        ],
+        "description": "The `default` filter returns the passed default value if the value is undefined or empty, otherwise the value of the variable:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/default.html",
+        "completionSnippet": "|default($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::default",
+          "docsPath": "doc/filters/default.rst"
+        }
+      },
+      {
+        "name": "e",
+        "signature": "e",
+        "parameters": [],
+        "description": "The `e` filter is an alias for `escape`.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/e.html",
+        "completionSnippet": "|e",
+        "source": {
+          "extension": "EscaperExtension",
+          "phpClass": "CoreExtension::escapeFilterIsSafe"
+        }
+      },
+      {
+        "name": "escape",
+        "aliases": [
+          "e"
+        ],
+        "signature": "escape",
+        "parameters": [
+          {
+            "name": "strategy",
+            "optional": false,
+            "description": "The escaping strategy"
+          },
+          {
+            "name": "charset",
+            "optional": false,
+            "description": "The string charset"
+          }
+        ],
+        "description": "The `escape` filter escapes a string using strategies that depend on the context.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/escape.html",
+        "sinceVersion": "3.24",
+        "completionSnippet": "|escape",
+        "source": {
+          "extension": "EscaperExtension",
+          "phpClass": "CoreExtension::escapeFilterIsSafe",
+          "docsPath": "doc/filters/escape.rst"
+        }
+      },
+      {
+        "name": "filter",
+        "signature": "filter(arrow)",
+        "parameters": [
+          {
+            "name": "arrow",
+            "optional": false,
+            "description": "The arrow function"
+          }
+        ],
+        "description": "The `filter` filter filters elements of a sequence or a mapping using an arrow function. The arrow function receives the value of the sequence or mapping:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/filter.html",
+        "completionSnippet": "|filter($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::filter",
+          "docsPath": "doc/filters/filter.rst"
+        }
+      },
+      {
+        "name": "find",
+        "signature": "find(arrow)",
+        "parameters": [
+          {
+            "name": "arrow",
+            "optional": false,
+            "description": "The arrow function"
+          }
+        ],
+        "description": "The `find` filter returns the first element of a sequence matching an arrow function. The arrow function receives the value of the sequence:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/find.html",
+        "sinceVersion": "3.11",
+        "completionSnippet": "|find($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::find",
+          "docsPath": "doc/filters/find.rst"
+        }
+      },
+      {
+        "name": "first",
+        "signature": "first",
+        "parameters": [],
+        "description": "The `first` filter returns the first \"element\" of a sequence, a mapping, or a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/first.html",
+        "completionSnippet": "|first",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::first",
+          "docsPath": "doc/filters/first.rst"
+        }
+      },
+      {
+        "name": "format",
+        "signature": "format(values)",
+        "parameters": [
+          {
+            "name": "values",
+            "optional": false
+          }
+        ],
+        "description": "The `format` filter formats a given string by replacing the placeholders (placeholders follows the sprintf notation):",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format.html",
+        "completionSnippet": "|format($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::sprintf",
+          "docsPath": "doc/filters/format.rst"
+        }
+      },
+      {
+        "name": "format_currency",
+        "signature": "format_currency(currency, attrs, locale)",
+        "parameters": [
+          {
+            "name": "currency",
+            "optional": false,
+            "description": "The currency (ISO 4217 code)"
+          },
+          {
+            "name": "attrs",
+            "optional": false,
+            "description": "A map of attributes"
+          },
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646 Internally, Twig uses the PHP NumberFormatter::formatCurrency function."
+          }
+        ],
+        "description": "The `format_currency` filter formats a number as a currency:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_currency.html",
+        "completionSnippet": "|format_currency($1, $2, $3)",
+        "source": {
+          "docsPath": "doc/filters/format_currency.rst"
+        }
+      },
+      {
+        "name": "format_date",
+        "signature": "format_date(locale, dateFormat, pattern, timezone, calendar?)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          },
+          {
+            "name": "dateFormat",
+            "optional": false,
+            "description": "The date format"
+          },
+          {
+            "name": "pattern",
+            "optional": false,
+            "description": "A date time pattern"
+          },
+          {
+            "name": "timezone",
+            "optional": false,
+            "description": "The date timezone"
+          },
+          {
+            "name": "calendar",
+            "optional": true,
+            "description": "The calendar (\"gregorian\" by default)"
+          }
+        ],
+        "description": "The `format_date` filter formats a date. It behaves in the exact same way as the format_datetime filter, but without the time.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_date.html",
+        "completionSnippet": "|format_date($1, $2, $3, $4, $5)",
+        "source": {
+          "docsPath": "doc/filters/format_date.rst"
+        }
+      },
+      {
+        "name": "format_datetime",
+        "signature": "format_datetime(locale, dateFormat, timeFormat, pattern, timezone, calendar?)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          },
+          {
+            "name": "dateFormat",
+            "optional": false,
+            "description": "The date format"
+          },
+          {
+            "name": "timeFormat",
+            "optional": false,
+            "description": "The time format"
+          },
+          {
+            "name": "pattern",
+            "optional": false,
+            "description": "A date time pattern"
+          },
+          {
+            "name": "timezone",
+            "optional": false,
+            "description": "The date timezone name"
+          },
+          {
+            "name": "calendar",
+            "optional": true,
+            "description": "The calendar (\"gregorian\" by default)"
+          }
+        ],
+        "description": "The `format_datetime` filter formats a date time:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_datetime.html",
+        "sinceVersion": "3.6",
+        "completionSnippet": "|format_datetime($1, $2, $3, $4, $5, $6)",
+        "source": {
+          "docsPath": "doc/filters/format_datetime.rst"
+        }
+      },
+      {
+        "name": "format_list",
+        "signature": "format_list(type, width, locale)",
+        "parameters": [
+          {
+            "name": "type",
+            "optional": false,
+            "description": "The type of the list output"
+          },
+          {
+            "name": "width",
+            "optional": false,
+            "description": "The width of the list output"
+          },
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `format_list` filter formats a list of strings as a single, locale-aware string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_list.html",
+        "sinceVersion": "3.29",
+        "completionSnippet": "|format_list($1, $2, $3)",
+        "source": {
+          "docsPath": "doc/filters/format_list.rst"
+        }
+      },
+      {
+        "name": "format_number",
+        "signature": "format_number(locale, attrs, style)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          },
+          {
+            "name": "attrs",
+            "optional": false,
+            "description": "A map of attributes"
+          },
+          {
+            "name": "style",
+            "optional": false,
+            "description": "The style of the number output"
+          }
+        ],
+        "description": "The `format_number` filter formats a number:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_number.html",
+        "completionSnippet": "|format_number($1, $2, $3)",
+        "source": {
+          "docsPath": "doc/filters/format_number.rst"
+        }
+      },
+      {
+        "name": "format_time",
+        "signature": "format_time(locale, timeFormat, pattern, timezone, calendar?)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          },
+          {
+            "name": "timeFormat",
+            "optional": false,
+            "description": "The time format"
+          },
+          {
+            "name": "pattern",
+            "optional": false,
+            "description": "A date time pattern"
+          },
+          {
+            "name": "timezone",
+            "optional": false,
+            "description": "The date timezone"
+          },
+          {
+            "name": "calendar",
+            "optional": true,
+            "description": "The calendar (\"gregorian\" by default)"
+          }
+        ],
+        "description": "The `format_time` filter formats a time. It behaves in the exact same way as the format_datetime filter, but without the date.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_time.html",
+        "completionSnippet": "|format_time($1, $2, $3, $4, $5)",
+        "source": {
+          "docsPath": "doc/filters/format_time.rst"
+        }
+      },
+      {
+        "name": "html_attr_merge",
+        "signature": "html_attr_merge",
+        "parameters": [],
+        "description": "The `html_attr_merge` filter merges multiple mappings that represent HTML attribute values. Such mappings contain the names of the HTML attributes as keys, and the corresponding values represent the attributes' values.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/html_attr_merge.html",
+        "sinceVersion": "3.24",
+        "completionSnippet": "|html_attr_merge",
+        "source": {
+          "docsPath": "doc/filters/html_attr_merge.rst"
+        }
+      },
+      {
+        "name": "html_attr_type",
+        "signature": "html_attr_type(value, type)",
+        "parameters": [
+          {
+            "name": "value",
+            "optional": false,
+            "description": "The sequence of attributes to convert"
+          },
+          {
+            "name": "type",
+            "optional": false,
+            "description": "The attribute type. One of: * `sst` (default): Space-separated token list * `cst`: Comma-separated token list * `style`: Inline CSS styles html_attr, html_attr_merge"
+          }
+        ],
+        "description": "The `html_attr_type` filter converts arrays into specialized attribute value objects that implement custom rendering logic. It is designed for use with the html_attr function for attributes where the attribute value follows special formatting rules.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/html_attr_type.html",
+        "sinceVersion": "3.24",
+        "completionSnippet": "|html_attr_type($1, $2)",
+        "source": {
+          "docsPath": "doc/filters/html_attr_type.rst"
+        }
+      },
+      {
+        "name": "html_to_markdown",
+        "signature": "html_to_markdown",
+        "parameters": [],
+        "description": "The `html_to_markdown` filter converts a block of HTML to Markdown:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/html_to_markdown.html",
+        "completionSnippet": "|html_to_markdown",
+        "source": {
+          "docsPath": "doc/filters/html_to_markdown.rst"
+        }
+      },
+      {
+        "name": "inky_to_html",
+        "signature": "inky_to_html",
+        "parameters": [],
+        "description": "The `inky_to_html` filter processes an inky email template <https://github.com/foundation/inky>:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/inky_to_html.html",
+        "completionSnippet": "|inky_to_html",
+        "source": {
+          "docsPath": "doc/filters/inky_to_html.rst"
+        }
+      },
+      {
+        "name": "inline_css",
+        "signature": "inline_css",
+        "parameters": [],
+        "description": "The `inline_css` filter inlines CSS styles in HTML documents:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/inline_css.html",
+        "completionSnippet": "|inline_css",
+        "source": {
+          "docsPath": "doc/filters/inline_css.rst"
+        }
+      },
+      {
+        "name": "invoke",
+        "signature": "invoke(arguments)",
+        "parameters": [
+          {
+            "name": "arguments",
+            "optional": false
+          }
+        ],
+        "description": "The `invoke` filter invokes an arrow function with the given arguments:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/invoke.html",
+        "sinceVersion": "3.19",
+        "completionSnippet": "|invoke($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::invoke",
+          "docsPath": "doc/filters/invoke.rst"
+        }
+      },
+      {
+        "name": "join",
+        "signature": "join(glue? = '', and? = null)",
+        "parameters": [
+          {
+            "name": "glue",
+            "optional": true,
+            "default": "''",
+            "description": "The separator"
+          },
+          {
+            "name": "and",
+            "optional": true,
+            "default": "null",
+            "description": "The separator for the last pair of input items"
+          }
+        ],
+        "description": "The `join` filter returns a string which is the concatenation of the items of a sequence:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/join.html",
+        "completionSnippet": "|join($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::join",
+          "docsPath": "doc/filters/join.rst"
+        }
+      },
+      {
+        "name": "json_encode",
+        "signature": "json_encode",
+        "parameters": [
+          {
+            "name": "options",
+            "optional": false,
+            "description": "A bitmask of json_encode options: `{{ data|json_encode(constant('JSON_PRETTY_PRINT')) }}`. Combine constants using bitwise operators<template_logic>: `{{ data|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_HEX_QUOT')) }}`"
+          }
+        ],
+        "description": "The `json_encode` filter returns the JSON representation of a value:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/json_encode.html",
+        "completionSnippet": "|json_encode",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/filters/json_encode.rst"
+        }
+      },
+      {
+        "name": "keys",
+        "signature": "keys",
+        "parameters": [],
+        "description": "The `keys` filter returns the keys of a sequence or a mapping. It is useful when you want to iterate over the keys of a sequence or a mapping:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/keys.html",
+        "completionSnippet": "|keys",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::keys",
+          "docsPath": "doc/filters/keys.rst"
+        }
+      },
+      {
+        "name": "language_name",
+        "signature": "language_name(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `language_name` filter returns the language name based on its ISO 639-1 code, ISO 639-2 code, or other specific localized code:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/language_name.html",
+        "completionSnippet": "|language_name($1)",
+        "source": {
+          "docsPath": "doc/filters/language_name.rst"
+        }
+      },
+      {
+        "name": "last",
+        "signature": "last",
+        "parameters": [],
+        "description": "The `last` filter returns the last \"element\" of a sequence, a mapping, or a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/last.html",
+        "completionSnippet": "|last",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::last",
+          "docsPath": "doc/filters/last.rst"
+        }
+      },
+      {
+        "name": "length",
+        "signature": "length",
+        "parameters": [],
+        "description": "The `length` filter returns the number of items of a sequence or mapping, or the length of a string.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/length.html",
+        "completionSnippet": "|length",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::length",
+          "docsPath": "doc/filters/length.rst"
+        }
+      },
+      {
+        "name": "locale_name",
+        "signature": "locale_name(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `locale_name` filter returns the locale name given its code:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/locale_name.html",
+        "completionSnippet": "|locale_name($1)",
+        "source": {
+          "docsPath": "doc/filters/locale_name.rst"
+        }
+      },
+      {
+        "name": "lower",
+        "signature": "lower",
+        "parameters": [],
+        "description": "The `lower` filter converts a value to lowercase:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/lower.html",
+        "completionSnippet": "|lower",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::lower",
+          "docsPath": "doc/filters/lower.rst"
+        }
+      },
+      {
+        "name": "map",
+        "signature": "map(arrow)",
+        "parameters": [
+          {
+            "name": "arrow",
+            "optional": false,
+            "description": "The arrow function"
+          }
+        ],
+        "description": "The `map` filter applies an arrow function to the elements of a sequence or a mapping. The arrow function receives the value of the sequence or mapping:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/map.html",
+        "completionSnippet": "|map($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::map",
+          "docsPath": "doc/filters/map.rst"
+        }
+      },
+      {
+        "name": "markdown_to_html",
+        "signature": "markdown_to_html",
+        "parameters": [],
+        "description": "The `markdown_to_html` filter converts a block of Markdown to HTML:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/markdown_to_html.html",
+        "completionSnippet": "|markdown_to_html",
+        "source": {
+          "docsPath": "doc/filters/markdown_to_html.rst"
+        }
+      },
+      {
+        "name": "merge",
+        "signature": "merge",
+        "parameters": [],
+        "description": "The `merge` filter merges sequences and mappings:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/merge.html",
+        "completionSnippet": "|merge",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::merge",
+          "docsPath": "doc/filters/merge.rst"
+        }
+      },
+      {
+        "name": "nl2br",
+        "signature": "nl2br",
+        "parameters": [],
+        "description": "The `nl2br` filter inserts HTML line breaks before all newlines in a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/nl2br.html",
+        "completionSnippet": "|nl2br",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::nl2br",
+          "docsPath": "doc/filters/nl2br.rst"
+        }
+      },
+      {
+        "name": "number_format",
+        "signature": "number_format(decimal? = null, decimalPoint? = null, thousandSep? = null)",
+        "parameters": [
+          {
+            "name": "decimal",
+            "optional": true,
+            "default": "null",
+            "description": "The number of decimal points to display"
+          },
+          {
+            "name": "decimalPoint",
+            "optional": true,
+            "default": "null"
+          },
+          {
+            "name": "thousandSep",
+            "optional": true,
+            "default": "null"
+          }
+        ],
+        "description": "The `number_format` filter formats numbers. It is a wrapper around PHP's number_format function:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/number_format.html",
+        "completionSnippet": "|number_format($1, $2, $3)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::formatNumber",
+          "docsPath": "doc/filters/number_format.rst"
+        }
+      },
+      {
+        "name": "plural",
+        "signature": "plural(locale, all?)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale of the original string (limited to languages supported by the from Symfony inflector, part of the String component)"
+          },
+          {
+            "name": "all",
+            "optional": true,
+            "description": "Whether to return all possible plurals as an array, default is `false` Internally, Twig uses the pluralize method from the Symfony String component."
+          }
+        ],
+        "description": "The `plural` filter transforms a given noun in its singular form into its plural version:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/plural.html",
+        "sinceVersion": "3.11",
+        "completionSnippet": "|plural($1, $2)",
+        "source": {
+          "docsPath": "doc/filters/plural.rst"
+        }
+      },
+      {
+        "name": "raw",
+        "signature": "raw",
+        "parameters": [],
+        "description": "The `raw` filter marks the value as being \"safe\", which means that in an environment with automatic escaping enabled this variable will not be escaped if `raw` is the last filter applied to it:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/raw.html",
+        "completionSnippet": "|raw",
+        "source": {
+          "extension": "EscaperExtension",
+          "phpClass": "EscaperExtension",
+          "docsPath": "doc/filters/raw.rst"
+        }
+      },
+      {
+        "name": "reduce",
+        "signature": "reduce(arrow, initial? = null)",
+        "parameters": [
+          {
+            "name": "arrow",
+            "optional": false,
+            "description": "The arrow function"
+          },
+          {
+            "name": "initial",
+            "optional": true,
+            "default": "null",
+            "description": "The initial value"
+          }
+        ],
+        "description": "The `reduce` filter iteratively reduces a sequence or a mapping to a single value using an arrow function, so as to reduce it to a single value. The arrow function receives the return value of the previous iteration and the current value and key of the sequence or mapping:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/reduce.html",
+        "completionSnippet": "|reduce($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::reduce",
+          "docsPath": "doc/filters/reduce.rst"
+        }
+      },
+      {
+        "name": "replace",
+        "signature": "replace(from)",
+        "parameters": [
+          {
+            "name": "from",
+            "optional": false,
+            "description": "The placeholder values as a mapping format"
+          }
+        ],
+        "description": "The `replace` filter replaces placeholders in a string (the placeholder format is free-form):",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/replace.html",
+        "completionSnippet": "|replace($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::replace",
+          "docsPath": "doc/filters/replace.rst"
+        }
+      },
+      {
+        "name": "reverse",
+        "signature": "reverse(preserveKeys? = false)",
+        "parameters": [
+          {
+            "name": "preserveKeys",
+            "optional": true,
+            "default": "false"
+          }
+        ],
+        "description": "The `reverse` filter reverses a sequence, a mapping, or a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/reverse.html",
+        "completionSnippet": "|reverse($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::reverse",
+          "docsPath": "doc/filters/reverse.rst"
+        }
+      },
+      {
+        "name": "round",
+        "signature": "round(precision? = 0, method? = 'common')",
+        "parameters": [
+          {
+            "name": "precision",
+            "optional": true,
+            "default": "0",
+            "description": "The rounding precision"
+          },
+          {
+            "name": "method",
+            "optional": true,
+            "default": "'common'",
+            "description": "The rounding method"
+          }
+        ],
+        "description": "The `round` filter rounds a number to a given precision:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/round.html",
+        "completionSnippet": "|round($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::round",
+          "docsPath": "doc/filters/round.rst"
+        }
+      },
+      {
+        "name": "shuffle",
+        "signature": "shuffle",
+        "parameters": [],
+        "description": "The `shuffle` filter shuffles a sequence, a mapping, or a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/shuffle.html",
+        "sinceVersion": "3.11",
+        "completionSnippet": "|shuffle",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::shuffle",
+          "docsPath": "doc/filters/shuffle.rst"
+        }
+      },
+      {
+        "name": "singular",
+        "signature": "singular(locale, all?)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale of the original string (limited to languages supported by the from Symfony inflector, part of the String component)"
+          },
+          {
+            "name": "all",
+            "optional": true,
+            "description": "Whether to return all possible singulars as an array, default is `false` Internally, Twig uses the singularize method from the Symfony String component."
+          }
+        ],
+        "description": "The `singular` filter transforms a given noun in its plural form into its singular version:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/singular.html",
+        "sinceVersion": "3.11",
+        "completionSnippet": "|singular($1, $2)",
+        "source": {
+          "docsPath": "doc/filters/singular.rst"
+        }
+      },
+      {
+        "name": "slice",
+        "signature": "slice(start, length? = null, preserveKeys? = false)",
+        "parameters": [
+          {
+            "name": "start",
+            "optional": false,
+            "description": "The start of the slice"
+          },
+          {
+            "name": "length",
+            "optional": true,
+            "default": "null",
+            "description": "The size of the slice"
+          },
+          {
+            "name": "preserveKeys",
+            "optional": true,
+            "default": "false"
+          }
+        ],
+        "description": "The `slice` filter extracts a slice of a sequence, a mapping, or a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/slice.html",
+        "completionSnippet": "|slice($1, $2, $3)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::slice",
+          "docsPath": "doc/filters/slice.rst"
+        }
+      },
+      {
+        "name": "slug",
+        "signature": "slug(separator?, locale)",
+        "parameters": [
+          {
+            "name": "separator",
+            "optional": true,
+            "description": "The separator that is used to join words (defaults to `-`)"
+          },
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code of the original string as defined in RFC 5646"
+          }
+        ],
+        "description": "The `slug` filter transforms a given string into another string that only includes safe ASCII characters.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/slug.html",
+        "completionSnippet": "|slug($1, $2)",
+        "source": {
+          "docsPath": "doc/filters/slug.rst"
+        }
+      },
+      {
+        "name": "sort",
+        "signature": "sort(arrow? = null)",
+        "parameters": [
+          {
+            "name": "arrow",
+            "optional": true,
+            "default": "null",
+            "description": "An arrow function"
+          }
+        ],
+        "description": "The `sort` filter sorts sequences and mappings:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/sort.html",
+        "completionSnippet": "|sort($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::sort",
+          "docsPath": "doc/filters/sort.rst"
+        }
+      },
+      {
+        "name": "spaceless",
+        "signature": "spaceless",
+        "parameters": [],
+        "description": "Use the `spaceless` filter to remove whitespace *between HTML tags*, not whitespace within HTML tags or whitespace in plain text:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/spaceless.html",
+        "deprecated": {
+          "sinceVersion": "3.12",
+          "message": "Deprecated as of Twig 3.12."
+        },
+        "completionSnippet": "|spaceless",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::spaceless",
+          "docsPath": "doc/filters/spaceless.rst"
+        }
+      },
+      {
+        "name": "split",
+        "signature": "split(delimiter, limit? = null)",
+        "parameters": [
+          {
+            "name": "delimiter",
+            "optional": false,
+            "description": "The delimiter"
+          },
+          {
+            "name": "limit",
+            "optional": true,
+            "default": "null",
+            "description": "The limit argument"
+          }
+        ],
+        "description": "The `split` filter splits a string by the given delimiter and returns a list of strings:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/split.html",
+        "completionSnippet": "|split($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::split",
+          "docsPath": "doc/filters/split.rst"
+        }
+      },
+      {
+        "name": "striptags",
+        "signature": "striptags(allowable_tags? = null)",
+        "parameters": [
+          {
+            "name": "allowable_tags",
+            "optional": true,
+            "default": "null",
+            "description": "Tags which should not be stripped"
+          }
+        ],
+        "description": "The `striptags` filter strips SGML/XML tags and replaces adjacent whitespace characters by one space:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/striptags.html",
+        "completionSnippet": "|striptags($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::striptags",
+          "docsPath": "doc/filters/striptags.rst"
+        }
+      },
+      {
+        "name": "timezone_name",
+        "signature": "timezone_name(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `timezone_name` filter returns the timezone name given its ISO 8601 timezone identifier:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/timezone_name.html",
+        "completionSnippet": "|timezone_name($1)",
+        "source": {
+          "docsPath": "doc/filters/timezone_name.rst"
+        }
+      },
+      {
+        "name": "title",
+        "signature": "title",
+        "parameters": [],
+        "description": "The `title` filter returns a titlecased version of the value. Words will start with uppercase letters, all remaining characters are lowercase:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/title.html",
+        "completionSnippet": "|title",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::titleCase",
+          "docsPath": "doc/filters/title.rst"
+        }
+      },
+      {
+        "name": "trim",
+        "signature": "trim(characterMask? = null, side? = 'both')",
+        "parameters": [
+          {
+            "name": "characterMask",
+            "optional": true,
+            "default": "null"
+          },
+          {
+            "name": "side",
+            "optional": true,
+            "default": "'both'",
+            "description": "The default is to strip from the left and the right (`both`) sides, but `left` and `right` will strip from either the left side or right side only"
+          }
+        ],
+        "description": "The `trim` filter strips whitespace (or other characters) from the beginning and end of a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/trim.html",
+        "completionSnippet": "|trim($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::trim",
+          "docsPath": "doc/filters/trim.rst"
+        }
+      },
+      {
+        "name": "u",
+        "signature": "u",
+        "parameters": [],
+        "description": "The `u` filter wraps a text in a Unicode object (a Symfony UnicodeString instance <https://symfony.com/doc/current/components/string.html>) that exposes methods to \"manipulate\" the string.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/u.html",
+        "completionSnippet": "|u",
+        "source": {
+          "docsPath": "doc/filters/u.rst"
+        }
+      },
+      {
+        "name": "upper",
+        "signature": "upper",
+        "parameters": [],
+        "description": "The `upper` filter converts a value to uppercase:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/upper.html",
+        "completionSnippet": "|upper",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::upper",
+          "docsPath": "doc/filters/upper.rst"
+        }
+      },
+      {
+        "name": "url_encode",
+        "signature": "url_encode",
+        "parameters": [],
+        "description": "The `url_encode` filter percent encodes a given string as URL segment or a mapping as query string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/filters/url_encode.html",
+        "completionSnippet": "|url_encode",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::urlencode",
+          "docsPath": "doc/filters/url_encode.rst"
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "attribute",
+        "signature": "attribute",
+        "parameters": [
+          {
+            "name": "variable",
+            "optional": false,
+            "description": "The variable"
+          },
+          {
+            "name": "attribute",
+            "optional": false,
+            "description": "The attribute name"
+          },
+          {
+            "name": "arguments",
+            "optional": false,
+            "description": "An array of arguments to pass to the call"
+          }
+        ],
+        "description": "The `attribute` function lets you access an attribute, method, or property of an object or array when the name of that attribute, method, or property is stored in a variable or dynamically generated with an expression:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/attribute.html",
+        "completionSnippet": "attribute($0)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/functions/attribute.rst"
+        }
+      },
+      {
+        "name": "block",
+        "signature": "block",
+        "parameters": [
+          {
+            "name": "name",
+            "optional": false,
+            "description": "The block name"
+          },
+          {
+            "name": "template",
+            "optional": false,
+            "description": "The template where to look for the block extends, parent"
+          }
+        ],
+        "description": "When a template uses inheritance and if you want to render a block multiple times, use the `block` function:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/block.html",
+        "completionSnippet": "block($0)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/functions/block.rst"
+        }
+      },
+      {
+        "name": "constant",
+        "signature": "constant(constant, object? = null, checkDefined? = false)",
+        "parameters": [
+          {
+            "name": "constant",
+            "optional": false
+          },
+          {
+            "name": "object",
+            "optional": true,
+            "default": "null"
+          },
+          {
+            "name": "checkDefined",
+            "type": "bool",
+            "optional": true,
+            "default": "false"
+          }
+        ],
+        "description": "`constant` returns the constant value for a given string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/constant.html",
+        "completionSnippet": "constant($1, $2, $3)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::constant",
+          "docsPath": "doc/functions/constant.rst"
+        }
+      },
+      {
+        "name": "country_names",
+        "signature": "country_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `country_names` function returns the names of the countries:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/country_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "country_names($1)",
+        "source": {
+          "docsPath": "doc/functions/country_names.rst"
+        }
+      },
+      {
+        "name": "country_timezones",
+        "signature": "country_timezones(country)",
+        "parameters": [
+          {
+            "name": "country",
+            "optional": false,
+            "description": "The country code"
+          }
+        ],
+        "description": "The `country_timezones` function returns the names of the timezones associated with a given country code (ISO-3166):",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/country_timezones.html",
+        "completionSnippet": "country_timezones($1)",
+        "source": {
+          "docsPath": "doc/functions/country_timezones.rst"
+        }
+      },
+      {
+        "name": "currency_names",
+        "signature": "currency_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `currency_names` function returns the names of the currencies:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/currency_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "currency_names($1)",
+        "source": {
+          "docsPath": "doc/functions/currency_names.rst"
+        }
+      },
+      {
+        "name": "cycle",
+        "signature": "cycle(values, position)",
+        "parameters": [
+          {
+            "name": "values",
+            "optional": false,
+            "description": "The sequence to cycle on"
+          },
+          {
+            "name": "position",
+            "optional": false,
+            "description": "The position in the sequence"
+          }
+        ],
+        "description": "The `cycle` function cycles on a sequence:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/cycle.html",
+        "completionSnippet": "cycle($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::cycle",
+          "docsPath": "doc/functions/cycle.rst"
+        }
+      },
+      {
+        "name": "date",
+        "signature": "date(date? = null, timezone? = null)",
+        "parameters": [
+          {
+            "name": "date",
+            "optional": true,
+            "default": "null",
+            "description": "The date"
+          },
+          {
+            "name": "timezone",
+            "optional": true,
+            "default": "null",
+            "description": "The timezone"
+          }
+        ],
+        "description": "Converts an argument to a date to allow date comparison:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/date.html",
+        "completionSnippet": "date($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::convertDate",
+          "docsPath": "doc/functions/date.rst"
+        }
+      },
+      {
+        "name": "dump",
+        "signature": "dump(vars)",
+        "parameters": [
+          {
+            "name": "vars",
+            "optional": false
+          }
+        ],
+        "description": "The `dump` function dumps information about a template variable. This is mostly useful to debug a template that does not behave as expected by introspecting its variables:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/dump.html",
+        "completionSnippet": "dump($1)",
+        "source": {
+          "extension": "DebugExtension",
+          "phpClass": "CoreExtension::dump",
+          "docsPath": "doc/functions/dump.rst"
+        }
+      },
+      {
+        "name": "enum",
+        "signature": "enum(enum)",
+        "parameters": [
+          {
+            "name": "enum",
+            "type": "string",
+            "optional": false,
+            "description": "The FQCN of the enum"
+          }
+        ],
+        "description": "`enum` gives access to enums:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/enum.html",
+        "sinceVersion": "3.15",
+        "completionSnippet": "enum($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::enum",
+          "docsPath": "doc/functions/enum.rst"
+        }
+      },
+      {
+        "name": "enum_cases",
+        "signature": "enum_cases(enum)",
+        "parameters": [
+          {
+            "name": "enum",
+            "type": "string",
+            "optional": false,
+            "description": "The FQCN of the enum"
+          }
+        ],
+        "description": "`enum_cases` returns the list of cases for a given enum:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/enum_cases.html",
+        "sinceVersion": "3.12",
+        "completionSnippet": "enum_cases($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::enumCases",
+          "docsPath": "doc/functions/enum_cases.rst"
+        }
+      },
+      {
+        "name": "html_attr",
+        "signature": "html_attr",
+        "parameters": [],
+        "description": "The `html_attr` function renders HTML attributes from one or more mappings, taking care of proper escaping. The mappings contain the names of HTML attributes as keys, and the corresponding values represent the attributes' values.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/html_attr.html",
+        "sinceVersion": "3.24",
+        "completionSnippet": "html_attr($0)",
+        "source": {
+          "docsPath": "doc/functions/html_attr.rst"
+        }
+      },
+      {
+        "name": "html_classes",
+        "signature": "html_classes",
+        "parameters": [],
+        "description": "The `html_classes` function returns a string by conditionally joining class names together:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/html_classes.html",
+        "completionSnippet": "html_classes($0)",
+        "source": {
+          "docsPath": "doc/functions/html_classes.rst"
+        }
+      },
+      {
+        "name": "html_cva",
+        "signature": "html_cva",
+        "parameters": [],
+        "description": "CVA (Class Variant Authority) is a concept from the JavaScript world and used by the well-known shadcn/ui library.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/html_cva.html",
+        "sinceVersion": "3.12",
+        "completionSnippet": "html_cva($0)",
+        "source": {
+          "docsPath": "doc/functions/html_cva.rst"
+        }
+      },
+      {
+        "name": "include",
+        "signature": "include(template, variables? = [], withContext? = true, ignoreMissing? = false, sandboxed? = false)",
+        "parameters": [
+          {
+            "name": "template",
+            "optional": false,
+            "description": "The template to render"
+          },
+          {
+            "name": "variables",
+            "optional": true,
+            "default": "[]",
+            "description": "The variables to pass to the template"
+          },
+          {
+            "name": "withContext",
+            "optional": true,
+            "default": "true"
+          },
+          {
+            "name": "ignoreMissing",
+            "optional": true,
+            "default": "false"
+          },
+          {
+            "name": "sandboxed",
+            "optional": true,
+            "default": "false",
+            "description": "Whether to sandbox the template or not"
+          }
+        ],
+        "description": "The `include` function returns the rendered content of a template:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/include.html",
+        "completionSnippet": "include($1, $2, $3, $4, $5)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::include",
+          "docsPath": "doc/functions/include.rst"
+        }
+      },
+      {
+        "name": "language_names",
+        "signature": "language_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `language_names` function returns the names of the languages:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/language_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "language_names($1)",
+        "source": {
+          "docsPath": "doc/functions/language_names.rst"
+        }
+      },
+      {
+        "name": "locale_names",
+        "signature": "locale_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `locale_names` function returns the names of the locales:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/locale_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "locale_names($1)",
+        "source": {
+          "docsPath": "doc/functions/locale_names.rst"
+        }
+      },
+      {
+        "name": "max",
+        "signature": "max",
+        "parameters": [],
+        "description": "`max` returns the biggest value of a sequence or a set of values:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/max.html",
+        "completionSnippet": "max($0)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/functions/max.rst"
+        }
+      },
+      {
+        "name": "min",
+        "signature": "min",
+        "parameters": [],
+        "description": "`min` returns the lowest value of a sequence or a set of values:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/min.html",
+        "completionSnippet": "min($0)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/functions/min.rst"
+        }
+      },
+      {
+        "name": "parent",
+        "signature": "parent(parser, fakeNode, args, line)",
+        "parameters": [
+          {
+            "name": "parser",
+            "type": "Parser",
+            "optional": false
+          },
+          {
+            "name": "fakeNode",
+            "type": "Node",
+            "optional": false
+          },
+          {
+            "name": "args",
+            "optional": false
+          },
+          {
+            "name": "line",
+            "type": "int",
+            "optional": false
+          }
+        ],
+        "description": "When a template uses inheritance, it's possible to render the contents of the parent block when overriding a block by using the `parent` function:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/parent.html",
+        "completionSnippet": "parent($1, $2, $3, $4)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::parseParentFunction",
+          "docsPath": "doc/functions/parent.rst"
+        }
+      },
+      {
+        "name": "random",
+        "signature": "random(values? = null, max? = null)",
+        "parameters": [
+          {
+            "name": "values",
+            "optional": true,
+            "default": "null",
+            "description": "The values"
+          },
+          {
+            "name": "max",
+            "optional": true,
+            "default": "null",
+            "description": "The max value when values is an integer"
+          }
+        ],
+        "description": "The `random` function returns a random value depending on the supplied parameter type:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/random.html",
+        "completionSnippet": "random($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::random",
+          "docsPath": "doc/functions/random.rst"
+        }
+      },
+      {
+        "name": "range",
+        "signature": "range",
+        "parameters": [
+          {
+            "name": "low",
+            "optional": false,
+            "description": "The first value of the sequence."
+          },
+          {
+            "name": "high",
+            "optional": false,
+            "description": "The highest possible value of the sequence."
+          },
+          {
+            "name": "step",
+            "optional": false,
+            "description": "The increment between elements of the sequence."
+          }
+        ],
+        "description": "Returns a list containing an arithmetic progression of integers:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/range.html",
+        "completionSnippet": "range($0)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/functions/range.rst"
+        }
+      },
+      {
+        "name": "script_names",
+        "signature": "script_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `script_names` function returns the names of the scripts:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/script_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "script_names($1)",
+        "source": {
+          "docsPath": "doc/functions/script_names.rst"
+        }
+      },
+      {
+        "name": "source",
+        "signature": "source(name, ignoreMissing? = false)",
+        "parameters": [
+          {
+            "name": "name",
+            "optional": false,
+            "description": "The name of the template to read"
+          },
+          {
+            "name": "ignoreMissing",
+            "optional": true,
+            "default": "false"
+          }
+        ],
+        "description": "The `source` function returns the content of a template without rendering it:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/source.html",
+        "completionSnippet": "source($1, $2)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::source",
+          "docsPath": "doc/functions/source.rst"
+        }
+      },
+      {
+        "name": "template_from_string",
+        "signature": "template_from_string(template, name? = null)",
+        "parameters": [
+          {
+            "name": "template",
+            "type": "string|Stringable",
+            "optional": false,
+            "description": "The template"
+          },
+          {
+            "name": "name",
+            "type": "?string",
+            "optional": true,
+            "default": "null",
+            "description": "A name for the template"
+          }
+        ],
+        "description": "The `template_from_string` function loads a template from a string:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/template_from_string.html",
+        "completionSnippet": "template_from_string($1, $2)",
+        "source": {
+          "extension": "StringLoaderExtension",
+          "phpClass": "CoreExtension::templateFromString",
+          "docsPath": "doc/functions/template_from_string.rst"
+        }
+      },
+      {
+        "name": "timezone_names",
+        "signature": "timezone_names(locale)",
+        "parameters": [
+          {
+            "name": "locale",
+            "optional": false,
+            "description": "The locale code as defined in RFC 5646"
+          }
+        ],
+        "description": "The `timezone_names` function returns the names of the timezones:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/functions/timezone_names.html",
+        "sinceVersion": "3.5",
+        "completionSnippet": "timezone_names($1)",
+        "source": {
+          "docsPath": "doc/functions/timezone_names.rst"
+        }
+      }
+    ],
+    "tests": [
+      {
+        "name": "constant",
+        "signature": "constant",
+        "parameters": [],
+        "description": "`constant` checks if a variable has the exact same value as a constant. You can use either global constants or class constants:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/constant.html",
+        "completionSnippet": "is constant",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/constant.rst"
+        }
+      },
+      {
+        "name": "defined",
+        "signature": "defined",
+        "parameters": [],
+        "description": "`defined` checks if a variable is defined in the current context. This is very useful if you use the `strict_variables` option:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/defined.html",
+        "completionSnippet": "is defined",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/defined.rst"
+        }
+      },
+      {
+        "name": "divisible by",
+        "signature": "divisible by(value)",
+        "parameters": [
+          {
+            "name": "value",
+            "type": "number",
+            "optional": false,
+            "description": "The divisor to test against."
+          }
+        ],
+        "description": "`divisible by` checks if a variable is divisible by a number:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/divisibleby.html",
+        "completionSnippet": "is divisible by($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/divisibleby.rst"
+        }
+      },
+      {
+        "name": "empty",
+        "signature": "empty",
+        "parameters": [],
+        "description": "`empty` checks if a variable is an empty string, an empty sequence, an empty mapping, exactly `false`, or exactly `null`.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/empty.html",
+        "completionSnippet": "is empty",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::testEmpty",
+          "docsPath": "doc/tests/empty.rst"
+        }
+      },
+      {
+        "name": "even",
+        "signature": "even",
+        "parameters": [],
+        "description": "`even` returns `true` if the given number is even:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/even.html",
+        "completionSnippet": "is even",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/even.rst"
+        }
+      },
+      {
+        "name": "iterable",
+        "signature": "iterable",
+        "parameters": [],
+        "description": "`iterable` checks if a variable is an array or a traversable object:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/iterable.html",
+        "completionSnippet": "is iterable",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/iterable.rst"
+        }
+      },
+      {
+        "name": "mapping",
+        "signature": "mapping",
+        "parameters": [],
+        "description": "`mapping` checks if a variable is a mapping:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/mapping.html",
+        "completionSnippet": "is mapping",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::testMapping",
+          "docsPath": "doc/tests/mapping.rst"
+        }
+      },
+      {
+        "name": "none",
+        "signature": "none",
+        "parameters": [],
+        "description": "none is registered by Twig.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/none.html",
+        "completionSnippet": "is none",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension"
+        }
+      },
+      {
+        "name": "null",
+        "signature": "null",
+        "parameters": [],
+        "description": "`null` returns `true` if the variable is `null`:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/null.html",
+        "completionSnippet": "is null",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/null.rst"
+        }
+      },
+      {
+        "name": "odd",
+        "signature": "odd",
+        "parameters": [],
+        "description": "`odd` returns `true` if the given number is odd:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/odd.html",
+        "completionSnippet": "is odd",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/odd.rst"
+        }
+      },
+      {
+        "name": "same as",
+        "signature": "same as(value)",
+        "parameters": [
+          {
+            "name": "value",
+            "type": "mixed",
+            "optional": false,
+            "description": "The value to compare with strict identity."
+          }
+        ],
+        "description": "`same as` checks if a variable is the same as another variable.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/sameas.html",
+        "completionSnippet": "is same as($1)",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension",
+          "docsPath": "doc/tests/sameas.rst"
+        }
+      },
+      {
+        "name": "sequence",
+        "signature": "sequence",
+        "parameters": [],
+        "description": "`sequence` checks if a variable is a sequence:",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/sequence.html",
+        "completionSnippet": "is sequence",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension::testSequence",
+          "docsPath": "doc/tests/sequence.rst"
+        }
+      },
+      {
+        "name": "true",
+        "signature": "true",
+        "parameters": [],
+        "description": "true is registered by Twig.",
+        "docsUrl": "https://twig.symfony.com/doc/3.x/tests/true.html",
+        "completionSnippet": "is true",
+        "source": {
+          "extension": "CoreExtension",
+          "phpClass": "CoreExtension"
+        }
+      }
+    ],
+    "globals": []
+  }
+}

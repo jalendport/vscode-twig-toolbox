@@ -1,0 +1,126 @@
+{
+	"entries": {
+		"tags": [
+			{
+				"name": "apply",
+				"completionSnippet": "{% apply $1 %}\n\t$0\n{% endapply %}"
+			},
+			{
+				"name": "autoescape",
+				"completionSnippet": "{% autoescape '$1' %}\n\t$0\n{% endautoescape %}"
+			},
+			{
+				"name": "block",
+				"completionSnippet": "{% block $1 %}\n\t$0\n{% endblock %}"
+			},
+			{
+				"name": "cache",
+				"completionSnippet": "{% cache \"$1\" %}\n\t$0\n{% endcache %}"
+			},
+			{
+				"name": "deprecated",
+				"completionSnippet": "{% deprecated '$1' %}"
+			},
+			{
+				"name": "do",
+				"completionSnippet": "{% do $1 %}"
+			},
+			{
+				"name": "embed",
+				"completionSnippet": "{% embed '$1' %}\n\t$0\n{% endembed %}"
+			},
+			{
+				"name": "extends",
+				"completionSnippet": "{% extends '$1' %}"
+			},
+			{
+				"name": "flush",
+				"completionSnippet": "{% flush %}"
+			},
+			{
+				"name": "for",
+				"completionSnippet": "{% for $1 in $2 %}\n\t$0\n{% endfor %}"
+			},
+			{
+				"name": "from",
+				"completionSnippet": "{% from '$1' import $2 %}"
+			},
+			{
+				"name": "guard",
+				"completionSnippet": "{% guard function $1 %}\n\t$0\n{% endguard %}"
+			},
+			{
+				"name": "if",
+				"completionSnippet": "{% if $1 %}\n\t$0\n{% endif %}"
+			},
+			{
+				"name": "import",
+				"completionSnippet": "{% import '$1' as $2 %}"
+			},
+			{
+				"name": "include",
+				"completionSnippet": "{% include '$1' %}"
+			},
+			{
+				"name": "macro",
+				"completionSnippet": "{% macro $1($2) %}\n\t$0\n{% endmacro %}"
+			},
+			{
+				"name": "sandbox",
+				"completionSnippet": "{% sandbox %}\n\t$0\n{% endsandbox %}"
+			},
+			{
+				"name": "set",
+				"completionSnippet": "{% set $1 = $2 %}"
+			},
+			{
+				"name": "types",
+				"completionSnippet": "{% types { $1: '$2' } %}"
+			},
+			{
+				"name": "use",
+				"completionSnippet": "{% use '$1' %}"
+			},
+			{
+				"name": "verbatim",
+				"completionSnippet": "{% verbatim %}\n\t$0\n{% endverbatim %}"
+			},
+			{
+				"name": "with",
+				"completionSnippet": "{% with $1 %}\n\t$0\n{% endwith %}"
+			}
+		],
+		"filters": [
+			{
+				"name": "e",
+				"description": "The `e` filter is an alias for `escape`."
+			}
+		],
+		"tests": [
+			{
+				"name": "same as",
+				"parameters": [
+					{
+						"name": "value",
+						"type": "mixed",
+						"optional": false,
+						"description": "The value to compare with strict identity."
+					}
+				],
+				"signature": "same as(value)"
+			},
+			{
+				"name": "divisible by",
+				"parameters": [
+					{
+						"name": "value",
+						"type": "number",
+						"optional": false,
+						"description": "The divisor to test against."
+					}
+				],
+				"signature": "divisible by(value)"
+			}
+		]
+	}
+}

@@ -4,6 +4,7 @@ dist
 *.vsix
 .env
 .vscode-test
+.cache/
 
 # Build-time copies of the root assets into the extension package (see scripts/assets.mjs).
 packages/extension/syntaxes/
