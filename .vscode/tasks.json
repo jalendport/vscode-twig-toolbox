@@ -1,0 +1,40 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"group": "build",
+			"problemMatcher": "$tsc"
+		},
+		{
+			"type": "npm",
+			"script": "watch",
+			"group": { "kind": "build", "isDefault": true },
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "esbuild",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					"regexp": "^.*?(ERROR|WARNING):\\s+(.*?):(\\d+):(\\d+):\\s+(.*)$",
+					"severity": 1,
+					"file": 2,
+					"line": 3,
+					"column": 4,
+					"message": 5
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^\\[watch\\] build started$",
+					"endsPattern": "^(Watching for changes\\.\\.\\.|\\[watch\\] build finished)$"
+				}
+			}
+		},
+		{
+			"type": "npm",
+			"script": "test",
+			"group": "test",
+			"problemMatcher": []
+		}
+	]
+}

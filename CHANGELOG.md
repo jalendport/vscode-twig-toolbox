@@ -1,9 +1,13 @@
 # Change Log
 
-All notable changes to the "twig" extension will be documented in this file.
+All notable changes to the Twig Toolbox extension are documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+This project follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
-- Initial release
+### Added
+
+- Monorepo foundation: npm workspaces for the extension, language server, and parser.
+- A language server that starts on Twig files (no language features yet).
+- `.html.twig` files are recognised as Twig.
