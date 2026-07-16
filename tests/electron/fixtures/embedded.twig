@@ -1,0 +1,5 @@
+<div class="card" style="color: red">
+	{% for item in items %}
+		<a href="{{ item.url|upper }}">{{ item.title }}</a>
+	{% endfor %}
+</div>

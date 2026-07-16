@@ -8,7 +8,41 @@ CraftCMS awareness.
 ## Features
 
 - Syntax highlighting for `.twig` and `.html.twig`
-- A language server that starts on Twig files (no language features yet)
+- Syntax diagnostics, context-aware completions, hover docs and signature help
+- Embedded HTML and CSS: tag/attribute completions, hover, auto-closing tags, matching-tag
+  highlights, and CSS completions in `<style>` blocks and inline `style=""` attributes
+
+## HTML, CSS and Emmet
+
+A Twig file is an HTML file, so HTML and CSS support is built in — no companion extension needed.
+Twig constructs are masked out of a shadow copy of the document before VS Code's own HTML and CSS
+language services see it, so `{{ … }}` and `{% … %}` get Twig completions while everything around
+them gets HTML.
+
+**Emmet works out of the box.** The extension contributes
+
+```jsonc
+"emmet.includeLanguages": { "twig": "html" }
+```
+
+as a default, and VS Code merges object settings key by key — so this holds even if you have your own
+`emmet.includeLanguages`. You only need to add the mapping yourself if you have explicitly set `twig`
+to something else:
+
+```jsonc
+"emmet.includeLanguages": {
+  "twig": "html"
+}
+```
+
+Auto-closing tags and attribute quotes can be turned off with `twigToolbox.autoClosingTags` and
+`twigToolbox.autoCreateQuotes`.
+
+### Known limitations
+
+- JavaScript inside `<script>` is highlighted but gets no IntelliSense — no completions, hover or
+  diagnostics. Full JS support in `<script>` is out of scope.
+- HTML formatting is not provided.
 
 ## Development
 
