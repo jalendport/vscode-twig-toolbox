@@ -214,13 +214,24 @@ describe('resolveCatalogPath', () => {
 });
 
 describe('CatalogRegistry', () => {
-	it('loads the default core catalog', () => {
+	it('loads every shipped catalog', () => {
 		const registry = CatalogRegistry.loadDefault();
 		const entries = registry.getMergedEntries();
 
-		expect(registry.packs).toHaveLength(1);
+		expect(registry.packs.map((pack) => pack.name)).toEqual(['twig-core', 'craft']);
 		expect(entries.tags.get('for')?.pack.displayName).toBe('Twig');
 		expect(entries.filters.get('date')?.source?.docsPath).toBe('doc/filters/date.rst');
+	});
+
+	// Shipped is not activated: the Craft pack is on disk in every install, and
+	// stays out of a plain Twig project's completions until composer says
+	// otherwise.
+	it('leaves the shipped Craft pack inactive outside a Craft project', () => {
+		const registry = CatalogRegistry.loadDefault();
+
+		expect(registry.getActivePacks().map((pack) => pack.name)).toEqual(['twig-core']);
+		expect(registry.getMergedEntries().tags.get('cache')?.pack.name).toBe('twig-core');
+		expect(registry.getMergedObjects().size).toBe(0);
 	});
 
 	it('activates composer-gated packs only when matching packages are present', () => {

@@ -3,8 +3,12 @@ dist
 *.vsix
 .plan
 
-# Generated catalog output (byte-determinism owned by scripts/generate-core.ts).
+# Pinned upstream checkouts the generators read (scripts/lib/checkout.ts).
+.cache
+
+# Generated catalog output (byte-determinism owned by the scripts/generate-*.ts).
 catalogs/twig-core.json
+catalogs/craft.json
 
 # Grammar + language config are hand-maintained (milestone 01 owns their formatting).
 syntaxes/twig.tmLanguage.json

@@ -13,6 +13,7 @@
 		"build": "npm run typecheck && node scripts/build.mjs",
 		"watch": "node scripts/build.mjs --watch",
 		"generate:core": "tsx scripts/generate-core.ts",
+		"generate:craft": "tsx scripts/generate-craft.ts",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run && npm run test:grammar",
 		"test:grammar": "node scripts/grammar-test.mjs",

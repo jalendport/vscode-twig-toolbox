@@ -1,0 +1,119 @@
+{
+	"$comment": "Hand-tuned corrections merged over the generated craft.json by scripts/generate-craft.ts. Every name here must already exist in the scrape — the generator throws otherwise, so a stale override is a build failure rather than a silent lie. Block-tag snippets are the bulk of it: Craft's token parsers know their end tags, but nothing in the source or docs describes the body a template author actually wants scaffolded.",
+	"entries": {
+		"tags": [
+			{
+				"name": "cache",
+				"completionSnippet": "{% cache %}\n\t$0\n{% endcache %}"
+			},
+			{
+				"name": "css",
+				"completionSnippet": "{% css %}\n\t$0\n{% endcss %}"
+			},
+			{
+				"name": "html",
+				"completionSnippet": "{% html %}\n\t$0\n{% endhtml %}"
+			},
+			{
+				"name": "js",
+				"completionSnippet": "{% js %}\n\t$0\n{% endjs %}"
+			},
+			{
+				"name": "script",
+				"completionSnippet": "{% script %}\n\t$0\n{% endscript %}"
+			},
+			{
+				"name": "namespace",
+				"completionSnippet": "{% namespace '${1:foo}' %}\n\t$0\n{% endnamespace %}"
+			},
+			{
+				"name": "nav",
+				"completionSnippet": "{% nav ${1:entry} in ${2:entries} %}\n\t$0\n{% endnav %}"
+			},
+			{
+				"name": "switch",
+				"completionSnippet": "{% switch ${1:value} %}\n\t{% case ${2:'first'} %}\n\t\t$0\n\t{% default %}\n{% endswitch %}"
+			},
+			{
+				"name": "tag",
+				"completionSnippet": "{% tag '${1:div}' %}\n\t$0\n{% endtag %}"
+			},
+			{
+				"name": "paginate",
+				"completionSnippet": "{% paginate ${1:query} as ${2:pageInfo}, ${3:pageEntries} %}"
+			},
+			{
+				"name": "exit",
+				"completionSnippet": "{% exit ${1:404} %}"
+			},
+			{
+				"name": "redirect",
+				"completionSnippet": "{% redirect '${1:foo/bar}' %}"
+			},
+			{
+				"name": "requireLogin",
+				"completionSnippet": "{% requireLogin %}"
+			},
+			{
+				"name": "requireGuest",
+				"completionSnippet": "{% requireGuest %}"
+			},
+			{
+				"name": "requireAdmin",
+				"completionSnippet": "{% requireAdmin %}"
+			},
+			{
+				"name": "requirePermission",
+				"completionSnippet": "{% requirePermission '${1:permissionName}' %}"
+			},
+			{
+				"name": "requireEdition",
+				"completionSnippet": "{% requireEdition ${1:CraftPro} %}"
+			},
+			{
+				"name": "hook",
+				"completionSnippet": "{% hook '${1:hookName}' %}"
+			},
+			{
+				"name": "expires",
+				"completionSnippet": "{% expires in ${1:1 hour} %}"
+			},
+			{
+				"name": "header",
+				"completionSnippet": "{% header '${1:Content-Type: application/json}' %}"
+			},
+			{
+				"name": "dd",
+				"completionSnippet": "{% dd ${1:value} %}"
+			},
+			{
+				"name": "dump",
+				"completionSnippet": "{% dump ${1:value} %}"
+			}
+		]
+	},
+	"objects": [
+		{
+			"name": "craft",
+			"$comment": "Yii components declared only as `@property` in CraftVariable's class docblock: the generator can read their names and types, but a type name is not a description.",
+			"members": [
+				{
+					"name": "cp",
+					"description": "Control-panel helpers — nav items, and the CP’s own URLs."
+				},
+				{
+					"name": "io",
+					"description": "Filesystem helpers."
+				},
+				{
+					"name": "rebrand",
+					"description": "The custom logo and site icon a project has been rebranded with."
+				},
+				{
+					"name": "routes",
+					"description": "The routes defined in Settings → Routes."
+				}
+			]
+		}
+	]
+}

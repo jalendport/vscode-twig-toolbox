@@ -8,6 +8,8 @@ export default tseslint.config(
 		ignores: [
 			'**/dist/**',
 			'**/node_modules/**',
+			// Pinned upstream checkouts the generators read (scripts/lib/checkout.ts).
+			'.cache/**',
 			'**/.vscode-test/**',
 			'**/*.vsix',
 			'packages/extension/syntaxes/**',
