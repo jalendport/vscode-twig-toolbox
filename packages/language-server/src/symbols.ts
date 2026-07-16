@@ -35,10 +35,16 @@ export interface TwigSymbol {
 	readonly kind: TwigSymbolKind;
 	/** Offsets over which the name resolves to this definition. */
 	readonly scope: SourceRange;
+	/** Source range of the construct that introduced the symbol. */
+	readonly definitionRange?: SourceRange;
 	/** Innermost wall enclosing the definition; 0 is the template itself. */
 	readonly wall: number;
 	/** Short right-hand summary, e.g. a macro signature or the loop sequence. */
 	readonly detail?: string;
+	/** Full callable signature when the symbol can be called. */
+	readonly signature?: string;
+	readonly params?: readonly MacroParam[];
+	readonly importedFrom?: string;
 	/** Key member providers resolve members against — see `members.ts`. */
 	readonly typeName?: string;
 }
@@ -158,12 +164,20 @@ class Collector {
 					name: target.name,
 					kind: 'loop-variable',
 					scope,
+					definitionRange: { start: target.start, end: target.end },
 					wall: state.wall,
 					...(sequence === '' ? {} : { detail: `for … in ${sequence}` }),
 				});
 			}
 		}
-		this.add({ name: 'loop', kind: 'loop', scope, wall: state.wall, typeName: 'loop' });
+		this.add({
+			name: 'loop',
+			kind: 'loop',
+			scope,
+			definitionRange: { start: tag.start, end: tag.nameRange.end },
+			wall: state.wall,
+			typeName: 'loop',
+		});
 		this.walk(tag.body, state);
 		this.walk(tag.elseBody ?? [], state);
 	}
@@ -178,6 +192,7 @@ class Collector {
 				name: target.name,
 				kind: 'variable',
 				scope,
+				definitionRange: { start: tag.start, end: tag.end },
 				wall: state.wall,
 				...(value === undefined ? {} : { detail: `= ${this.text(value)}` }),
 			});
@@ -194,6 +209,7 @@ class Collector {
 				name: param.name.name,
 				kind: 'parameter',
 				scope: body,
+				definitionRange: { start: param.start, end: param.end },
 				wall,
 				...(param.default === undefined ? {} : { detail: `= ${this.text(param.default)}` }),
 			});
@@ -209,7 +225,13 @@ class Collector {
 			for (const entry of tag.variables.entries) {
 				const name = entry.type === 'HashEntry' ? hashKeyName(entry.key) : undefined;
 				if (name !== undefined) {
-					this.add({ name, kind: 'variable', scope: range, wall });
+					this.add({
+						name,
+						kind: 'variable',
+						scope: range,
+						definitionRange: { start: entry.start, end: entry.end },
+						wall,
+					});
 				}
 			}
 		}
@@ -221,12 +243,15 @@ class Collector {
 			return;
 		}
 		const template = tag.template;
+		const importedFrom = template === undefined ? undefined : this.text(template);
 		this.add({
 			name: tag.alias.name,
 			kind: 'macro-namespace',
 			scope: { start: tag.end, end: state.wallEnd },
+			definitionRange: { start: tag.start, end: tag.end },
 			wall: state.wall,
-			detail: template === undefined ? 'macros' : `macros from ${this.text(template)}`,
+			detail: importedFrom === undefined ? 'macros' : `macros from ${importedFrom}`,
+			...(importedFrom === undefined ? {} : { importedFrom }),
 			// Cross-template macros need the loader from milestone 08; `_self`
 			// resolves against this document's own macros today.
 			...(isSelf(template) ? { typeName: 'macros:_self' } : {}),
@@ -235,6 +260,7 @@ class Collector {
 
 	private fromTag(tag: FromTag, state: WalkState): void {
 		const local = isSelf(tag.template);
+		const importedFrom = tag.template === undefined ? undefined : this.text(tag.template);
 		for (const imported of tag.imports) {
 			const name = imported.alias?.name ?? imported.macroName?.name;
 			if (name === undefined) {
@@ -247,8 +273,12 @@ class Collector {
 				name,
 				kind: 'macro',
 				scope: { start: tag.end, end: state.wallEnd },
+				definitionRange: { start: tag.start, end: tag.end },
 				wall: state.wall,
 				detail: macro?.signature ?? `${name}()`,
+				signature: macro?.signature ?? `${name}()`,
+				...(macro === undefined ? {} : { params: macro.params }),
+				...(importedFrom === undefined ? {} : { importedFrom }),
 			});
 		}
 	}

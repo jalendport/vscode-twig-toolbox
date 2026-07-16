@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`hover markdown > renders {% for item in items %}{{ loop.ind‸ex }}{% endfor %} (loop member) 1`] = `
+"\`\`\`twig
+index: number
+\`\`\`
+
+The current iteration, starting at 1.
+
+**Source:** Twig"
+`;
+
+exports[`hover markdown > renders {% macro button(label, url = "#") %}{% endmacro %}{{ _self.but‸ton("Read") }} (macro member) 1`] = `
+"\`\`\`twig
+button(label, url = "#")
+\`\`\`
+
+Macro defined in this template.
+
+| Parameter | Optional | Default |
+| --- | --- | --- |
+| label | No |  |
+| url | Yes | "#" |
+
+\`\`\`twig
+{% macro button(label, url = "#") %}{% endmacro %}
+\`\`\`"
+`;
+
+exports[`hover markdown > renders {% set hero = entry.heroImage %}
+{{ he‸ro }} (set variable usage) 1`] = `
+"\`\`\`twig
+hero = entry.heroImage
+\`\`\`
+
+Variable set in this template.
+
+\`\`\`twig
+{% set hero = entry.heroImage %}
+\`\`\`"
+`;
+
+exports[`hover markdown > renders {% set slice = 1 %}{{ sli‸ce }} (local variable with same name as filter) 1`] = `
+"\`\`\`twig
+slice = 1
+\`\`\`
+
+Variable set in this template.
+
+\`\`\`twig
+{% set slice = 1 %}
+\`\`\`"
+`;
+
+exports[`hover markdown > renders {{ items|sli‸ce }} (catalog filter) 1`] = `
+"\`\`\`twig
+slice(start, length? = null, preserveKeys? = false)
+\`\`\`
+
+The \`slice\` filter extracts a slice of a sequence, a mapping, or a string.
+
+| Parameter | Type | Optional | Default | Description |
+| --- | --- | --- | --- | --- |
+| start | number | No |  | The start of the slice. |
+| length | number | Yes | null | The size of the slice. |
+| preserveKeys | boolean | Yes | false | Whether to preserve keys. |
+
+**Source:** Twig
+
+[Documentation ↗](https://twig.symfony.com/doc/3.x/filters/slice.html)"
+`;

@@ -1,11 +1,19 @@
-import type { CompletionItem, Diagnostic, Position } from 'vscode-languageserver/node';
+import type {
+	CompletionItem,
+	Diagnostic,
+	Hover,
+	Position,
+	SignatureHelp,
+} from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogRegistry, WorkspaceCatalogContext } from './catalog';
 import { getCompletions } from './completions';
 import { getDiagnostics } from './diagnostics';
 import { DocumentStore, type DocumentStoreOptions, type ParsedDocument } from './document-store';
+import { getHover } from './hover';
 import type { MemberProvider } from './members';
 import type { TwigToolboxSettings } from './settings';
+import { getSignatureHelp } from './signatures';
 
 export interface TwigServerCoreOptions {
 	readonly catalogRegistry: CatalogRegistry;
@@ -65,6 +73,34 @@ export class TwigServerCore {
 		}
 
 		return getCompletions(parsed, parsed.document.offsetAt(position), {
+			catalogRegistry: this.catalogRegistry,
+			...(this.memberProviders === undefined
+				? {}
+				: { memberProviders: this.memberProviders }),
+		});
+	}
+
+	hover(uri: string, position: Position): Hover | undefined {
+		const parsed = this.documents.getParsed(uri);
+		if (parsed === undefined) {
+			return undefined;
+		}
+
+		return getHover(parsed, parsed.document.offsetAt(position), {
+			catalogRegistry: this.catalogRegistry,
+			...(this.memberProviders === undefined
+				? {}
+				: { memberProviders: this.memberProviders }),
+		});
+	}
+
+	signatureHelp(uri: string, position: Position): SignatureHelp | undefined {
+		const parsed = this.documents.getParsed(uri);
+		if (parsed === undefined) {
+			return undefined;
+		}
+
+		return getSignatureHelp(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
 			...(this.memberProviders === undefined
 				? {}

@@ -52,6 +52,10 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 				triggerCharacters: ['{', '%', '|', '.', '"', "'"],
 				resolveProvider: false,
 			},
+			hoverProvider: true,
+			signatureHelpProvider: {
+				triggerCharacters: ['(', ','],
+			},
 		},
 		serverInfo: {
 			name: 'Twig Toolbox Language Server',
@@ -84,6 +88,12 @@ documents.onDidClose(({ document }) => {
 
 connection.onCompletion(
 	({ textDocument, position }) => server?.complete(textDocument.uri, position) ?? [],
+);
+
+connection.onHover(({ textDocument, position }) => server?.hover(textDocument.uri, position));
+
+connection.onSignatureHelp(({ textDocument, position }) =>
+	server?.signatureHelp(textDocument.uri, position),
 );
 
 connection.onDidChangeConfiguration(() => {

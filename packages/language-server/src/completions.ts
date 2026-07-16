@@ -3,7 +3,6 @@ import {
 	CompletionItemKind,
 	CompletionItemTag,
 	InsertTextFormat,
-	MarkupKind,
 	type CompletionItem,
 	type Range,
 } from 'vscode-languageserver/node';
@@ -22,6 +21,7 @@ import {
 	type MemberCompletion,
 	type MemberProvider,
 } from './members';
+import { catalogMarkup, firstSentence, markdown } from './markdown';
 import { findRegions } from './regions';
 import { collectSymbols, type SymbolTable, type TwigSymbol } from './symbols';
 
@@ -270,7 +270,7 @@ function memberItem(member: MemberCompletion, range: Range): CompletionItem {
 		...(member.source === undefined ? {} : { labelDetails: { description: member.source } }),
 		...(member.documentation === undefined
 			? {}
-			: { documentation: { kind: MarkupKind.Markdown, value: member.documentation } }),
+			: { documentation: markdown(member.documentation) }),
 		sortText: `${RANK.local}:${member.name}`,
 		insertTextFormat: InsertTextFormat.Snippet,
 		textEdit: { range, newText: member.insertText ?? member.name },
@@ -292,8 +292,7 @@ function parameterItems(
 			? {}
 			: {
 					documentation: {
-						kind: MarkupKind.Markdown,
-						value: parameter.description,
+						...markdown(parameter.description),
 					},
 				}),
 		sortText: `${RANK.local}:${parameter.name}`,
@@ -309,32 +308,8 @@ function describe(entry: CatalogEntryWithProvenance, kind: CatalogEntryKind): Co
 		detail: firstSentence(entry.description),
 		labelDetails: { description: entry.pack.displayName },
 		...(entry.deprecated === undefined ? {} : { tags: [CompletionItemTag.Deprecated] }),
-		documentation: { kind: MarkupKind.Markdown, value: documentation(entry) },
+		documentation: catalogMarkup(entry),
 	};
-}
-
-function documentation(entry: CatalogEntryWithProvenance): string {
-	const parts = [`\`\`\`twig\n${entry.signature}\n\`\`\``];
-	if (entry.deprecated !== undefined) {
-		const detail = entry.deprecated.message ?? '';
-		parts.push(
-			`**Deprecated** since ${entry.deprecated.sinceVersion}.${detail === '' ? '' : ` ${detail}`}`,
-		);
-	}
-	if (entry.description !== '') {
-		parts.push(entry.description);
-	}
-	if (entry.sinceVersion !== undefined) {
-		parts.push(`Available since ${entry.pack.displayName} ${entry.sinceVersion}.`);
-	}
-	parts.push(`[${entry.pack.displayName} documentation](${entry.docsUrl})`);
-	return parts.join('\n\n');
-}
-
-/** Detail lines get one sentence; the panel gets the rest. */
-function firstSentence(description: string): string {
-	const match = /^[\s\S]*?\.(?=\s|$)/.exec(description.trim());
-	return (match?.[0] ?? description).replace(/\s+/g, ' ').trim();
 }
 
 function toRange(document: TextDocument, range: SourceRange): Range {

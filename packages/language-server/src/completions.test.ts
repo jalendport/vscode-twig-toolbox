@@ -308,7 +308,7 @@ describe('presentation', () => {
 		expect(documentation.kind).toBe('markdown');
 		expect(documentation.value).toContain('It leaves other characters alone.');
 		expect(documentation.value).toContain(
-			'[Twig documentation](https://twig.symfony.com/doc/3.x/filters/upper.html)',
+			'[Documentation ↗](https://twig.symfony.com/doc/3.x/filters/upper.html)',
 		);
 	});
 
