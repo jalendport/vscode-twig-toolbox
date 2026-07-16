@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% trans_default_domain 'messages' %}
+
+{% block title %}{{ 'page.products.title'|trans }} — {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	{{ encore_entry_link_tags('products') }}
+{% endblock %}
+
+{% block body %}
+	{% if app.user is not null and is_granted('ROLE_ADMIN') %}
+		<div class="admin-bar">
+			{{ 'admin.logged_in_as'|trans({ '%name%': app.user.userIdentifier }) }}
+			<a href="{{ path('admin_dashboard') }}">{{ 'admin.dashboard'|trans }}</a>
+		</div>
+	{% endif %}
+
+	{% for message in app.flashes('notice') %}
+		<div class="flash-notice">{{ message }}</div>
+	{% else %}
+		{# no flashes pending #}
+	{% endfor %}
+
+	<form method="post" action="{{ path('product_search') }}">
+		{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+		{{ form_row(form.query, { label: 'search.query'|trans, attr: { autofocus: true } }) }}
+		{{ form_errors(form) }}
+		{{ form_end(form) }}
+	</form>
+
+	{% set columns = { name: 'product.name', price: 'product.price', stock: 'product.stock' } %}
+
+	<table>
+		<thead>
+			<tr>
+				{% for field, labelKey in columns %}
+					<th data-field="{{ field }}"
+						class="{{ sortField == field ? 'is-sorted' : '' }} {{ loop.last ? 'is-last' }}">
+						<a href="{{ path('product_index', { sort: field, dir: sortDir == 'asc' ? 'desc' : 'asc' }) }}">
+							{{ labelKey|trans }}
+						</a>
+					</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for product in products %}
+				{% set rowClass = cycle(['odd', 'even'], loop.index0) %}
+				<tr class="{{ rowClass }}">
+					<td>{{ product.name|u.truncate(40, '…') }}</td>
+					<td>{{ product.price|format_currency('EUR', { fraction_digit: 2 }) }}</td>
+					<td>
+						{% if product.stock > 10 %}
+							{{ 'stock.plenty'|trans }}
+						{% elseif product.stock > 0 %}
+							{{ 'stock.low'|trans({ '%count%': product.stock }) }}
+						{% else %}
+							{{ 'stock.none'|trans }}
+						{% endif %}
+					</td>
+				</tr>
+			{% else %}
+				<tr><td colspan="{{ columns|length }}">{{ 'product.empty'|trans }}</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	{{ knp_pagination_render(products) }}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		window.locale = {{ app.request.locale|json_encode|raw }};
+	</script>
+{% endblock %}

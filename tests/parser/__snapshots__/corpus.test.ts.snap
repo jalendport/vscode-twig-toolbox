@@ -1,0 +1,2406 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parser corpus > ../grammar/fixtures/craft.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Comment (value=" Craft-only tags. The grammar …")
+  body: GenericTag (name="requirePermission")
+    args: StringLiteral (value="accessCp")
+      parts: StringText (value="accessCp")
+  body: GenericTag (name="exit")
+    args: NumberLiteral (value=404 raw="404")
+  body: GenericTag (name="header")
+    args: StringLiteral (value="Cache-Control: no-cache")
+      parts: StringText (value="Cache-Control: no-cache")
+  body: GenericTag (name="redirect")
+    args: StringLiteral (value="somewhere/else")
+      parts: StringText (value="somewhere/else")
+  body: GenericTag (name="expires")
+    args: NumberLiteral (value=60 raw="60")
+  body: GenericTag (name="dump")
+    args: Identifier (name="entry")
+  body: GenericTag (name="cache")
+    args: Identifier (name="globally")
+    args: Identifier (name="for")
+    args: NumberLiteral (value=1 raw="1")
+    args: Identifier (name="hour")
+    body: GenericTag (name="nav")
+      args: BinaryExpression (operator="in")
+        left: Identifier (name="item")
+        right: Identifier (name="entries")
+      body: Output
+        expression: MemberAccess
+          object: Identifier (name="item")
+          property: Identifier (name="url")
+      body: Output
+        expression: MemberAccess
+          object: Identifier (name="item")
+          property: Identifier (name="title")
+      body: GenericTag (name="ifchildren")
+        body: GenericTag (name="children")
+  body: GenericTag (name="paginate")
+    args: CallExpression
+      callee: MemberAccess
+        object: CallExpression
+          callee: MemberAccess
+            object: MemberAccess
+              object: Identifier (name="craft")
+              property: Identifier (name="entries")
+            property: Identifier (name="section")
+          args: Argument
+            value: StringLiteral (value="news")
+              parts: StringText (value="news")
+        property: Identifier (name="limit")
+      args: Argument
+        value: NumberLiteral (value=10 raw="10")
+    args: Identifier (name="as")
+    args: Identifier (name="pageInfo")
+    args: Identifier (name="entries")
+  body: ForTag (name="for")
+    valueTarget: Identifier (name="entry")
+    sequence: Identifier (name="entries")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="title")
+  body: GenericTag (name="switch")
+    args: MemberAccess
+      object: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="type")
+      property: Identifier (name="handle")
+    body: GenericTag (name="case")
+      args: StringLiteral (value="article")
+        parts: StringText (value="article")
+    body: GenericTag (name="hook")
+      args: StringLiteral (value="article.render")
+        parts: StringText (value="article.render")
+    body: GenericTag (name="case")
+      args: StringLiteral (value="link")
+        parts: StringText (value="link")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="linkUrl")
+    body: GenericTag (name="default")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="summary")
+  body: GenericTag (name="tag")
+    args: StringLiteral (value="div")
+      parts: StringText (value="div")
+    args: Identifier (name="with")
+    args: HashLiteral
+      entries: HashEntry
+        key: Identifier (name="class")
+        value: StringLiteral (value="wrapper")
+          parts: StringText (value="wrapper")
+    body: Output
+      expression: Identifier (name="content")
+  body: GenericTag (name="js")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="id")
+  body: GenericTag (name="css")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="id")
+  body: GenericTag (name="html")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="id")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/delimiters.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Comment (value=" a one-line comment ")
+  body: Comment (value="\\n\\ta multi-line comment\\n\\t{{ thi…")
+  body: Comment (value=" trimmed on both sides ")
+  body: Comment (value=" line-trimmed on both sides ")
+  body: Output
+    expression: Identifier (name="plain")
+  body: Output
+    expression: Identifier (name="trimmed")
+  body: Output
+    expression: Identifier (name="line_trimmed")
+  body: Output
+    expression: Identifier (name="mixed")
+  body: Output
+    expression: Identifier (name="mixed")
+  body: GenericTag (name="plain")
+  body: GenericTag (name="trimmed")
+  body: GenericTag (name="line_trimmed")
+  body: GenericTag (name="mixed")
+  body: GenericTag (name="mixed")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/embedded.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Output
+    expression: Identifier (name="locale")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="title")
+      name: Identifier (name="default")
+      args: Argument
+        value: StringLiteral (value="Untitled")
+          parts: StringText (value="Untitled")
+  body: Output
+    expression: Identifier (name="siteName")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="brand")
+      property: Identifier (name="hex")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="brand")
+      property: Identifier (name="text")
+  body: Output
+    expression: Identifier (name="spacing")
+  body: ForTag (name="for")
+    keyTarget: Identifier (name="name")
+    valueTarget: Identifier (name="hex")
+    sequence: Identifier (name="palette")
+    body: Output
+      expression: Identifier (name="name")
+    body: Output
+      expression: Identifier (name="hex")
+  body: Comment (value=" a Twig comment inside CSS ")
+  body: Output
+    expression: Identifier (name="styleAttrs")
+  body: Output
+    expression: Identifier (name="bodyClass")
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: Identifier (name="isHome")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="entry")
+      property: Identifier (name="id")
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: Identifier (name="analyticsId")
+      body: Output
+        expression: Identifier (name="analyticsId")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="extraAttributes")
+      name: Identifier (name="raw")
+  body: Output
+    expression: Identifier (name="renderedAt")
+  body: Comment (value=" a Twig comment inside an HTML…")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="hero")
+      property: Identifier (name="url")
+  body: Output
+    expression: FilterExpression
+      target: MemberAccess
+        object: Identifier (name="hero")
+        property: Identifier (name="alt")
+      name: Identifier (name="e")
+      args: Argument
+        value: StringLiteral (value="html_attr")
+          parts: StringText (value="html_attr")
+  body: Output
+    expression: ConditionalExpression
+      test: Identifier (name="checked")
+      consequent: StringLiteral (value="checked")
+        parts: StringText (value="checked")
+      alternate: StringLiteral
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="entry")
+      property: Identifier (name="id")
+  body: Output
+    expression: FilterExpression
+      target: FilterExpression
+        target: MemberAccess
+          object: Identifier (name="entry")
+          property: Identifier (name="title")
+        name: Identifier (name="json_encode")
+      name: Identifier (name="raw")
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: Identifier (name="debug")
+  body: ForTag (name="for")
+    valueTarget: Identifier (name="item")
+    sequence: Identifier (name="items")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="item")
+        property: Identifier (name="id")
+  body: Output
+    expression: StringLiteral (value="a Twig expression inside a JS …")
+      parts: StringText (value="a Twig expression inside a JS …")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="entry")
+      property: Identifier (name="id")
+  body: VerbatimTag (name="verbatim" value="\\n\\t\\tconst template = \`{{ notTwi…")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/expressions.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Comment (value=" strings ")
+  body: Output
+    expression: StringLiteral (value="single")
+      parts: StringText (value="single")
+  body: Output
+    expression: StringLiteral (value="double")
+      parts: StringText (value="double")
+  body: Output
+    expression: StringLiteral (value="it's escaped")
+      parts: StringText (value="it's escaped")
+  body: Output
+    expression: StringLiteral (value="tab\\there")
+      parts: StringText (value="tab\\there")
+  body: Output
+    expression: StringLiteral (value="hello ")
+      parts: StringText (value="hello ")
+      parts: Interpolation
+        expression: Identifier (name="name")
+  body: Output
+    expression: StringLiteral (value="sum: ")
+      parts: StringText (value="sum: ")
+      parts: Interpolation
+        expression: BinaryExpression (operator="+")
+          left: Identifier (name="a")
+          right: FilterExpression
+            target: Identifier (name="b")
+            name: Identifier (name="round")
+  body: Output
+    expression: StringLiteral (value="nested ")
+      parts: StringText (value="nested ")
+      parts: Interpolation
+        expression: FilterExpression
+          target: HashLiteral
+            entries: HashEntry
+              key: Identifier (name="a")
+              value: NumberLiteral (value=1 raw="1")
+          name: Identifier (name="json_encode")
+  body: Output
+    expression: StringLiteral (value="no #{interpolation} here")
+      parts: StringText (value="no #{interpolation} here")
+  body: Comment (value=" numbers and constants ")
+  body: Output
+    expression: NumberLiteral (value=0 raw="0")
+  body: Output
+    expression: NumberLiteral (value=42 raw="42")
+  body: Output
+    expression: NumberLiteral (value=3.14 raw="3.14")
+  body: Output
+    expression: NumberLiteral (value=1000000 raw="1_000_000")
+  body: Output
+    expression: NumberLiteral (value=1500 raw="1.5e3")
+  body: Output
+    expression: BinaryExpression (operator="..")
+      left: NumberLiteral (value=1 raw="1")
+      right: NumberLiteral (value=5 raw="5")
+  body: Output
+    expression: BooleanLiteral (value=true)
+  body: Output
+    expression: BooleanLiteral (value=true)
+  body: Output
+    expression: BooleanLiteral (value=false)
+  body: Output
+    expression: NullLiteral
+  body: Output
+    expression: NullLiteral
+  body: Output
+    expression: NullLiteral
+  body: Comment (value=" arithmetic and comparison ")
+  body: Output
+    expression: BinaryExpression (operator="-")
+      left: BinaryExpression (operator="+")
+        left: Identifier (name="a")
+        right: Identifier (name="b")
+      right: BinaryExpression (operator="%")
+        left: BinaryExpression (operator="/")
+          left: BinaryExpression (operator="*")
+            left: Identifier (name="c")
+            right: Identifier (name="d")
+          right: Identifier (name="e")
+        right: Identifier (name="f")
+  body: Output
+    expression: BinaryExpression (operator="//")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="**")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="~")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="==")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="!=")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="<=>")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="<")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator=">")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator=">=")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="<=")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Comment (value=" logic and containment ")
+  body: Output
+    expression: BinaryExpression (operator="or")
+      left: BinaryExpression (operator="and")
+        left: Identifier (name="a")
+        right: Identifier (name="b")
+      right: UnaryExpression (operator="not")
+        argument: Identifier (name="c")
+  body: Output
+    expression: BinaryExpression (operator="b-or")
+      left: BinaryExpression (operator="b-and")
+        left: Identifier (name="a")
+        right: Identifier (name="b")
+      right: BinaryExpression (operator="b-xor")
+        left: Identifier (name="c")
+        right: Identifier (name="d")
+  body: Output
+    expression: BinaryExpression (operator="in")
+      left: StringLiteral (value="x")
+        parts: StringText (value="x")
+      right: Identifier (name="list")
+  body: Output
+    expression: BinaryExpression (operator="not in")
+      left: StringLiteral (value="x")
+        parts: StringText (value="x")
+      right: Identifier (name="list")
+  body: Output
+    expression: BinaryExpression (operator="matches")
+      left: Identifier (name="name")
+      right: StringLiteral (value="/^a/")
+        parts: StringText (value="/^a/")
+  body: Output
+    expression: BinaryExpression (operator="starts with")
+      left: Identifier (name="name")
+      right: StringLiteral (value="a")
+        parts: StringText (value="a")
+  body: Output
+    expression: BinaryExpression (operator="ends with")
+      left: Identifier (name="name")
+      right: StringLiteral (value="z")
+        parts: StringText (value="z")
+  body: Output
+    expression: BinaryExpression (operator="has some")
+      left: Identifier (name="list")
+      right: ArrowFunction
+        params: Identifier (name="v")
+        body: MemberAccess
+          object: Identifier (name="v")
+          property: Identifier (name="ok")
+  body: Output
+    expression: BinaryExpression (operator="has every")
+      left: Identifier (name="list")
+      right: ArrowFunction
+        params: Identifier (name="v")
+        body: MemberAccess
+          object: Identifier (name="v")
+          property: Identifier (name="ok")
+  body: Comment (value=" tests ")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="defined")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="defined")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="empty")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="empty")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="null")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="iterable")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="divisible by")
+      args: Argument
+        value: NumberLiteral (value=3 raw="3")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="divisible by")
+      args: Argument
+        value: NumberLiteral (value=3 raw="3")
+  body: Output
+    expression: TestExpression
+      target: Identifier (name="a")
+      name: Identifier (name="same as")
+      args: Argument
+        value: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="and")
+      left: TestExpression
+        target: Identifier (name="a")
+        name: Identifier (name="empty")
+      right: Identifier (name="b")
+  body: Comment (value=" ternary and coalesce ")
+  body: Output
+    expression: ConditionalExpression
+      test: Identifier (name="a")
+      consequent: Identifier (name="b")
+      alternate: Identifier (name="c")
+  body: Output
+    expression: ConditionalExpression
+      test: Identifier (name="a")
+      alternate: Identifier (name="b")
+  body: Output
+    expression: BinaryExpression (operator="??")
+      left: Identifier (name="a")
+      right: Identifier (name="b")
+  body: Output
+    expression: ConditionalExpression
+      test: Identifier (name="a")
+      consequent: StringLiteral (value="yes")
+        parts: StringText (value="yes")
+  body: Output
+    expression: ConditionalExpression
+      test: TestExpression
+        target: Identifier (name="a")
+        name: Identifier (name="defined")
+      consequent: Identifier (name="a")
+      alternate: StringLiteral (value="fallback")
+        parts: StringText (value="fallback")
+  body: Comment (value=" hashes, arrays, subscripts ")
+  body: Output
+    expression: HashLiteral
+      entries: HashEntry
+        key: Identifier (name="a")
+        value: NumberLiteral (value=1 raw="1")
+      entries: HashEntry
+        key: StringLiteral (value="b")
+          parts: StringText (value="b")
+        value: NumberLiteral (value=2 raw="2")
+      entries: HashEntry
+        key: Identifier (name="c")
+        value: NumberLiteral (value=3 raw="3")
+  body: Output
+    expression: ArrayLiteral
+      elements: NumberLiteral (value=1 raw="1")
+      elements: NumberLiteral (value=2 raw="2")
+      elements: NumberLiteral (value=3 raw="3")
+  body: Output
+    expression: ArrayLiteral
+      elements: NumberLiteral (value=1 raw="1")
+      elements: NumberLiteral (value=2 raw="2")
+      elements: SpreadElement
+        argument: Identifier (name="rest")
+  body: Output
+    expression: HashLiteral
+      entries: HashEntry
+        key: Identifier (name="nested")
+        value: HashLiteral
+          entries: HashEntry
+            key: Identifier (name="deep")
+            value: ArrayLiteral
+              elements: NumberLiteral (value=1 raw="1")
+              elements: HashLiteral
+                entries: HashEntry
+                  key: Identifier (name="x")
+                  value: StringLiteral (value="y")
+                    parts: StringText (value="y")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="list")
+      property: NumberLiteral (value=0 raw="0")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="map")
+      property: StringLiteral (value="key")
+        parts: StringText (value="key")
+  body: Output
+    expression: MemberAccess
+      object: MemberAccess
+        object: Identifier (name="list")
+        property: NumberLiteral (value=0 raw="0")
+      property: Identifier (name="name")
+  body: Comment (value=" arrow functions ")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="items")
+      name: Identifier (name="filter")
+      args: Argument
+        value: ArrowFunction
+          params: Identifier (name="v")
+          body: MemberAccess
+            object: Identifier (name="v")
+            property: Identifier (name="active")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="items")
+      name: Identifier (name="map")
+      args: Argument
+        value: ArrowFunction
+          params: Identifier (name="v")
+          body: MemberAccess
+            object: Identifier (name="v")
+            property: Identifier (name="id")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="items")
+      name: Identifier (name="reduce")
+      args: Argument
+        value: ArrowFunction
+          params: Identifier (name="carry")
+          params: Identifier (name="v")
+          body: BinaryExpression (operator="+")
+            left: Identifier (name="carry")
+            right: MemberAccess
+              object: Identifier (name="v")
+              property: Identifier (name="total")
+      args: Argument
+        value: NumberLiteral (value=0 raw="0")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="items")
+      name: Identifier (name="sort")
+      args: Argument
+        value: ArrowFunction
+          params: Identifier (name="a")
+          params: Identifier (name="b")
+          body: BinaryExpression (operator="<=>")
+            left: MemberAccess
+              object: Identifier (name="a")
+              property: Identifier (name="pos")
+            right: MemberAccess
+              object: Identifier (name="b")
+              property: Identifier (name="pos")
+  body: Comment (value=" named arguments ")
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="include")
+      args: Argument
+        value: StringLiteral (value="page.twig")
+          parts: StringText (value="page.twig")
+      args: Argument
+        name: Identifier (name="with")
+        value: HashLiteral
+          entries: HashEntry
+            key: Identifier (name="title")
+            value: StringLiteral (value="Hi")
+              parts: StringText (value="Hi")
+      args: Argument
+        name: Identifier (name="ignore_missing")
+        value: BooleanLiteral (value=true)
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="date")
+      args: Argument
+        name: Identifier (name="timezone")
+        value: StringLiteral (value="UTC")
+          parts: StringText (value="UTC")
+  body: Output
+    expression: FilterExpression
+      target: StringLiteral (value="now")
+        parts: StringText (value="now")
+      name: Identifier (name="date")
+      args: Argument
+        name: Identifier (name="format")
+        value: StringLiteral (value="Y-m-d")
+          parts: StringText (value="Y-m-d")
+  body: Comment (value=" calls, members, chains ")
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="func")
+  body: Output
+    expression: CallExpression
+      callee: MemberAccess
+        object: Identifier (name="obj")
+        property: Identifier (name="method")
+  body: Output
+    expression: CallExpression
+      callee: MemberAccess
+        object: Identifier (name="obj")
+        property: Identifier (name="method")
+      args: Argument
+        value: NumberLiteral (value=1 raw="1")
+      args: Argument
+        value: StringLiteral (value="two")
+          parts: StringText (value="two")
+  body: Output
+    expression: CallExpression
+      callee: MemberAccess
+        object: CallExpression
+          callee: MemberAccess
+            object: CallExpression
+              callee: MemberAccess
+                object: MemberAccess
+                  object: Identifier (name="craft")
+                  property: Identifier (name="entries")
+                property: Identifier (name="section")
+              args: Argument
+                value: StringLiteral (value="news")
+                  parts: StringText (value="news")
+            property: Identifier (name="limit")
+          args: Argument
+            value: NumberLiteral (value=5 raw="5")
+        property: Identifier (name="all")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="obj")
+      property: Identifier (name="prop")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="obj")
+      property: Identifier (name="0")
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="attribute")
+      args: Argument
+        value: Identifier (name="obj")
+      args: Argument
+        value: StringLiteral (value="name")
+          parts: StringText (value="name")
+  body: Comment (value=" filters ")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="value")
+      name: Identifier (name="upper")
+  body: Output
+    expression: FilterExpression
+      target: FilterExpression
+        target: FilterExpression
+          target: Identifier (name="value")
+          name: Identifier (name="default")
+          args: Argument
+            value: StringLiteral (value="n/a")
+              parts: StringText (value="n/a")
+        name: Identifier (name="trim")
+      name: Identifier (name="raw")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="value")
+      name: Identifier (name="slice")
+      args: Argument
+        value: NumberLiteral (value=1 raw="1")
+      args: Argument
+        value: NumberLiteral (value=2 raw="2")
+  body: Comment (value=" special variables ")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="loop")
+      property: Identifier (name="index")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="loop")
+      property: Identifier (name="first")
+  body: Output
+    expression: Identifier (name="_self")
+  body: Output
+    expression: Identifier (name="_context")
+  body: Output
+    expression: Identifier (name="_charset")
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="is_granted")
+      args: Argument
+        value: StringLiteral (value="ROLE_ADMIN")
+          parts: StringText (value="ROLE_ADMIN")
+  body: Output
+    expression: Identifier (name="island")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/real-world.twig > matches its AST snapshot 1`] = `
+"Template
+  body: ExtendsTag (name="extends")
+    template: StringLiteral (value="_layouts/site.twig")
+      parts: StringText (value="_layouts/site.twig")
+  body: ImportTag (name="import")
+    template: StringLiteral (value="_macros/forms.twig")
+      parts: StringText (value="_macros/forms.twig")
+    alias: Identifier (name="forms")
+  body: SetTag (name="set")
+    targets: Identifier (name="pageTitle")
+    values: BinaryExpression (operator="??")
+      left: MemberAccess
+        object: Identifier (name="entry")
+        property: Identifier (name="seoTitle")
+      right: BinaryExpression (operator="??")
+        left: MemberAccess
+          object: Identifier (name="entry")
+          property: Identifier (name="title")
+        right: StringLiteral (value="Untitled")
+          parts: StringText (value="Untitled")
+  body: SetTag (name="set")
+    targets: Identifier (name="related")
+    values: CallExpression
+      callee: MemberAccess
+        object: CallExpression
+          callee: MemberAccess
+            object: CallExpression
+              callee: MemberAccess
+                object: MemberAccess
+                  object: Identifier (name="entry")
+                  property: Identifier (name="relatedEntries")
+                property: Identifier (name="section")
+              args: Argument
+                value: ArrayLiteral
+                  elements: StringLiteral (value="news")
+                    parts: StringText (value="news")
+                  elements: StringLiteral (value="blog")
+                    parts: StringText (value="blog")
+            property: Identifier (name="limit")
+          args: Argument
+            value: NumberLiteral (value=3 raw="3")
+        property: Identifier (name="all")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="head")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="parent")
+    body: Output
+      expression: FilterExpression
+        target: FilterExpression
+          target: Identifier (name="pageTitle")
+          name: Identifier (name="striptags")
+        name: Identifier (name="trim")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: FilterExpression
+          target: MemberAccess
+            object: Identifier (name="entry")
+            property: Identifier (name="heroImage")
+          name: Identifier (name="length")
+        body: SetTag (name="set")
+          targets: Identifier (name="og")
+          values: CallExpression
+            callee: MemberAccess
+              object: MemberAccess
+                object: Identifier (name="entry")
+                property: Identifier (name="heroImage")
+              property: Identifier (name="one")
+        body: Output
+          expression: CallExpression
+            callee: MemberAccess
+              object: Identifier (name="og")
+              property: Identifier (name="getUrl")
+            args: Argument
+              value: HashLiteral
+                entries: HashEntry
+                  key: Identifier (name="width")
+                  value: NumberLiteral (value=1200 raw="1200")
+                entries: HashEntry
+                  key: Identifier (name="height")
+                  value: NumberLiteral (value=630 raw="630")
+                entries: HashEntry
+                  key: Identifier (name="mode")
+                  value: StringLiteral (value="crop")
+                    parts: StringText (value="crop")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="content")
+    body: Output
+      expression: ConditionalExpression
+        test: BinaryExpression (operator="==")
+          left: MemberAccess
+            object: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="type")
+            property: Identifier (name="handle")
+          right: StringLiteral (value="feature")
+            parts: StringText (value="feature")
+        consequent: StringLiteral (value="post--feature")
+          parts: StringText (value="post--feature")
+    body: Output
+      expression: Identifier (name="pageTitle")
+    body: Output
+      expression: FilterExpression
+        target: MemberAccess
+          object: Identifier (name="entry")
+          property: Identifier (name="postDate")
+        name: Identifier (name="date")
+        args: Argument
+          value: StringLiteral (value="Y-m-d")
+            parts: StringText (value="Y-m-d")
+    body: Output
+      expression: FilterExpression
+        target: MemberAccess
+          object: Identifier (name="entry")
+          property: Identifier (name="postDate")
+        name: Identifier (name="date")
+        args: Argument
+          value: StringLiteral (value="F j, Y")
+            parts: StringText (value="F j, Y")
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="block")
+      sequence: CallExpression
+        callee: MemberAccess
+          object: MemberAccess
+            object: Identifier (name="entry")
+            property: Identifier (name="body")
+          property: Identifier (name="all")
+      body: GenericTag (name="switch")
+        args: MemberAccess
+          object: MemberAccess
+            object: Identifier (name="block")
+            property: Identifier (name="type")
+          property: Identifier (name="handle")
+        body: GenericTag (name="case")
+          args: StringLiteral (value="text")
+            parts: StringText (value="text")
+        body: Output
+          expression: FilterExpression
+            target: MemberAccess
+              object: Identifier (name="block")
+              property: Identifier (name="text")
+            name: Identifier (name="raw")
+        body: GenericTag (name="case")
+          args: StringLiteral (value="quote")
+            parts: StringText (value="quote")
+        body: Output
+          expression: MemberAccess
+            object: Identifier (name="block")
+            property: Identifier (name="quote")
+        body: IfTag (name="if")
+          branches: IfBranch
+            condition: TestExpression
+              target: MemberAccess
+                object: Identifier (name="block")
+                property: Identifier (name="attribution")
+              name: Identifier (name="empty")
+            body: Output
+              expression: MemberAccess
+                object: Identifier (name="block")
+                property: Identifier (name="attribution")
+        body: GenericTag (name="case")
+          args: StringLiteral (value="gallery")
+            parts: StringText (value="gallery")
+        body: Output
+          expression: FilterExpression
+            target: MemberAccess
+              object: Identifier (name="block")
+              property: Identifier (name="images")
+            name: Identifier (name="length")
+        body: ForTag (name="for")
+          valueTarget: Identifier (name="image")
+          sequence: CallExpression
+            callee: MemberAccess
+              object: MemberAccess
+                object: Identifier (name="block")
+                property: Identifier (name="images")
+              property: Identifier (name="all")
+          body: Output
+            expression: ConditionalExpression
+              test: MemberAccess
+                object: Identifier (name="loop")
+                property: Identifier (name="first")
+              consequent: StringLiteral (value=" class=\\"is-first\\"")
+                parts: StringText (value=" class=\\"is-first\\"")
+              alternate: StringLiteral
+          body: Output
+            expression: CallExpression
+              callee: MemberAccess
+                object: Identifier (name="image")
+                property: Identifier (name="getUrl")
+              args: Argument
+                value: StringLiteral (value="thumb")
+                  parts: StringText (value="thumb")
+          body: ForTag (name="for")
+            valueTarget: Identifier (name="w")
+            sequence: ArrayLiteral
+              elements: NumberLiteral (value=400 raw="400")
+              elements: NumberLiteral (value=800 raw="800")
+              elements: NumberLiteral (value=1200 raw="1200")
+            body: Output
+              expression: CallExpression
+                callee: MemberAccess
+                  object: Identifier (name="image")
+                  property: Identifier (name="getUrl")
+                args: Argument
+                  value: HashLiteral
+                    entries: HashEntry
+                      key: Identifier (name="width")
+                      value: Identifier (name="w")
+            body: Output
+              expression: Identifier (name="w")
+            body: Output
+              expression: ConditionalExpression
+                test: UnaryExpression (operator="not")
+                  argument: MemberAccess
+                    object: Identifier (name="loop")
+                    property: Identifier (name="last")
+                consequent: StringLiteral (value=", ")
+                  parts: StringText (value=", ")
+          body: Output
+            expression: FilterExpression
+              target: FilterExpression
+                target: MemberAccess
+                  object: Identifier (name="image")
+                  property: Identifier (name="alt")
+                name: Identifier (name="default")
+                args: Argument
+                  value: MemberAccess
+                    object: Identifier (name="image")
+                    property: Identifier (name="title")
+              name: Identifier (name="e")
+              args: Argument
+                value: StringLiteral (value="html_attr")
+                  parts: StringText (value="html_attr")
+          body: Output
+            expression: ConditionalExpression
+              test: BinaryExpression (operator=">")
+                left: MemberAccess
+                  object: Identifier (name="loop")
+                  property: Identifier (name="index")
+                right: NumberLiteral (value=2 raw="2")
+              consequent: StringLiteral (value="lazy")
+                parts: StringText (value="lazy")
+              alternate: StringLiteral (value="eager")
+                parts: StringText (value="eager")
+        body: GenericTag (name="default")
+        body: Comment (value=" unknown block type: render no…")
+        body: IfTag (name="if")
+          branches: IfBranch
+            condition: MemberAccess
+              object: MemberAccess
+                object: MemberAccess
+                  object: MemberAccess
+                    object: Identifier (name="craft")
+                    property: Identifier (name="app")
+                  property: Identifier (name="config")
+                property: Identifier (name="general")
+              property: Identifier (name="devMode")
+            body: Output
+              expression: MemberAccess
+                object: MemberAccess
+                  object: Identifier (name="block")
+                  property: Identifier (name="type")
+                property: Identifier (name="handle")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: FilterExpression
+          target: Identifier (name="related")
+          name: Identifier (name="length")
+        body: Output
+          expression: FilterExpression
+            target: StringLiteral (value="Related")
+              parts: StringText (value="Related")
+            name: Identifier (name="t")
+            args: Argument
+              value: StringLiteral (value="site")
+                parts: StringText (value="site")
+        body: ForTag (name="for")
+          valueTarget: Identifier (name="item")
+          sequence: FilterExpression
+            target: FilterExpression
+              target: Identifier (name="related")
+              name: Identifier (name="filter")
+              args: Argument
+                value: ArrowFunction
+                  params: Identifier (name="i")
+                  body: MemberAccess
+                    object: Identifier (name="i")
+                    property: Identifier (name="enabled")
+            name: Identifier (name="sort")
+            args: Argument
+              value: ArrowFunction
+                params: Identifier (name="a")
+                params: Identifier (name="b")
+                body: BinaryExpression (operator="<=>")
+                  left: MemberAccess
+                    object: Identifier (name="b")
+                    property: Identifier (name="postDate")
+                  right: MemberAccess
+                    object: Identifier (name="a")
+                    property: Identifier (name="postDate")
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="item")
+              property: Identifier (name="url")
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="item")
+              property: Identifier (name="title")
+    body: Output
+      expression: CallExpression
+        callee: MemberAccess
+          object: Identifier (name="forms")
+          property: Identifier (name="field")
+        args: Argument
+          value: StringLiteral (value="comment")
+            parts: StringText (value="comment")
+        args: Argument
+          value: HashLiteral
+            entries: HashEntry
+              key: Identifier (name="label")
+              value: FilterExpression
+                target: StringLiteral (value="Leave a comment")
+                  parts: StringText (value="Leave a comment")
+                name: Identifier (name="t")
+                args: Argument
+                  value: StringLiteral (value="site")
+                    parts: StringText (value="site")
+            entries: HashEntry
+              key: Identifier (name="required")
+              value: BooleanLiteral (value=true)
+    body: GenericTag (name="cache")
+      args: Identifier (name="using")
+      args: Identifier (name="key")
+      args: StringLiteral (value="entry--")
+        parts: StringText (value="entry-")
+        parts: Interpolation
+          expression: MemberAccess
+            object: Identifier (name="entry")
+            property: Identifier (name="id")
+        parts: StringText (value="-")
+        parts: Interpolation
+          expression: MemberAccess
+            object: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="dateUpdated")
+            property: Identifier (name="timestamp")
+      args: Identifier (name="for")
+      args: NumberLiteral (value=1 raw="1")
+      args: Identifier (name="hour")
+      body: IncludeTag (name="include")
+        template: StringLiteral (value="_partials/newsletter.twig")
+          parts: StringText (value="_partials/newsletter.twig")
+        variables: HashLiteral
+          entries: HashEntry
+            key: Identifier (name="list")
+            value: StringLiteral (value="weekly")
+              parts: StringText (value="weekly")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/smoke.twig > matches its AST snapshot 1`] = `
+"Template
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: TestExpression
+        target: Identifier (name="user")
+        name: Identifier (name="empty")
+      body: Output
+        expression: CallExpression
+          callee: Identifier (name="path")
+          args: Argument
+            value: StringLiteral (value="profile")
+              parts: StringText (value="profile")
+          args: Argument
+            value: HashLiteral
+              entries: HashEntry
+                key: Identifier (name="id")
+                value: MemberAccess
+                  object: Identifier (name="user")
+                  property: Identifier (name="id")
+      body: Output
+        expression: FilterExpression
+          target: MemberAccess
+            object: Identifier (name="user")
+            property: Identifier (name="name")
+          name: Identifier (name="title")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/tags.twig > matches its AST snapshot 1`] = `
+"Template
+  body: ExtendsTag (name="extends")
+    template: StringLiteral (value="layout.twig")
+      parts: StringText (value="layout.twig")
+  body: UseTag (name="use")
+    template: StringLiteral (value="blocks.twig")
+      parts: StringText (value="blocks.twig")
+    aliases: UseAlias
+      original: Identifier (name="sidebar")
+      alias: Identifier (name="parent_sidebar")
+  body: ImportTag (name="import")
+    template: StringLiteral (value="macros.twig")
+      parts: StringText (value="macros.twig")
+    alias: Identifier (name="m")
+  body: FromTag (name="from")
+    template: StringLiteral (value="macros.twig")
+      parts: StringText (value="macros.twig")
+    imports: FromImport
+      macroName: Identifier (name="field")
+    imports: FromImport
+      macroName: Identifier (name="button")
+      alias: Identifier (name="btn")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="title")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="body")
+    body: SetTag (name="set")
+      targets: Identifier (name="count")
+      values: NumberLiteral (value=0 raw="0")
+    body: SetTag (name="set")
+      targets: Identifier (name="greeting")
+    body: SetTag (name="set")
+      targets: Identifier (name="a")
+      targets: Identifier (name="b")
+      values: NumberLiteral (value=1 raw="1")
+      values: NumberLiteral (value=2 raw="2")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: BinaryExpression (operator=">")
+          left: Identifier (name="count")
+          right: NumberLiteral (value=0 raw="0")
+      branches: IfBranch
+        condition: BinaryExpression (operator="<")
+          left: Identifier (name="count")
+          right: NumberLiteral (value=0 raw="0")
+      branches: IfBranch
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="user")
+      sequence: Identifier (name="users")
+      body: Output
+        expression: MemberAccess
+          object: Identifier (name="user")
+          property: Identifier (name="name")
+    body: ForTag (name="for")
+      keyTarget: Identifier (name="key")
+      valueTarget: Identifier (name="value")
+      sequence: Identifier (name="map")
+      condition: Identifier (name="value")
+      body: Output
+        expression: Identifier (name="key")
+    body: MacroTag (name="macro")
+      macroName: Identifier (name="field")
+      params: MacroParam
+        name: Identifier (name="name")
+      params: MacroParam
+        name: Identifier (name="value")
+        default: StringLiteral
+      body: Output
+        expression: Identifier (name="name")
+      body: Output
+        expression: Identifier (name="value")
+    body: ApplyTag (name="apply")
+      filters: ApplyFilter
+        name: Identifier (name="upper")
+    body: ApplyTag (name="apply")
+      filters: ApplyFilter
+        name: Identifier (name="spaceless")
+      filters: ApplyFilter
+        name: Identifier (name="escape")
+        args: Argument
+          value: StringLiteral (value="html")
+            parts: StringText (value="html")
+    body: AutoescapeTag (name="autoescape")
+      strategy: StringLiteral (value="js")
+        parts: StringText (value="js")
+      body: Output
+        expression: Identifier (name="x")
+    body: AutoescapeTag (name="autoescape")
+      strategy: BooleanLiteral (value=false)
+      body: Output
+        expression: Identifier (name="x")
+    body: EmbedTag (name="embed")
+      template: StringLiteral (value="card.twig")
+        parts: StringText (value="card.twig")
+      variables: HashLiteral
+        entries: HashEntry
+          key: Identifier (name="title")
+          value: StringLiteral (value="T")
+            parts: StringText (value="T")
+      body: BlockTag (name="block")
+        blockName: Identifier (name="card_body")
+    body: IncludeTag (name="include")
+      template: StringLiteral (value="partial.twig")
+        parts: StringText (value="partial.twig")
+      variables: HashLiteral
+        entries: HashEntry
+          key: Identifier (name="a")
+          value: NumberLiteral (value=1 raw="1")
+    body: IncludeTag (name="include")
+      template: ArrayLiteral
+        elements: StringLiteral (value="a.twig")
+          parts: StringText (value="a.twig")
+        elements: StringLiteral (value="b.twig")
+          parts: StringText (value="b.twig")
+    body: WithTag (name="with")
+      variables: HashLiteral
+        entries: HashEntry
+          key: Identifier (name="x")
+          value: NumberLiteral (value=1 raw="1")
+      body: Output
+        expression: Identifier (name="x")
+    body: WithTag (name="with")
+      body: Output
+        expression: Identifier (name="y")
+    body: GenericTag (name="sandbox")
+      body: IncludeTag (name="include")
+        template: StringLiteral (value="untrusted.twig")
+          parts: StringText (value="untrusted.twig")
+    body: GenericTag (name="cache")
+      args: StringLiteral (value="key")
+        parts: StringText (value="key")
+    body: GenericTag (name="guard")
+      body: Output
+        expression: Identifier (name="risky")
+    body: DeprecatedTag (name="deprecated")
+      expression: StringLiteral (value="the foo tag is deprecated")
+        parts: StringText (value="the foo tag is deprecated")
+    body: DoTag (name="do")
+      expression: CallExpression
+        callee: MemberAccess
+          object: Identifier (name="form")
+          property: Identifier (name="setMethod")
+        args: Argument
+          value: StringLiteral (value="POST")
+            parts: StringText (value="POST")
+    body: FlushTag (name="flush")
+    body: VerbatimTag (name="verbatim" value="{{ literal }}")
+    endName: Identifier (name="body")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="sidebar")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="parent")
+    endName: Identifier (name="sidebar")
+  body: GenericTag (name="unknown_tag_from_a_plugin")
+    args: Identifier (name="arg")"
+`;
+
+exports[`parser corpus > ../grammar/fixtures/verbatim.twig > matches its AST snapshot 1`] = `
+"Template
+  body: VerbatimTag (name="verbatim" value="\\n\\t<ul class=\\"list\\">\\n\\t\\t{% for i…")
+  body: VerbatimTag (name="verbatim" value="\\n\\t{{ trimmed_delimiters_still_…")
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: Identifier (name="real")
+      body: Output
+        expression: Identifier (name="real")"
+`;
+
+exports[`parser corpus > fixtures/craft-listing.twig > matches its AST snapshot 1`] = `
+"Template
+  body: ExtendsTag (name="extends")
+    template: StringLiteral (value="_layouts/base")
+      parts: StringText (value="_layouts/base")
+  body: GenericTag (name="requireLogin")
+  body: SetTag (name="set")
+    targets: Identifier (name="section")
+    values: CallExpression
+      callee: MemberAccess
+        object: MemberAccess
+          object: MemberAccess
+            object: Identifier (name="craft")
+            property: Identifier (name="app")
+          property: Identifier (name="sections")
+        property: Identifier (name="getSectionByHandle")
+      args: Argument
+        value: StringLiteral (value="news")
+          parts: StringText (value="news")
+  body: SetTag (name="set")
+    targets: Identifier (name="query")
+    values: CallExpression
+      callee: MemberAccess
+        object: CallExpression
+          callee: MemberAccess
+            object: CallExpression
+              callee: MemberAccess
+                object: CallExpression
+                  callee: MemberAccess
+                    object: CallExpression
+                      callee: MemberAccess
+                        object: CallExpression
+                          callee: MemberAccess
+                            object: Identifier (name="craft")
+                            property: Identifier (name="entries")
+                        property: Identifier (name="section")
+                      args: Argument
+                        value: StringLiteral (value="news")
+                          parts: StringText (value="news")
+                    property: Identifier (name="relatedTo")
+                  args: Argument
+                    value: HashLiteral
+                      entries: HashEntry
+                        key: Identifier (name="targetElement")
+                        value: BinaryExpression (operator="??")
+                          left: Identifier (name="category")
+                          right: NullLiteral
+                property: Identifier (name="search")
+              args: Argument
+                value: CallExpression
+                  callee: MemberAccess
+                    object: MemberAccess
+                      object: MemberAccess
+                        object: Identifier (name="craft")
+                        property: Identifier (name="app")
+                      property: Identifier (name="request")
+                    property: Identifier (name="getParam")
+                  args: Argument
+                    value: StringLiteral (value="q")
+                      parts: StringText (value="q")
+            property: Identifier (name="orderBy")
+          args: Argument
+            value: StringLiteral (value="postDate desc")
+              parts: StringText (value="postDate desc")
+        property: Identifier (name="limit")
+      args: Argument
+        value: NumberLiteral (value=12 raw="12")
+  body: GenericTag (name="paginate")
+    args: Identifier (name="query")
+    args: Identifier (name="as")
+    args: Identifier (name="pageInfo")
+    args: Identifier (name="entries")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="content")
+    body: Output
+      expression: MemberAccess
+        object: Identifier (name="section")
+        property: Identifier (name="name")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: FilterExpression
+          target: Identifier (name="entries")
+          name: Identifier (name="length")
+        body: ForTag (name="for")
+          valueTarget: Identifier (name="entry")
+          sequence: Identifier (name="entries")
+          body: SetTag (name="set")
+            targets: Identifier (name="image")
+            values: BinaryExpression (operator="??")
+              left: CallExpression
+                callee: MemberAccess
+                  object: MemberAccess
+                    object: Identifier (name="entry")
+                    property: Identifier (name="featureImage")
+                  property: Identifier (name="one")
+              right: NullLiteral
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="id")
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="loop")
+              property: Identifier (name="index")
+          body: IfTag (name="if")
+            branches: IfBranch
+              condition: Identifier (name="image")
+              body: SetTag (name="set")
+                targets: Identifier (name="transform")
+                values: HashLiteral
+                  entries: HashEntry
+                    key: Identifier (name="width")
+                    value: NumberLiteral (value=600 raw="600")
+                  entries: HashEntry
+                    key: Identifier (name="height")
+                    value: NumberLiteral (value=400 raw="400")
+                  entries: HashEntry
+                    key: Identifier (name="mode")
+                    value: StringLiteral (value="crop")
+                      parts: StringText (value="crop")
+                  entries: HashEntry
+                    key: Identifier (name="quality")
+                    value: NumberLiteral (value=82 raw="82")
+              body: Output
+                expression: CallExpression
+                  callee: MemberAccess
+                    object: Identifier (name="image")
+                    property: Identifier (name="getUrl")
+                  args: Argument
+                    value: Identifier (name="transform")
+              body: Output
+                expression: CallExpression
+                  callee: MemberAccess
+                    object: Identifier (name="image")
+                    property: Identifier (name="getWidth")
+                  args: Argument
+                    value: Identifier (name="transform")
+              body: Output
+                expression: CallExpression
+                  callee: MemberAccess
+                    object: Identifier (name="image")
+                    property: Identifier (name="getHeight")
+                  args: Argument
+                    value: Identifier (name="transform")
+              body: Output
+                expression: ConditionalExpression
+                  test: MemberAccess
+                    object: Identifier (name="image")
+                    property: Identifier (name="alt")
+                  alternate: MemberAccess
+                    object: Identifier (name="entry")
+                    property: Identifier (name="title")
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="url")
+          body: Output
+            expression: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="title")
+          body: Output
+            expression: FilterExpression
+              target: MemberAccess
+                object: Identifier (name="entry")
+                property: Identifier (name="postDate")
+              name: Identifier (name="date")
+              args: Argument
+                value: StringLiteral (value="M j, Y")
+                  parts: StringText (value="M j, Y")
+          body: IfTag (name="if")
+            branches: IfBranch
+              condition: MemberAccess
+                object: Identifier (name="entry")
+                property: Identifier (name="author")
+              body: Output
+                expression: MemberAccess
+                  object: MemberAccess
+                    object: Identifier (name="entry")
+                    property: Identifier (name="author")
+                  property: Identifier (name="fullName")
+          body: Output
+            expression: FilterExpression
+              target: MemberAccess
+                object: Identifier (name="entry")
+                property: Identifier (name="summary")
+              name: Identifier (name="default")
+              args: Argument
+                value: BinaryExpression (operator="~")
+                  left: FilterExpression
+                    target: FilterExpression
+                      target: MemberAccess
+                        object: Identifier (name="entry")
+                        property: Identifier (name="body")
+                      name: Identifier (name="striptags")
+                    name: Identifier (name="slice")
+                    args: Argument
+                      value: NumberLiteral (value=0 raw="0")
+                    args: Argument
+                      value: NumberLiteral (value=160 raw="160")
+                  right: StringLiteral (value="…")
+                    parts: StringText (value="…")
+          body: SetTag (name="set")
+            targets: Identifier (name="tags")
+            values: CallExpression
+              callee: MemberAccess
+                object: MemberAccess
+                  object: Identifier (name="entry")
+                  property: Identifier (name="topics")
+                property: Identifier (name="all")
+          body: IfTag (name="if")
+            branches: IfBranch
+              condition: FilterExpression
+                target: Identifier (name="tags")
+                name: Identifier (name="length")
+              body: ForTag (name="for")
+                valueTarget: Identifier (name="tag")
+                sequence: Identifier (name="tags")
+                body: Output
+                  expression: CallExpression
+                    callee: Identifier (name="url")
+                    args: Argument
+                      value: StringLiteral (value="news")
+                        parts: StringText (value="news")
+                    args: Argument
+                      value: HashLiteral
+                        entries: HashEntry
+                          key: Identifier (name="topic")
+                          value: MemberAccess
+                            object: Identifier (name="tag")
+                            property: Identifier (name="slug")
+                body: Output
+                  expression: MemberAccess
+                    object: Identifier (name="tag")
+                    property: Identifier (name="title")
+        body: IfTag (name="if")
+          branches: IfBranch
+            condition: BinaryExpression (operator=">")
+              left: MemberAccess
+                object: Identifier (name="pageInfo")
+                property: Identifier (name="totalPages")
+              right: NumberLiteral (value=1 raw="1")
+            body: IfTag (name="if")
+              branches: IfBranch
+                condition: MemberAccess
+                  object: Identifier (name="pageInfo")
+                  property: Identifier (name="prevUrl")
+                body: Output
+                  expression: MemberAccess
+                    object: Identifier (name="pageInfo")
+                    property: Identifier (name="prevUrl")
+            body: ForTag (name="for")
+              keyTarget: Identifier (name="page")
+              valueTarget: Identifier (name="url")
+              sequence: CallExpression
+                callee: MemberAccess
+                  object: Identifier (name="pageInfo")
+                  property: Identifier (name="getDynamicRangeUrls")
+                args: Argument
+                  value: NumberLiteral (value=5 raw="5")
+              body: Output
+                expression: Identifier (name="url")
+              body: Output
+                expression: ConditionalExpression
+                  test: BinaryExpression (operator="==")
+                    left: Identifier (name="page")
+                    right: MemberAccess
+                      object: Identifier (name="pageInfo")
+                      property: Identifier (name="currentPage")
+                  consequent: StringLiteral (value="aria-current=\\"page\\"")
+                    parts: StringText (value="aria-current=\\"page\\"")
+                  alternate: StringLiteral
+              body: Output
+                expression: Identifier (name="page")
+            body: IfTag (name="if")
+              branches: IfBranch
+                condition: MemberAccess
+                  object: Identifier (name="pageInfo")
+                  property: Identifier (name="nextUrl")
+                body: Output
+                  expression: MemberAccess
+                    object: Identifier (name="pageInfo")
+                    property: Identifier (name="nextUrl")
+      branches: IfBranch
+        body: Output
+          expression: FilterExpression
+            target: StringLiteral (value="No results.")
+              parts: StringText (value="No results.")
+            name: Identifier (name="t")
+            args: Argument
+              value: StringLiteral (value="site")
+                parts: StringText (value="site")
+    body: GenericTag (name="cache")
+      args: Identifier (name="globally")
+      args: Identifier (name="for")
+      args: NumberLiteral (value=1 raw="1")
+      args: Identifier (name="hour")
+      args: Identifier (name="unless")
+      args: MemberAccess
+        object: MemberAccess
+          object: MemberAccess
+            object: MemberAccess
+              object: Identifier (name="craft")
+              property: Identifier (name="app")
+            property: Identifier (name="config")
+          property: Identifier (name="general")
+        property: Identifier (name="devMode")
+      body: GenericTag (name="nav")
+        args: BinaryExpression (operator="in")
+          left: Identifier (name="item")
+          right: CallExpression
+            callee: MemberAccess
+              object: CallExpression
+                callee: MemberAccess
+                  object: CallExpression
+                    callee: MemberAccess
+                      object: CallExpression
+                        callee: MemberAccess
+                          object: Identifier (name="craft")
+                          property: Identifier (name="entries")
+                      property: Identifier (name="section")
+                    args: Argument
+                      value: StringLiteral (value="pages")
+                        parts: StringText (value="pages")
+                  property: Identifier (name="level")
+                args: Argument
+                  value: NumberLiteral (value=1 raw="1")
+              property: Identifier (name="all")
+        body: Output
+          expression: MemberAccess
+            object: Identifier (name="item")
+            property: Identifier (name="url")
+        body: Output
+          expression: MemberAccess
+            object: Identifier (name="item")
+            property: Identifier (name="title")
+        body: GenericTag (name="ifchildren")
+          body: GenericTag (name="children")
+    body: GenericTag (name="switch")
+      args: BinaryExpression (operator="??")
+        left: MemberAccess
+          object: MemberAccess
+            object: Identifier (name="entry")
+            property: Identifier (name="type")
+          property: Identifier (name="handle")
+        right: StringLiteral (value="default")
+          parts: StringText (value="default")
+      body: GenericTag (name="case")
+        args: StringLiteral (value="article")
+          parts: StringText (value="article")
+      body: GenericTag (name="hook")
+        args: StringLiteral (value="news.article")
+          parts: StringText (value="news.article")
+      body: GenericTag (name="case")
+        args: StringLiteral (value="link")
+          parts: StringText (value="link")
+      body: GenericTag (name="redirect")
+        args: MemberAccess
+          object: Identifier (name="entry")
+          property: Identifier (name="linkUrl")
+      body: GenericTag (name="default")
+      body: GenericTag (name="js")
+        body: Output
+          expression: BinaryExpression (operator="??")
+            left: MemberAccess
+              object: Identifier (name="entry")
+              property: Identifier (name="id")
+            right: NumberLiteral (value=0 raw="0")"
+`;
+
+exports[`parser corpus > fixtures/macros.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Comment (value=" Macro definition, import and …")
+  body: MacroTag (name="macro")
+    macroName: Identifier (name="input")
+    params: MacroParam
+      name: Identifier (name="name")
+    params: MacroParam
+      name: Identifier (name="value")
+      default: StringLiteral
+    params: MacroParam
+      name: Identifier (name="type")
+      default: StringLiteral (value="text")
+        parts: StringText (value="text")
+    params: MacroParam
+      name: Identifier (name="attrs")
+      default: HashLiteral
+    body: Output
+      expression: Identifier (name="type")
+    body: Output
+      expression: Identifier (name="name")
+    body: Output
+      expression: FilterExpression
+        target: Identifier (name="value")
+        name: Identifier (name="e")
+        args: Argument
+          value: StringLiteral (value="html_attr")
+            parts: StringText (value="html_attr")
+    body: ForTag (name="for")
+      keyTarget: Identifier (name="key")
+      valueTarget: Identifier (name="val")
+      sequence: Identifier (name="attrs")
+      body: Output
+        expression: Identifier (name="key")
+      body: Output
+        expression: FilterExpression
+          target: Identifier (name="val")
+          name: Identifier (name="e")
+          args: Argument
+            value: StringLiteral (value="html_attr")
+              parts: StringText (value="html_attr")
+  body: MacroTag (name="macro")
+    macroName: Identifier (name="field")
+    params: MacroParam
+      name: Identifier (name="name")
+    params: MacroParam
+      name: Identifier (name="label")
+    params: MacroParam
+      name: Identifier (name="options")
+      default: HashLiteral
+    body: ImportTag (name="import")
+      template: Identifier (name="_self")
+      alias: Identifier (name="self")
+    body: Output
+      expression: ConditionalExpression
+        test: FilterExpression
+          target: MemberAccess
+            object: Identifier (name="options")
+            property: Identifier (name="required")
+          name: Identifier (name="default")
+          args: Argument
+            value: BooleanLiteral (value=false)
+        consequent: StringLiteral (value="field--required")
+          parts: StringText (value="field--required")
+        alternate: StringLiteral
+    body: Output
+      expression: Identifier (name="label")
+    body: Output
+      expression: CallExpression
+        callee: MemberAccess
+          object: Identifier (name="self")
+          property: Identifier (name="input")
+        args: Argument
+          value: Identifier (name="name")
+        args: Argument
+          value: FilterExpression
+            target: MemberAccess
+              object: Identifier (name="options")
+              property: Identifier (name="value")
+            name: Identifier (name="default")
+            args: Argument
+              value: StringLiteral
+        args: Argument
+          value: FilterExpression
+            target: MemberAccess
+              object: Identifier (name="options")
+              property: Identifier (name="type")
+            name: Identifier (name="default")
+            args: Argument
+              value: StringLiteral (value="text")
+                parts: StringText (value="text")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: TestExpression
+          target: MemberAccess
+            object: Identifier (name="options")
+            property: Identifier (name="help")
+          name: Identifier (name="defined")
+        body: Output
+          expression: MemberAccess
+            object: Identifier (name="options")
+            property: Identifier (name="help")
+  body: MacroTag (name="macro")
+    macroName: Identifier (name="table")
+    params: MacroParam
+      name: Identifier (name="rows")
+    params: MacroParam
+      name: Identifier (name="columns")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: TestExpression
+          target: Identifier (name="rows")
+          name: Identifier (name="empty")
+      branches: IfBranch
+        body: ForTag (name="for")
+          valueTarget: Identifier (name="row")
+          sequence: Identifier (name="rows")
+          body: ForTag (name="for")
+            valueTarget: Identifier (name="column")
+            sequence: Identifier (name="columns")
+            body: Output
+              expression: CallExpression
+                callee: Identifier (name="attribute")
+                args: Argument
+                  value: Identifier (name="row")
+                args: Argument
+                  value: Identifier (name="column")
+  body: ImportTag (name="import")
+    template: StringLiteral (value="forms.twig")
+      parts: StringText (value="forms.twig")
+    alias: Identifier (name="forms")
+  body: FromTag (name="from")
+    template: StringLiteral (value="forms.twig")
+      parts: StringText (value="forms.twig")
+    imports: FromImport
+      macroName: Identifier (name="input")
+      alias: Identifier (name="text_input")
+    imports: FromImport
+      macroName: Identifier (name="field")
+  body: UseTag (name="use")
+    template: StringLiteral (value="skeleton.twig")
+      parts: StringText (value="skeleton.twig")
+    aliases: UseAlias
+      original: Identifier (name="header")
+      alias: Identifier (name="skeleton_header")
+    aliases: UseAlias
+      original: Identifier (name="footer")
+      alias: Identifier (name="skeleton_footer")
+  body: EmbedTag (name="embed")
+    template: StringLiteral (value="card.twig")
+      parts: StringText (value="card.twig")
+    variables: HashLiteral
+      entries: HashEntry
+        key: Identifier (name="title")
+        value: StringLiteral (value="Sign up")
+          parts: StringText (value="Sign up")
+      entries: HashEntry
+        key: Identifier (name="level")
+        value: NumberLiteral (value=2 raw="2")
+    body: BlockTag (name="block")
+      blockName: Identifier (name="card_header")
+      body: Output
+        expression: CallExpression
+          callee: Identifier (name="skeleton_header")
+    body: BlockTag (name="block")
+      blockName: Identifier (name="card_body")
+      body: Output
+        expression: CallExpression
+          callee: MemberAccess
+            object: Identifier (name="forms")
+            property: Identifier (name="field")
+          args: Argument
+            value: StringLiteral (value="email")
+              parts: StringText (value="email")
+          args: Argument
+            value: StringLiteral (value="Email")
+              parts: StringText (value="Email")
+          args: Argument
+            value: HashLiteral
+              entries: HashEntry
+                key: Identifier (name="required")
+                value: BooleanLiteral (value=true)
+              entries: HashEntry
+                key: Identifier (name="type")
+                value: StringLiteral (value="email")
+                  parts: StringText (value="email")
+      body: Output
+        expression: CallExpression
+          callee: Identifier (name="text_input")
+          args: Argument
+            value: StringLiteral (value="token")
+              parts: StringText (value="token")
+          args: Argument
+            value: Identifier (name="csrf_token")
+          args: Argument
+            value: StringLiteral (value="hidden")
+              parts: StringText (value="hidden")
+      body: Output
+        expression: CallExpression
+          callee: Identifier (name="field")
+          args: Argument
+            value: StringLiteral (value="name")
+              parts: StringText (value="name")
+          args: Argument
+            value: StringLiteral (value="Name")
+              parts: StringText (value="Name")
+      endName: Identifier (name="card_body")
+  body: EmbedTag (name="embed")
+    template: StringLiteral (value="card.twig")
+      parts: StringText (value="card.twig")
+    body: BlockTag (name="block")
+      blockName: Identifier (name="card_body")
+  body: ApplyTag (name="apply")
+    filters: ApplyFilter
+      name: Identifier (name="upper")
+    filters: ApplyFilter
+      name: Identifier (name="trim")
+    body: Output
+      expression: CallExpression
+        callee: MemberAccess
+          object: Identifier (name="forms")
+          property: Identifier (name="input")
+        args: Argument
+          value: StringLiteral (value="shout")
+            parts: StringText (value="shout")
+  body: SetTag (name="set")
+    targets: Identifier (name="rendered")
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="i")
+      sequence: BinaryExpression (operator="..")
+        left: NumberLiteral (value=1 raw="1")
+        right: NumberLiteral (value=3 raw="3")
+      body: Output
+        expression: CallExpression
+          callee: MemberAccess
+            object: Identifier (name="forms")
+            property: Identifier (name="input")
+          args: Argument
+            value: BinaryExpression (operator="~")
+              left: StringLiteral (value="item-")
+                parts: StringText (value="item-")
+              right: Identifier (name="i")
+          args: Argument
+            value: BinaryExpression (operator="*")
+              left: Identifier (name="i")
+              right: NumberLiteral (value=10 raw="10")
+  body: Output
+    expression: FilterExpression
+      target: Identifier (name="rendered")
+      name: Identifier (name="raw")"
+`;
+
+exports[`parser corpus > fixtures/symfony.twig > matches its AST snapshot 1`] = `
+"Template
+  body: ExtendsTag (name="extends")
+    template: StringLiteral (value="base.html.twig")
+      parts: StringText (value="base.html.twig")
+  body: GenericTag (name="trans_default_domain")
+    args: StringLiteral (value="messages")
+      parts: StringText (value="messages")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="title")
+    body: Output
+      expression: FilterExpression
+        target: StringLiteral (value="page.products.title")
+          parts: StringText (value="page.products.title")
+        name: Identifier (name="trans")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="parent")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="stylesheets")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="parent")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="encore_entry_link_tags")
+        args: Argument
+          value: StringLiteral (value="products")
+            parts: StringText (value="products")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="body")
+    body: IfTag (name="if")
+      branches: IfBranch
+        condition: BinaryExpression (operator="and")
+          left: TestExpression
+            target: MemberAccess
+              object: Identifier (name="app")
+              property: Identifier (name="user")
+            name: Identifier (name="null")
+          right: CallExpression
+            callee: Identifier (name="is_granted")
+            args: Argument
+              value: StringLiteral (value="ROLE_ADMIN")
+                parts: StringText (value="ROLE_ADMIN")
+        body: Output
+          expression: FilterExpression
+            target: StringLiteral (value="admin.logged_in_as")
+              parts: StringText (value="admin.logged_in_as")
+            name: Identifier (name="trans")
+            args: Argument
+              value: HashLiteral
+                entries: HashEntry
+                  key: StringLiteral (value="%name%")
+                    parts: StringText (value="%name%")
+                  value: MemberAccess
+                    object: MemberAccess
+                      object: Identifier (name="app")
+                      property: Identifier (name="user")
+                    property: Identifier (name="userIdentifier")
+        body: Output
+          expression: CallExpression
+            callee: Identifier (name="path")
+            args: Argument
+              value: StringLiteral (value="admin_dashboard")
+                parts: StringText (value="admin_dashboard")
+        body: Output
+          expression: FilterExpression
+            target: StringLiteral (value="admin.dashboard")
+              parts: StringText (value="admin.dashboard")
+            name: Identifier (name="trans")
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="message")
+      sequence: CallExpression
+        callee: MemberAccess
+          object: Identifier (name="app")
+          property: Identifier (name="flashes")
+        args: Argument
+          value: StringLiteral (value="notice")
+            parts: StringText (value="notice")
+      body: Output
+        expression: Identifier (name="message")
+      elseBody: Comment (value=" no flashes pending ")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="path")
+        args: Argument
+          value: StringLiteral (value="product_search")
+            parts: StringText (value="product_search")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="form_start")
+        args: Argument
+          value: Identifier (name="form")
+        args: Argument
+          value: HashLiteral
+            entries: HashEntry
+              key: Identifier (name="attr")
+              value: HashLiteral
+                entries: HashEntry
+                  key: Identifier (name="novalidate")
+                  value: StringLiteral (value="novalidate")
+                    parts: StringText (value="novalidate")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="form_row")
+        args: Argument
+          value: MemberAccess
+            object: Identifier (name="form")
+            property: Identifier (name="query")
+        args: Argument
+          value: HashLiteral
+            entries: HashEntry
+              key: Identifier (name="label")
+              value: FilterExpression
+                target: StringLiteral (value="search.query")
+                  parts: StringText (value="search.query")
+                name: Identifier (name="trans")
+            entries: HashEntry
+              key: Identifier (name="attr")
+              value: HashLiteral
+                entries: HashEntry
+                  key: Identifier (name="autofocus")
+                  value: BooleanLiteral (value=true)
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="form_errors")
+        args: Argument
+          value: Identifier (name="form")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="form_end")
+        args: Argument
+          value: Identifier (name="form")
+    body: SetTag (name="set")
+      targets: Identifier (name="columns")
+      values: HashLiteral
+        entries: HashEntry
+          key: Identifier (name="name")
+          value: StringLiteral (value="product.name")
+            parts: StringText (value="product.name")
+        entries: HashEntry
+          key: Identifier (name="price")
+          value: StringLiteral (value="product.price")
+            parts: StringText (value="product.price")
+        entries: HashEntry
+          key: Identifier (name="stock")
+          value: StringLiteral (value="product.stock")
+            parts: StringText (value="product.stock")
+    body: ForTag (name="for")
+      keyTarget: Identifier (name="field")
+      valueTarget: Identifier (name="labelKey")
+      sequence: Identifier (name="columns")
+      body: Output
+        expression: Identifier (name="field")
+      body: Output
+        expression: ConditionalExpression
+          test: BinaryExpression (operator="==")
+            left: Identifier (name="sortField")
+            right: Identifier (name="field")
+          consequent: StringLiteral (value="is-sorted")
+            parts: StringText (value="is-sorted")
+          alternate: StringLiteral
+      body: Output
+        expression: ConditionalExpression
+          test: MemberAccess
+            object: Identifier (name="loop")
+            property: Identifier (name="last")
+          consequent: StringLiteral (value="is-last")
+            parts: StringText (value="is-last")
+      body: Output
+        expression: CallExpression
+          callee: Identifier (name="path")
+          args: Argument
+            value: StringLiteral (value="product_index")
+              parts: StringText (value="product_index")
+          args: Argument
+            value: HashLiteral
+              entries: HashEntry
+                key: Identifier (name="sort")
+                value: Identifier (name="field")
+              entries: HashEntry
+                key: Identifier (name="dir")
+                value: ConditionalExpression
+                  test: BinaryExpression (operator="==")
+                    left: Identifier (name="sortDir")
+                    right: StringLiteral (value="asc")
+                      parts: StringText (value="asc")
+                  consequent: StringLiteral (value="desc")
+                    parts: StringText (value="desc")
+                  alternate: StringLiteral (value="asc")
+                    parts: StringText (value="asc")
+      body: Output
+        expression: FilterExpression
+          target: Identifier (name="labelKey")
+          name: Identifier (name="trans")
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="product")
+      sequence: Identifier (name="products")
+      body: SetTag (name="set")
+        targets: Identifier (name="rowClass")
+        values: CallExpression
+          callee: Identifier (name="cycle")
+          args: Argument
+            value: ArrayLiteral
+              elements: StringLiteral (value="odd")
+                parts: StringText (value="odd")
+              elements: StringLiteral (value="even")
+                parts: StringText (value="even")
+          args: Argument
+            value: MemberAccess
+              object: Identifier (name="loop")
+              property: Identifier (name="index0")
+      body: Output
+        expression: Identifier (name="rowClass")
+      body: Output
+        expression: CallExpression
+          callee: MemberAccess
+            object: FilterExpression
+              target: MemberAccess
+                object: Identifier (name="product")
+                property: Identifier (name="name")
+              name: Identifier (name="u")
+            property: Identifier (name="truncate")
+          args: Argument
+            value: NumberLiteral (value=40 raw="40")
+          args: Argument
+            value: StringLiteral (value="…")
+              parts: StringText (value="…")
+      body: Output
+        expression: FilterExpression
+          target: MemberAccess
+            object: Identifier (name="product")
+            property: Identifier (name="price")
+          name: Identifier (name="format_currency")
+          args: Argument
+            value: StringLiteral (value="EUR")
+              parts: StringText (value="EUR")
+          args: Argument
+            value: HashLiteral
+              entries: HashEntry
+                key: Identifier (name="fraction_digit")
+                value: NumberLiteral (value=2 raw="2")
+      body: IfTag (name="if")
+        branches: IfBranch
+          condition: BinaryExpression (operator=">")
+            left: MemberAccess
+              object: Identifier (name="product")
+              property: Identifier (name="stock")
+            right: NumberLiteral (value=10 raw="10")
+          body: Output
+            expression: FilterExpression
+              target: StringLiteral (value="stock.plenty")
+                parts: StringText (value="stock.plenty")
+              name: Identifier (name="trans")
+        branches: IfBranch
+          condition: BinaryExpression (operator=">")
+            left: MemberAccess
+              object: Identifier (name="product")
+              property: Identifier (name="stock")
+            right: NumberLiteral (value=0 raw="0")
+          body: Output
+            expression: FilterExpression
+              target: StringLiteral (value="stock.low")
+                parts: StringText (value="stock.low")
+              name: Identifier (name="trans")
+              args: Argument
+                value: HashLiteral
+                  entries: HashEntry
+                    key: StringLiteral (value="%count%")
+                      parts: StringText (value="%count%")
+                    value: MemberAccess
+                      object: Identifier (name="product")
+                      property: Identifier (name="stock")
+        branches: IfBranch
+          body: Output
+            expression: FilterExpression
+              target: StringLiteral (value="stock.none")
+                parts: StringText (value="stock.none")
+              name: Identifier (name="trans")
+      elseBody: Output
+        expression: FilterExpression
+          target: Identifier (name="columns")
+          name: Identifier (name="length")
+      elseBody: Output
+        expression: FilterExpression
+          target: StringLiteral (value="product.empty")
+            parts: StringText (value="product.empty")
+          name: Identifier (name="trans")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="knp_pagination_render")
+        args: Argument
+          value: Identifier (name="products")
+  body: BlockTag (name="block")
+    blockName: Identifier (name="javascripts")
+    body: Output
+      expression: CallExpression
+        callee: Identifier (name="parent")
+    body: Output
+      expression: FilterExpression
+        target: FilterExpression
+          target: MemberAccess
+            object: MemberAccess
+              object: Identifier (name="app")
+              property: Identifier (name="request")
+            property: Identifier (name="locale")
+          name: Identifier (name="json_encode")
+        name: Identifier (name="raw")"
+`;
+
+exports[`parser corpus > fixtures/whitespace.twig > matches its AST snapshot 1`] = `
+"Template
+  body: Comment (value=" Whitespace control, nesting d…")
+  body: SetTag (name="set")
+    targets: Identifier (name="items")
+    values: ArrayLiteral
+      elements: NumberLiteral (value=1 raw="1")
+      elements: NumberLiteral (value=2 raw="2")
+      elements: NumberLiteral (value=3 raw="3")
+  body: ForTag (name="for")
+    valueTarget: Identifier (name="item")
+    sequence: Identifier (name="items")
+    body: Comment (value=" a trimmed comment ")
+    body: Output
+      expression: Identifier (name="item")
+  body: IfTag (name="if")
+    branches: IfBranch
+      condition: FilterExpression
+        target: Identifier (name="items")
+        name: Identifier (name="length")
+      body: Output
+        expression: FilterExpression
+          target: Identifier (name="items")
+          name: Identifier (name="first")
+  body: Output
+    expression: StringLiteral (value="left only")
+      parts: StringText (value="left only")
+  body: Output
+    expression: StringLiteral (value="right only")
+      parts: StringText (value="right only")
+  body: Output
+    expression: StringLiteral (value="line trim")
+      parts: StringText (value="line trim")
+  body: Comment (value=" Braces that are not Twig. ")
+  body: Comment (value=" Twig delimiters inside string…")
+  body: Output
+    expression: StringLiteral (value="{{ not an expression }}")
+      parts: StringText (value="{{ not an expression }}")
+  body: Output
+    expression: StringLiteral (value="{% not a tag %}")
+      parts: StringText (value="{% not a tag %}")
+  body: Output
+    expression: StringLiteral (value="a #{b} c")
+      parts: StringText (value="a #{b} c")
+  body: Output
+    expression: StringLiteral (value="escaped #{not_interpolated}")
+      parts: StringText (value="escaped #{not_interpolated}")
+  body: Comment (value=" Deep nesting. ")
+  body: ForTag (name="for")
+    valueTarget: Identifier (name="a")
+    sequence: Identifier (name="outer")
+    body: ForTag (name="for")
+      valueTarget: Identifier (name="b")
+      sequence: MemberAccess
+        object: Identifier (name="a")
+        property: Identifier (name="middle")
+      body: IfTag (name="if")
+        branches: IfBranch
+          condition: MemberAccess
+            object: Identifier (name="b")
+            property: Identifier (name="ok")
+          body: ForTag (name="for")
+            valueTarget: Identifier (name="c")
+            sequence: MemberAccess
+              object: Identifier (name="b")
+              property: Identifier (name="inner")
+            body: IfTag (name="if")
+              branches: IfBranch
+                condition: BinaryExpression (operator="and")
+                  left: MemberAccess
+                    object: Identifier (name="c")
+                    property: Identifier (name="visible")
+                  right: UnaryExpression (operator="not")
+                    argument: MemberAccess
+                      object: Identifier (name="c")
+                      property: Identifier (name="hidden")
+                body: SetTag (name="set")
+                  targets: Identifier (name="label")
+                  values: FilterExpression
+                    target: FilterExpression
+                      target: FilterExpression
+                        target: MemberAccess
+                          object: Identifier (name="c")
+                          property: Identifier (name="name")
+                        name: Identifier (name="default")
+                        args: Argument
+                          value: MemberAccess
+                            object: Identifier (name="b")
+                            property: Identifier (name="name")
+                      name: Identifier (name="default")
+                      args: Argument
+                        value: MemberAccess
+                          object: Identifier (name="a")
+                          property: Identifier (name="name")
+                    name: Identifier (name="default")
+                    args: Argument
+                      value: StringLiteral (value="?")
+                        parts: StringText (value="?")
+                body: Output
+                  expression: BinaryExpression (operator="~")
+                    left: BinaryExpression (operator="~")
+                      left: BinaryExpression (operator="~")
+                        left: BinaryExpression (operator="~")
+                          left: BinaryExpression (operator="~")
+                            left: Identifier (name="label")
+                            right: StringLiteral (value=" (")
+                              parts: StringText (value=" (")
+                          right: MemberAccess
+                            object: Identifier (name="loop")
+                            property: Identifier (name="index")
+                        right: StringLiteral (value="/")
+                          parts: StringText (value="/")
+                      right: MemberAccess
+                        object: Identifier (name="loop")
+                        property: Identifier (name="length")
+                    right: StringLiteral (value=")")
+                      parts: StringText (value=")")
+              branches: IfBranch
+                body: DoTag (name="do")
+                  expression: CallExpression
+                    callee: Identifier (name="log")
+                    args: Argument
+                      value: Identifier (name="c")
+  body: Comment (value=" Slices, ranges and spreads. ")
+  body: Output
+    expression: SliceExpression
+      target: Identifier (name="items")
+      from: NumberLiteral (value=1 raw="1")
+      to: NumberLiteral (value=2 raw="2")
+  body: Output
+    expression: SliceExpression
+      target: Identifier (name="items")
+      to: NumberLiteral (value=2 raw="2")
+  body: Output
+    expression: SliceExpression
+      target: Identifier (name="items")
+      from: NumberLiteral (value=1 raw="1")
+  body: Output
+    expression: MemberAccess
+      object: Identifier (name="items")
+      property: NumberLiteral (value=0 raw="0")
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="range")
+      args: Argument
+        value: NumberLiteral (value=0 raw="0")
+      args: Argument
+        value: NumberLiteral (value=10 raw="10")
+      args: Argument
+        value: NumberLiteral (value=2 raw="2")
+  body: Output
+    expression: BinaryExpression (operator="..")
+      left: StringLiteral (value="a")
+        parts: StringText (value="a")
+      right: StringLiteral (value="e")
+        parts: StringText (value="e")
+  body: Output
+    expression: ArrayLiteral
+      elements: SpreadElement
+        argument: Identifier (name="items")
+      elements: NumberLiteral (value=4 raw="4")
+      elements: SpreadElement
+        argument: Identifier (name="more")
+  body: Output
+    expression: HashLiteral
+      entries: SpreadElement
+        argument: Identifier (name="defaults")
+      entries: HashEntry
+        key: Identifier (name="override")
+        value: BooleanLiteral (value=true)
+  body: Output
+    expression: CallExpression
+      callee: Identifier (name="max")
+      args: Argument
+        value: SpreadElement
+          argument: Identifier (name="items")"
+`;

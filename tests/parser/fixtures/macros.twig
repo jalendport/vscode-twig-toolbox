@@ -1,0 +1,68 @@
+{# Macro definition, import and re-use across every supported form. #}
+
+{% macro input(name, value = '', type = 'text', attrs = {}) %}
+	<input
+		type="{{ type }}"
+		name="{{ name }}"
+		value="{{ value|e('html_attr') }}"
+		{% for key, val in attrs %}{{ key }}="{{ val|e('html_attr') }}" {% endfor %}>
+{% endmacro %}
+
+{% macro field(name, label, options = {}) %}
+	{% import _self as self %}
+	<label class="field {{ options.required|default(false) ? 'field--required' : '' }}">
+		<span>{{ label }}</span>
+		{{ self.input(name, options.value|default(''), options.type|default('text')) }}
+		{% if options.help is defined %}
+			<small>{{ options.help }}</small>
+		{% endif %}
+	</label>
+{% endmacro %}
+
+{% macro table(rows, columns) %}
+	{% if rows is empty %}
+		<p>Nothing here.</p>
+	{% else %}
+		<table>
+			{% for row in rows %}
+				<tr>
+					{% for column in columns %}
+						<td>{{ attribute(row, column) }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</table>
+	{% endif %}
+{% endmacro %}
+
+{% import 'forms.twig' as forms %}
+{% from 'forms.twig' import input as text_input, field %}
+{% use 'skeleton.twig' with header as skeleton_header, footer as skeleton_footer %}
+
+{% embed 'card.twig' with { title: 'Sign up', level: 2 } only %}
+	{% block card_header %}
+		{{ skeleton_header() }}
+	{% endblock %}
+
+	{% block card_body %}
+		{{ forms.field('email', 'Email', { required: true, type: 'email' }) }}
+		{{ text_input('token', csrf_token, 'hidden') }}
+		{{ field('name', 'Name') }}
+	{% endblock card_body %}
+{% endembed %}
+
+{% embed 'card.twig' ignore missing %}
+	{% block card_body %}fallback{% endblock %}
+{% endembed %}
+
+{% apply upper|trim %}
+	{{ forms.input('shout') }}
+{% endapply %}
+
+{% set rendered %}
+	{% for i in 1..3 %}
+		{{ forms.input('item-' ~ i, i * 10) }}
+	{% endfor %}
+{% endset %}
+
+{{ rendered|raw }}

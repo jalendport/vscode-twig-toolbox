@@ -1,0 +1,86 @@
+{% extends '_layouts/base' %}
+
+{% requireLogin %}
+
+{% set section = craft.app.sections.getSectionByHandle('news') %}
+{% set query = craft.entries()
+	.section('news')
+	.relatedTo({ targetElement: category ?? null })
+	.search(craft.app.request.getParam('q'))
+	.orderBy('postDate desc')
+	.limit(12) %}
+
+{% paginate query as pageInfo, entries %}
+
+{% block content %}
+	<h1>{{ section.name }}</h1>
+
+	{% if entries|length %}
+		<div class="grid">
+			{% for entry in entries %}
+				{% set image = entry.featureImage.one() ?? null %}
+				<article class="card" data-id="{{ entry.id }}" data-index="{{ loop.index }}">
+					{% if image %}
+						{% set transform = { width: 600, height: 400, mode: 'crop', quality: 82 } %}
+						<img src="{{ image.getUrl(transform) }}"
+							width="{{ image.getWidth(transform) }}"
+							height="{{ image.getHeight(transform) }}"
+							alt="{{ image.alt ?: entry.title }}">
+					{% endif %}
+
+					<h2><a href="{{ entry.url }}">{{ entry.title }}</a></h2>
+
+					<p class="meta">
+						{{ entry.postDate|date('M j, Y') }}
+						{%- if entry.author %} · {{ entry.author.fullName }}{% endif -%}
+					</p>
+
+					{{ entry.summary|default(entry.body|striptags|slice(0, 160) ~ '…') }}
+
+					{% set tags = entry.topics.all() %}
+					{% if tags|length %}
+						<ul class="tags">
+							{% for tag in tags %}
+								<li><a href="{{ url('news', { topic: tag.slug }) }}">{{ tag.title }}</a></li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</article>
+			{% endfor %}
+		</div>
+
+		{% if pageInfo.totalPages > 1 %}
+			<nav class="pagination">
+				{% if pageInfo.prevUrl %}<a href="{{ pageInfo.prevUrl }}">Previous</a>{% endif %}
+				{% for page, url in pageInfo.getDynamicRangeUrls(5) %}
+					<a href="{{ url }}" {{ page == pageInfo.currentPage ? 'aria-current="page"' : '' }}>{{ page }}</a>
+				{% endfor %}
+				{% if pageInfo.nextUrl %}<a href="{{ pageInfo.nextUrl }}">Next</a>{% endif %}
+			</nav>
+		{% endif %}
+	{% else %}
+		<p>{{ 'No results.'|t('site') }}</p>
+	{% endif %}
+
+	{% cache globally for 1 hour unless craft.app.config.general.devMode %}
+		{% nav item in craft.entries().section('pages').level(1).all() %}
+			<li>
+				<a href="{{ item.url }}">{{ item.title }}</a>
+				{% ifchildren %}
+					<ul>{% children %}</ul>
+				{% endifchildren %}
+			</li>
+		{% endnav %}
+	{% endcache %}
+
+	{% switch entry.type.handle ?? 'default' %}
+		{% case 'article' %}
+			{% hook 'news.article' %}
+		{% case 'link' %}
+			{% redirect entry.linkUrl %}
+		{% default %}
+			{% js %}
+				console.log({{ entry.id ?? 0 }});
+			{% endjs %}
+	{% endswitch %}
+{% endblock %}

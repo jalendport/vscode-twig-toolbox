@@ -1,0 +1,63 @@
+{# Whitespace control, nesting depth and delimiters that look like text. #}
+{%- set items = [1, 2, 3] -%}
+
+<ul>
+	{%- for item in items -%}
+		{#- a trimmed comment -#}
+		<li>{{- item -}}</li>
+	{%- endfor -%}
+</ul>
+
+{%~ if items|length ~%}
+	{{~ items|first ~}}
+{%~ endif ~%}
+
+{{- 'left only' }}
+{{ 'right only' -}}
+{{~ 'line trim' ~}}
+
+{# Braces that are not Twig. #}
+<style>
+	.a { color: red; }
+	.b { --x: { }; }
+</style>
+<script>
+	const o = { a: 1, b: { c: 2 } };
+	const s = "{ not twig }";
+	const t = `${o.a}`;
+</script>
+
+{# Twig delimiters inside strings. #}
+{{ '{{ not an expression }}' }}
+{{ "{% not a tag %}" }}
+{{ 'a #{b} c' }}
+{{ "escaped \#{not_interpolated}" }}
+
+{# Deep nesting. #}
+{% for a in outer %}
+	{% for b in a.middle %}
+		{% if b.ok %}
+			{% for c in b.inner %}
+				{% if c.visible and not c.hidden %}
+					{% set label = c.name|default(b.name)|default(a.name)|default('?') %}
+					{{ label ~ ' (' ~ loop.index ~ '/' ~ loop.length ~ ')' }}
+				{% else %}
+					{% do log(c) %}
+				{% endif %}
+			{% else %}
+				<em>empty</em>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+{% endfor %}
+
+{# Slices, ranges and spreads. #}
+{{ items[1:2] }}
+{{ items[:2] }}
+{{ items[1:] }}
+{{ items[0] }}
+{{ range(0, 10, 2) }}
+{{ 'a'..'e' }}
+{{ [...items, 4, ...more] }}
+{{ { ...defaults, override: true } }}
+{{ max(...items) }}
