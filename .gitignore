@@ -6,6 +6,10 @@ dist
 .vscode-test
 .cache/
 
+# Grammars borrowed from @shikijs/langs so the snapshot runner can resolve text.html.basic
+# and the source.js / source.css it embeds (see scripts/grammar-test.mjs).
+tests/grammar/.grammars/
+
 # Build-time copies of the root assets into the extension package (see scripts/assets.mjs).
 packages/extension/syntaxes/
 packages/extension/language-configuration.json

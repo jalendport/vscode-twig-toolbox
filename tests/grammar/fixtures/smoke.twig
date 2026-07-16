@@ -1,0 +1,3 @@
+{% if user is not empty %}
+	<a href="{{ path('profile', { id: user.id }) }}" class="link">{{ user.name|title }}</a>
+{% endif %}

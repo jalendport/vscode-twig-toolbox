@@ -2,140 +2,358 @@
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Twig",
 	"scopeName": "text.html.twig",
+	"comment": "Twig 3 embedded in HTML. Twig constructs are injected at high priority ('L:') across the whole document so that they highlight inside HTML text, inside HTML tags and attribute values, and inside <script>/<style> bodies that text.html.basic delegates to source.js/source.css. The exclusion list keeps the injection from re-entering Twig blocks, Twig comments, and {% verbatim %} bodies.",
 	"injections": {
-		"L:text.html.twig meta.tag - (comment.block.twig | meta.embedded.twig)": {
+		"L:text.html.twig - (comment.block.twig | meta.embedded.expression.twig | meta.embedded.statement.twig | meta.embedded.verbatim.twig)": {
 			"patterns": [
-				{ "include": "#comment" },
-				{ "include": "#output" },
-				{ "include": "#execute" }
+				{ "include": "#twig-comment" },
+				{ "include": "#twig-verbatim" },
+				{ "include": "#twig-output" },
+				{ "include": "#twig-statement" }
 			]
 		}
 	},
 	"patterns": [
-		{ "include": "#comment" },
-		{ "include": "#output" },
-		{ "include": "#execute" },
-		{ "include": "#css-embed" },
-		{ "include": "#js-embed" },
+		{ "include": "#twig-comment" },
+		{ "include": "#twig-verbatim" },
+		{ "include": "#twig-output" },
+		{ "include": "#twig-statement" },
 		{ "include": "text.html.basic" }
 	],
 	"repository": {
-		"comment": {
-			"comment": "Matches Twig comment blocks: {# ... #}",
+		"twig-comment": {
+			"comment": "{# ... #}, including the {#- and -#} whitespace-control forms.",
 			"name": "comment.block.twig",
-			"begin": "\\{\\#",
-			"end": "\\#\\}",
-			"patterns": []
+			"begin": "\\{#[-~]?",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.comment.begin.twig" }
+			},
+			"end": "[-~]?#\\}",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.comment.end.twig" }
+			}
 		},
-		"output": {
-			"comment": "Matches Twig output blocks: {{ ... }}",
-			"name": "meta.embedded.output.twig",
-			"begin": "\\{\\{",
-			"end": "\\}\\}",
-			"patterns": [
-				{ "include": "#filters" },
-				{ "include": "#functions" },
-				{ "include": "#tests" },
-				{ "include": "#expressions" }
-			]
+		"twig-output": {
+			"comment": "{{ ... }}, including the {{- and -}} whitespace-control forms.",
+			"name": "meta.embedded.expression.twig",
+			"begin": "\\{\\{[-~]?",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.embedded.begin.twig" }
+			},
+			"end": "[-~]?\\}\\}",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.embedded.end.twig" }
+			},
+			"patterns": [{ "include": "#expression" }]
 		},
-		"execute": {
-			"comment": "Matches Twig execute blocks: {% ... %}",
-			"name": "meta.embedded.execute.twig",
-			"begin": "\\{\\%",
-			"end": "\\%\\}",
-			"patterns": [
-				{ "include": "#tags" },
-				{ "include": "#filters" },
-				{ "include": "#functions" },
-				{ "include": "#tests" },
-				{ "include": "#expressions" }
-			]
+		"twig-statement": {
+			"comment": "{% ... %}, including the {%- and -%} whitespace-control forms.",
+			"name": "meta.embedded.statement.twig",
+			"begin": "\\{%[-~]?",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.embedded.begin.twig" }
+			},
+			"end": "[-~]?%\\}",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.embedded.end.twig" }
+			},
+			"patterns": [{ "include": "#tag-name" }, { "include": "#expression" }]
 		},
-		"tags": {
-			"comment": "Matches Twig tags",
+		"twig-verbatim": {
+			"comment": "{% verbatim %} ... {% endverbatim %}. The body is literal template text: Twig highlighting is suppressed there (the injection excludes meta.embedded.verbatim.twig) while HTML still highlights.",
+			"begin": "(\\{%[-~]?)\\s*(verbatim)\\s*([-~]?%\\})",
+			"beginCaptures": {
+				"0": { "name": "meta.embedded.statement.twig" },
+				"1": { "name": "punctuation.section.embedded.begin.twig" },
+				"2": { "name": "keyword.control.verbatim.twig" },
+				"3": { "name": "punctuation.section.embedded.end.twig" }
+			},
+			"end": "(\\{%[-~]?)\\s*(endverbatim)\\s*([-~]?%\\})",
+			"endCaptures": {
+				"0": { "name": "meta.embedded.statement.twig" },
+				"1": { "name": "punctuation.section.embedded.begin.twig" },
+				"2": { "name": "keyword.control.endverbatim.twig" },
+				"3": { "name": "punctuation.section.embedded.end.twig" }
+			},
+			"contentName": "meta.embedded.verbatim.twig",
+			"patterns": [{ "include": "text.html.basic" }]
+		},
+
+		"tag-name": {
+			"comment": "The tag name directly after {%. Anchored to \\G so it only ever matches in first position. Known Twig 3 and Craft tags get a name-qualified scope; anything else still scopes as a tag, because the grammar is dialect-agnostic and the server decides validity.",
 			"patterns": [
 				{
-					"name": "keyword.control.twig",
-					"match": "\\G\\s*([a-zA-Z_][\\w]*)"
+					"comment": "{% apply upper|escape %} — the word after `apply` is a filter, not a variable.",
+					"match": "\\G\\s*(apply)\\s+([a-zA-Z_]\\w*)",
+					"captures": {
+						"1": { "name": "keyword.control.apply.twig" },
+						"2": { "name": "support.function.filter.twig" }
+					}
+				},
+				{
+					"comment": "{% block name %} / {% endblock name %}",
+					"match": "\\G\\s*(block|endblock)(?:\\s+([a-zA-Z_]\\w*))?",
+					"captures": {
+						"1": { "name": "keyword.control.$1.twig" },
+						"2": { "name": "entity.name.section.twig" }
+					}
+				},
+				{
+					"comment": "{% macro name(args) %}",
+					"match": "\\G\\s*(macro)\\s+([a-zA-Z_]\\w*)",
+					"captures": {
+						"1": { "name": "keyword.control.macro.twig" },
+						"2": { "name": "entity.name.function.twig" }
+					}
+				},
+				{
+					"comment": "Twig 3 core tags, their end forms, and the Craft-only tags.",
+					"match": "\\G\\s*(apply|autoescape|cache|deprecated|do|embed|extends|flush|for|from|guard|if|import|include|sandbox|set|use|verbatim|with|else|elseif|endapply|endautoescape|endcache|endembed|endfor|endguard|endif|endmacro|endsandbox|endset|endverbatim|endwith|nav|switch|paginate|js|css|html|redirect|requirePermission|exit|header|hook|tag|dump|expires|case|default|ifchildren|endnav|endswitch|endjs|endcss|endhtml|endtag|endifchildren)\\b",
+					"captures": {
+						"1": { "name": "keyword.control.$1.twig" }
+					}
+				},
+				{
+					"comment": "Unknown tag: still a tag as far as the grammar is concerned.",
+					"match": "\\G\\s*([a-zA-Z_]\\w*)",
+					"captures": {
+						"1": { "name": "keyword.control.twig" }
+					}
 				}
 			]
 		},
-		"filters": {
-			"comment": "Matches Twig filters",
+
+		"expression": {
+			"comment": "Order is significant: see the notes on individual rules.",
 			"patterns": [
-				{
-					"name": "support.function.filters.twig",
-					"match": "(?<=\\|)\\s*([a-zA-Z_][\\w]*)|((?<=apply\\s)([a-zA-Z_][\\w]*))"
-				}
+				{ "include": "#string-double" },
+				{ "include": "#string-single" },
+				{ "include": "#number" },
+				{ "include": "#constant" },
+				{ "include": "#test" },
+				{ "include": "#operator-word" },
+				{ "include": "#filter" },
+				{ "include": "#arrow-function" },
+				{ "include": "#named-argument" },
+				{ "include": "#function" },
+				{ "include": "#hash" },
+				{ "include": "#array" },
+				{ "include": "#group" },
+				{ "include": "#operator" },
+				{ "include": "#property" },
+				{ "include": "#punctuation" },
+				{ "include": "#variable-language" },
+				{ "include": "#variable" }
 			]
 		},
-		"functions": {
-			"comment": "Matches Twig functions",
-			"patterns": [
-				{
-					"name": "support.function.functions.twig",
-					"match": "\\b([a-zA-Z_][\\w]*)(?=\\()"
-				}
-			]
-		},
-		"tests": {
-			"comment": "Matches Twig tests",
-			"patterns": [
-				{
-					"name": "support.function.tests.twig",
-					"match": "(?<=is\\s)([a-zA-Z_][\\w]*(?:\\s+[a-zA-Z_][\\w]*)*)"
-				}
-			]
-		},
-		"expressions": {
-			"comment": "Matches Twig expressions (strings, numbers, operators, variables)",
-			"patterns": [
-				{ "include": "#single-strings" },
-				{ "include": "#double-strings" },
-				{ "include": "#numbers" },
-				{ "include": "#operators" },
-				{ "include": "#variables" }
-			]
-		},
-		"single-strings": {
-			"comment": "Matches single-quoted strings in Twig",
-			"name": "string.quoted.single.twig",
-			"begin": "'",
-			"end": "'",
-			"patterns": [
-				{
-					"name": "constant.character.escape.twig",
-					"match": "\\\\."
-				}
-			]
-		},
-		"double-strings": {
-			"comment": "Matches double-quoted strings in Twig",
+
+		"string-double": {
+			"comment": "Only double-quoted strings support #{ } interpolation.",
 			"name": "string.quoted.double.twig",
 			"begin": "\"",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.string.begin.twig" }
+			},
 			"end": "\"",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.string.end.twig" }
+			},
+			"patterns": [
+				{ "name": "constant.character.escape.twig", "match": "\\\\." },
+				{ "include": "#interpolation" }
+			]
+		},
+		"string-single": {
+			"name": "string.quoted.single.twig",
+			"begin": "'",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.string.begin.twig" }
+			},
+			"end": "'",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.string.end.twig" }
+			},
+			"patterns": [{ "name": "constant.character.escape.twig", "match": "\\\\['\\\\]" }]
+		},
+		"interpolation": {
+			"name": "meta.interpolation.twig",
+			"begin": "#\\{",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.interpolation.begin.twig" }
+			},
+			"end": "\\}",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.interpolation.end.twig" }
+			},
+			"patterns": [{ "include": "#expression" }]
+		},
+
+		"number": {
+			"name": "constant.numeric.twig",
+			"match": "\\b\\d[\\d_]*(?:\\.[\\d_]+)?(?:[eE][-+]?\\d+)?\\b"
+		},
+		"constant": {
+			"name": "constant.language.twig",
+			"match": "(?i)\\b(?:true|false|null|none)\\b"
+		},
+
+		"test": {
+			"comment": "Structural: the name(s) after `is` / `is not`. A second word is only taken when it is immediately applied (`is divisible by(3)`, `is same as(x)`), and operator words are never eaten, so `x is empty and (y)` still reads `empty` as the test. No test names are hard-coded.",
+			"match": "\\b(is)(?:\\s+(not))?\\s+((?!(?:and|or|not|in|is|b-and|b-or|b-xor|matches|starts|ends|has)\\b)[a-zA-Z_]\\w*(?:\\s+(?!(?:and|or|not|in|is|b-and|b-or|b-xor|matches|starts|ends|has)\\b)[a-zA-Z_]\\w*(?=\\s*\\())?)",
+			"captures": {
+				"1": { "name": "keyword.operator.word.twig" },
+				"2": { "name": "keyword.operator.word.twig" },
+				"3": { "name": "support.function.test.twig" }
+			}
+		},
+		"operator-word": {
+			"name": "keyword.operator.word.twig",
+			"match": "\\b(?:b-and|b-or|b-xor|and|or|not|in|is|matches|starts\\s+with|ends\\s+with|has\\s+some|has\\s+every)\\b"
+		},
+		"filter": {
+			"comment": "Structural: the name after `|`. No filter names are hard-coded.",
+			"match": "(\\|)\\s*([a-zA-Z_]\\w*)",
+			"captures": {
+				"1": { "name": "keyword.operator.filter.twig" },
+				"2": { "name": "support.function.filter.twig" }
+			}
+		},
+		"function": {
+			"comment": "Structural: any name directly before `(`. Operator words are matched earlier, so `not (x)` is not a call. No function names are hard-coded.",
+			"match": "\\b([a-zA-Z_]\\w*)\\s*(?=\\()",
+			"captures": {
+				"1": { "name": "support.function.twig" }
+			}
+		},
+		"arrow-function": {
 			"patterns": [
 				{
-					"name": "constant.character.escape.twig",
-					"match": "\\\\."
+					"comment": "(a, b) => ... — the lookahead keeps ordinary grouping parens out.",
+					"begin": "\\((?=[^()]*\\)\\s*=>)",
+					"beginCaptures": {
+						"0": { "name": "punctuation.section.parens.begin.twig" }
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": { "name": "punctuation.section.parens.end.twig" }
+					},
+					"patterns": [
+						{ "name": "variable.parameter.twig", "match": "[a-zA-Z_]\\w*" },
+						{ "name": "punctuation.separator.twig", "match": "," }
+					]
+				},
+				{
+					"comment": "v => ...",
+					"match": "([a-zA-Z_]\\w*)\\s*(?==>)",
+					"captures": {
+						"1": { "name": "variable.parameter.twig" }
+					}
 				}
 			]
 		},
-		"numbers": {
-			"comment": "Matches numbers in Twig",
-			"name": "constant.numeric.twig",
-			"match": "\\b\\d+(?:\\.\\d+)?\\b"
+		"named-argument": {
+			"comment": "with(template = x), and the target of {% set x = 1 %}.",
+			"match": "([a-zA-Z_]\\w*)\\s*(?==(?![=>]))",
+			"captures": {
+				"1": { "name": "variable.parameter.twig" }
+			}
 		},
-		"operators": {
-			"comment": "Matches operators in Twig",
-			"name": "keyword.operator.twig",
-			"match": "\\*\\*|\\/\\/|[+\\-*/%]|\\b(?:and|xor|or|not)\\b|\\=\\=|\\!\\=|\\<\\=|\\>\\=|\\<|\\>|\\<\\=\\>|\\b(?:has every|has some)\\b|\\b(?:in|not in|starts with|ends with|is|is not)\\b|\\||\\.\\.|\\~|\\.|\\?\\:|\\?\\?|\\?|\\:|\\.\\.\\.|\\=\\>"
+
+		"hash": {
+			"comment": "{ key: value }. The end also bails out at the enclosing }} / %} so that an unterminated hash cannot swallow the rest of the document.",
+			"begin": "\\{",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.hash.begin.twig" }
+			},
+			"end": "(?=[-~]?(?:\\}\\}|%\\}))|\\}",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.hash.end.twig" }
+			},
+			"patterns": [{ "include": "#expression" }]
 		},
-		"variables": {
-			"comment": "Matches variable names in Twig",
+		"array": {
+			"comment": "Array literals and subscripts.",
+			"begin": "\\[",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.array.begin.twig" }
+			},
+			"end": "(?=[-~]?(?:\\}\\}|%\\}))|\\]",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.array.end.twig" }
+			},
+			"patterns": [{ "include": "#expression" }]
+		},
+		"group": {
+			"begin": "\\(",
+			"beginCaptures": {
+				"0": { "name": "punctuation.section.parens.begin.twig" }
+			},
+			"end": "(?=[-~]?(?:\\}\\}|%\\}))|\\)",
+			"endCaptures": {
+				"0": { "name": "punctuation.section.parens.end.twig" }
+			},
+			"patterns": [{ "include": "#expression" }]
+		},
+
+		"operator": {
+			"comment": "Runs before #property so that `..` in `1..5` is not read as an accessor. Bare `.` is deliberately left to #property.",
+			"patterns": [
+				{ "name": "keyword.operator.spread.twig", "match": "\\.\\.\\." },
+				{ "name": "keyword.operator.range.twig", "match": "\\.\\." },
+				{ "name": "keyword.operator.arrow.twig", "match": "=>" },
+				{
+					"name": "keyword.operator.comparison.twig",
+					"match": "<=>|[=!]=|[<>]=|[<>]"
+				},
+				{
+					"name": "keyword.operator.assignment.twig",
+					"match": "(?<![=!<>])=(?![=>])"
+				},
+				{ "name": "keyword.operator.arithmetic.twig", "match": "\\*\\*|//|[-+*/%]" },
+				{ "name": "keyword.operator.string.twig", "match": "~" },
+				{ "name": "keyword.operator.ternary.twig", "match": "\\?\\?|\\?:|\\?" },
+				{ "name": "keyword.operator.filter.twig", "match": "\\|" }
+			]
+		},
+		"property": {
+			"patterns": [
+				{
+					"comment": "foo.bar()",
+					"match": "(\\.)\\s*([a-zA-Z_]\\w*)\\s*(?=\\()",
+					"captures": {
+						"1": { "name": "punctuation.accessor.twig" },
+						"2": { "name": "support.function.method.twig" }
+					}
+				},
+				{
+					"comment": "foo.bar",
+					"match": "(\\.)\\s*([a-zA-Z_]\\w*)",
+					"captures": {
+						"1": { "name": "punctuation.accessor.twig" },
+						"2": { "name": "variable.other.property.twig" }
+					}
+				},
+				{
+					"comment": "foo.0",
+					"match": "(\\.)\\s*(\\d+)",
+					"captures": {
+						"1": { "name": "punctuation.accessor.twig" },
+						"2": { "name": "constant.numeric.twig" }
+					}
+				}
+			]
+		},
+		"punctuation": {
+			"name": "punctuation.separator.twig",
+			"match": "[,:]"
+		},
+		"variable-language": {
+			"name": "variable.language.twig",
+			"match": "\\b(?:_self|_context|_charset|loop)\\b"
+		},
+		"variable": {
 			"name": "variable.other.twig",
-			"match": "[a-zA-Z_][a-zA-Z0-9_]*"
+			"match": "[a-zA-Z_]\\w*"
 		}
 	}
 }

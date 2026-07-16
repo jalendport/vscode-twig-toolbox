@@ -1,0 +1,99 @@
+{# strings #}
+{{ 'single' }}
+{{ "double" }}
+{{ 'it\'s escaped' }}
+{{ "tab\there" }}
+{{ "hello #{name}" }}
+{{ "sum: #{a + b|round}" }}
+{{ "nested #{ {a: 1}|json_encode }" }}
+{{ 'no #{interpolation} here' }}
+
+{# numbers and constants #}
+{{ 0 }}
+{{ 42 }}
+{{ 3.14 }}
+{{ 1_000_000 }}
+{{ 1.5e3 }}
+{{ 1..5 }}
+{{ true }}{{ TRUE }}{{ false }}{{ null }}{{ none }}{{ None }}
+
+{# arithmetic and comparison #}
+{{ a + b - c * d / e % f }}
+{{ a // b }}
+{{ a ** b }}
+{{ a ~ b }}
+{{ a == b }}{{ a != b }}{{ a <=> b }}
+{{ a < b }}{{ a > b }}{{ a >= b }}{{ a <= b }}
+
+{# logic and containment #}
+{{ a and b or not c }}
+{{ a b-and b b-or c b-xor d }}
+{{ 'x' in list }}
+{{ 'x' not in list }}
+{{ name matches '/^a/' }}
+{{ name starts with 'a' }}
+{{ name ends with 'z' }}
+{{ list has some (v => v.ok) }}
+{{ list has every (v => v.ok) }}
+
+{# tests #}
+{{ a is defined }}
+{{ a is not defined }}
+{{ a is empty }}
+{{ a is not empty }}
+{{ a is null }}
+{{ a is iterable }}
+{{ a is divisible by(3) }}
+{{ a is not divisible by(3) }}
+{{ a is same as(b) }}
+{{ a is empty and (b) }}
+
+{# ternary and coalesce #}
+{{ a ? b : c }}
+{{ a ?: b }}
+{{ a ?? b }}
+{{ a ? 'yes' }}
+{{ a is defined ? a : 'fallback' }}
+
+{# hashes, arrays, subscripts #}
+{{ { a: 1, 'b': 2, (c): 3 } }}
+{{ [1, 2, 3] }}
+{{ [1, 2, ...rest] }}
+{{ { nested: { deep: [1, { x: 'y' }] } } }}
+{{ list[0] }}
+{{ map['key'] }}
+{{ list[0].name }}
+
+{# arrow functions #}
+{{ items|filter(v => v.active) }}
+{{ items|map(v => v.id) }}
+{{ items|reduce((carry, v) => carry + v.total, 0) }}
+{{ items|sort((a, b) => a.pos <=> b.pos) }}
+
+{# named arguments #}
+{{ include('page.twig', with = { title: 'Hi' }, ignore_missing = true) }}
+{{ date(timezone = 'UTC') }}
+{{ 'now'|date(format = 'Y-m-d') }}
+
+{# calls, members, chains #}
+{{ func() }}
+{{ obj.method() }}
+{{ obj.method(1, 'two') }}
+{{ craft.entries.section('news').limit(5).all() }}
+{{ obj.prop }}
+{{ obj.0 }}
+{{ attribute(obj, 'name') }}
+
+{# filters #}
+{{ value|upper }}
+{{ value|default('n/a')|trim|raw }}
+{{ value|slice(1, 2) }}
+
+{# special variables #}
+{{ loop.index }}
+{{ loop.first }}
+{{ _self }}
+{{ _context }}
+{{ _charset }}
+{{ is_granted('ROLE_ADMIN') }}
+{{ island }}

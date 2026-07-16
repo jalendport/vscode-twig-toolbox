@@ -1,0 +1,83 @@
+>{# a one-line comment #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                      ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{#
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+>	a multi-line comment
+#^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+>	{{ this is not an expression }}
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+>	{% nor is this a tag %}
+#^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+>#}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{#- trimmed on both sides -#}
+#^^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#   ^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                          ^^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{#~ line-trimmed on both sides ~#}
+#^^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                               ^^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ plain }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{- trimmed -}}
+#^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.expression.twig
+#    ^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{~ line_trimmed ~}}
+#^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.expression.twig
+#    ^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{- mixed }}
+#^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.expression.twig
+#    ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ mixed -}}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{% plain %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{%- trimmed -%}
+#^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{%~ line_trimmed ~%}
+#^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.twig
+#                ^ text.html.twig meta.embedded.statement.twig
+#                 ^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{%- mixed %}
+#^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.twig
+#         ^ text.html.twig meta.embedded.statement.twig
+#          ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{% mixed -%}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>

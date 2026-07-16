@@ -1,0 +1,63 @@
+{% extends 'layout.twig' %}
+{% use 'blocks.twig' with sidebar as parent_sidebar %}
+{% import 'macros.twig' as m %}
+{% from 'macros.twig' import field, button as btn %}
+
+{% block title %}Page{% endblock %}
+{% block body %}
+	{% set count = 0 %}
+	{% set greeting %}Hello{% endset %}
+	{% set a, b = 1, 2 %}
+
+	{% if count > 0 %}
+		one
+	{% elseif count < 0 %}
+		two
+	{% else %}
+		three
+	{% endif %}
+
+	{% for user in users %}
+		{{ user.name }}
+	{% else %}
+		none
+	{% endfor %}
+
+	{% for key, value in map if value %}{{ key }}{% endfor %}
+
+	{% macro field(name, value = '') %}
+		<input name="{{ name }}" value="{{ value }}">
+	{% endmacro %}
+
+	{% apply upper %}shout{% endapply %}
+	{% apply spaceless|escape('html') %}x{% endapply %}
+
+	{% autoescape 'js' %}{{ x }}{% endautoescape %}
+	{% autoescape false %}{{ x }}{% endautoescape %}
+
+	{% embed 'card.twig' with { title: 'T' } only %}
+		{% block card_body %}body{% endblock %}
+	{% endembed %}
+
+	{% include 'partial.twig' with { a: 1 } only %}
+	{% include ['a.twig', 'b.twig'] ignore missing %}
+
+	{% with { x: 1 } %}{{ x }}{% endwith %}
+	{% with %}{{ y }}{% endwith %}
+
+	{% sandbox %}{% include 'untrusted.twig' %}{% endsandbox %}
+
+	{% cache 'key' %}expensive{% endcache %}
+
+	{% guard %}{{ risky }}{% endguard %}
+
+	{% deprecated 'the foo tag is deprecated' %}
+	{% do form.setMethod('POST') %}
+	{% flush %}
+
+	{% verbatim %}{{ literal }}{% endverbatim %}
+{% endblock body %}
+
+{% block sidebar %}{{ parent() }}{% endblock sidebar %}
+
+{% unknown_tag_from_a_plugin arg %}

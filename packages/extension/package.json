@@ -45,7 +45,12 @@
 			{
 				"language": "twig",
 				"scopeName": "text.html.twig",
-				"path": "./syntaxes/twig.tmLanguage.json"
+				"path": "./syntaxes/twig.tmLanguage.json",
+				"embeddedLanguages": {
+					"meta.embedded.block.html": "html",
+					"source.css": "css",
+					"source.js": "javascript"
+				}
 			}
 		],
 		"configuration": {

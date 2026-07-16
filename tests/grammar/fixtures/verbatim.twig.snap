@@ -1,0 +1,78 @@
+>{% verbatim %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.verbatim.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>	<ul class="list">
+#^ text.html.twig meta.embedded.verbatim.twig
+# ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html punctuation.definition.tag.begin.html
+#  ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html entity.name.tag.html
+#    ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html
+#     ^^^^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html meta.attribute.class.html entity.other.attribute-name.html
+#          ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html meta.attribute.class.html punctuation.separator.key-value.html
+#           ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.begin.html
+#            ^^^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html
+#                ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.end.html
+#                 ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.start.html punctuation.definition.tag.end.html
+>		{% for item in items %}
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.verbatim.twig
+>			<li>{{ item.label }}</li>
+#^^^ text.html.twig meta.embedded.verbatim.twig
+#   ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.start.html punctuation.definition.tag.begin.html
+#    ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.start.html entity.name.tag.html
+#      ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.start.html punctuation.definition.tag.end.html
+#       ^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.verbatim.twig
+#                       ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.end.html punctuation.definition.tag.begin.html
+#                         ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.end.html entity.name.tag.html
+#                           ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.li.end.html punctuation.definition.tag.end.html
+>		{% endfor %}
+#^^^^^^^^^^^^^^^ text.html.twig meta.embedded.verbatim.twig
+>	</ul>
+#^ text.html.twig meta.embedded.verbatim.twig
+# ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.end.html punctuation.definition.tag.begin.html
+#   ^^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.end.html entity.name.tag.html
+#     ^ text.html.twig meta.embedded.verbatim.twig meta.tag.structure.ul.end.html punctuation.definition.tag.end.html
+>	{# not a comment #}
+#^^^^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.verbatim.twig
+>{% endverbatim %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endverbatim.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{%- verbatim -%}
+#^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.verbatim.twig
+#            ^ text.html.twig meta.embedded.statement.twig
+#             ^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>	{{ trimmed_delimiters_still_open_a_verbatim_block }}
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.verbatim.twig
+>{%- endverbatim -%}
+#^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endverbatim.twig
+#               ^ text.html.twig meta.embedded.statement.twig
+#                ^^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{% if real %}{{ real }}{% endif %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^ text.html.twig meta.embedded.statement.twig keyword.control.if.twig
+#     ^ text.html.twig meta.embedded.statement.twig
+#      ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#          ^ text.html.twig meta.embedded.statement.twig
+#           ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                       ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#                         ^ text.html.twig meta.embedded.statement.twig
+#                          ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endif.twig
+#                               ^ text.html.twig meta.embedded.statement.twig
+#                                ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>

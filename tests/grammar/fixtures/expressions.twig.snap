@@ -1,0 +1,1121 @@
+>{# strings #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^ text.html.twig comment.block.twig
+#           ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ 'single' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#          ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ "double" }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#    ^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#          ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 'it\'s escaped' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#      ^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig constant.character.escape.twig
+#        ^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ "tab\there" }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#    ^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#       ^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig constant.character.escape.twig
+#         ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#             ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ "hello #{name}" }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#    ^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#          ^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.begin.twig
+#            ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.end.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ "sum: #{a + b|round}" }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#    ^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#         ^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.begin.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig
+#             ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig keyword.operator.arithmetic.twig
+#              ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig
+#               ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig keyword.operator.filter.twig
+#                 ^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig support.function.filter.twig
+#                      ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#                        ^ text.html.twig meta.embedded.expression.twig
+#                         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ "nested #{ {a: 1}|json_encode }" }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#    ^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig
+#           ^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.begin.twig
+#             ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig
+#              ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.hash.begin.twig
+#               ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.separator.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig
+#                  ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig constant.numeric.twig
+#                   ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.hash.end.twig
+#                    ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig keyword.operator.filter.twig
+#                     ^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig support.function.filter.twig
+#                                ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.end.twig
+#                                  ^ text.html.twig meta.embedded.expression.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig
+#                                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 'no #{interpolation} here' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                            ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# numbers and constants #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                         ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ 0 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 42 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#     ^ text.html.twig meta.embedded.expression.twig
+#      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 3.14 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 1_000_000 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^^^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 1.5e3 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 1..5 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#    ^^ text.html.twig meta.embedded.expression.twig keyword.operator.range.twig
+#      ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ true }}{{ TRUE }}{{ false }}{{ null }}{{ none }}{{ None }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                      ^ text.html.twig meta.embedded.expression.twig
+#                       ^^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                            ^ text.html.twig meta.embedded.expression.twig
+#                             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig
+#                                  ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig
+#                                       ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                           ^ text.html.twig meta.embedded.expression.twig
+#                                            ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                                                ^ text.html.twig meta.embedded.expression.twig
+#                                                 ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                                     ^ text.html.twig meta.embedded.expression.twig
+#                                                      ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                                                          ^ text.html.twig meta.embedded.expression.twig
+#                                                           ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# arithmetic and comparison #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                             ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ a + b - c * d / e % f }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#                      ^ text.html.twig meta.embedded.expression.twig
+#                       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                        ^ text.html.twig meta.embedded.expression.twig
+#                         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a // b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a ** b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a ~ b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig keyword.operator.string.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a == b }}{{ a != b }}{{ a <=> b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                     ^ text.html.twig meta.embedded.expression.twig
+#                      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                          ^ text.html.twig meta.embedded.expression.twig
+#                           ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                            ^ text.html.twig meta.embedded.expression.twig
+#                             ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                                ^ text.html.twig meta.embedded.expression.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                  ^ text.html.twig meta.embedded.expression.twig
+#                                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a < b }}{{ a > b }}{{ a >= b }}{{ a <= b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#           ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                        ^ text.html.twig meta.embedded.expression.twig
+#                         ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                          ^ text.html.twig meta.embedded.expression.twig
+#                           ^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                               ^ text.html.twig meta.embedded.expression.twig
+#                                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                    ^ text.html.twig meta.embedded.expression.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig
+#                                       ^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                                         ^ text.html.twig meta.embedded.expression.twig
+#                                          ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                           ^ text.html.twig meta.embedded.expression.twig
+#                                            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# logic and containment #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                         ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ a and b or not c }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a b-and b b-or c b-xor d }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                         ^ text.html.twig meta.embedded.expression.twig
+#                          ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                           ^ text.html.twig meta.embedded.expression.twig
+#                            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 'x' in list }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 'x' not in list }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ name matches '/^a/' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                 ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                      ^ text.html.twig meta.embedded.expression.twig
+#                       ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ name starts with 'a' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                      ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ name ends with 'z' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                    ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                     ^ text.html.twig meta.embedded.expression.twig
+#                      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ list has some (v => v.ok) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                      ^ text.html.twig meta.embedded.expression.twig
+#                       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                         ^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                           ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                            ^ text.html.twig meta.embedded.expression.twig
+#                             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ list has every (v => v.ok) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                   ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                         ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                          ^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                            ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# tests #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^ text.html.twig comment.block.twig
+#         ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ a is defined }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is not defined }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is empty }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is not empty }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is null }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is iterable }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is divisible by(3) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#                    ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                     ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is not divisible by(3) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                         ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                          ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                           ^ text.html.twig meta.embedded.expression.twig
+#                            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is same as(b) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#               ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                 ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is empty and (b) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                    ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                     ^ text.html.twig meta.embedded.expression.twig
+#                      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# ternary and coalesce #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                        ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ a ? b : c }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig keyword.operator.ternary.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a ?: b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.ternary.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a ?? b }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.ternary.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a ? 'yes' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig keyword.operator.ternary.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#        ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ a is defined ? a : 'fallback' }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.word.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.test.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^ text.html.twig meta.embedded.expression.twig keyword.operator.ternary.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig
+#                    ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                     ^ text.html.twig meta.embedded.expression.twig
+#                      ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                       ^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                               ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                ^ text.html.twig meta.embedded.expression.twig
+#                                 ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# hashes, arrays, subscripts #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                              ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ { a: 1, 'b': 2, (c): 3 } }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#       ^ text.html.twig meta.embedded.expression.twig
+#        ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#         ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#            ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#             ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#              ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                 ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                    ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                     ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                         ^ text.html.twig meta.embedded.expression.twig
+#                          ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                           ^ text.html.twig meta.embedded.expression.twig
+#                            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ [1, 2, 3] }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#     ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#        ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#           ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ [1, 2, ...rest] }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#     ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#        ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.spread.twig
+#             ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                 ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ { nested: { deep: [1, { x: 'y' }] } } }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#           ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#                      ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                       ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                        ^ text.html.twig meta.embedded.expression.twig
+#                         ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#                          ^ text.html.twig meta.embedded.expression.twig
+#                           ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                            ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                               ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                                ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig
+#                                  ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#                                    ^ text.html.twig meta.embedded.expression.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig
+#                                       ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                        ^ text.html.twig meta.embedded.expression.twig
+#                                         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ list[0] }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#        ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#         ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ map['key'] }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#        ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#            ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ list[0].name }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.begin.twig
+#        ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#         ^ text.html.twig meta.embedded.expression.twig punctuation.section.array.end.twig
+#          ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#           ^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# arrow functions #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                   ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ items|filter(v => v.active) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#               ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                       ^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                              ^ text.html.twig meta.embedded.expression.twig
+#                               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ items|map(v => v.id) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#            ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#             ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                    ^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ items|reduce((carry, v) => carry + v.total, 0) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#               ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                 ^^^^^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                         ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                          ^ text.html.twig meta.embedded.expression.twig
+#                           ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig
+#                                    ^ text.html.twig meta.embedded.expression.twig keyword.operator.arithmetic.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                       ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                        ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                                             ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                              ^ text.html.twig meta.embedded.expression.twig
+#                                               ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                                                ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                 ^ text.html.twig meta.embedded.expression.twig
+#                                                  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ items|sort((a, b) => a.pos <=> b.pos) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#               ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^^ text.html.twig meta.embedded.expression.twig keyword.operator.arrow.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                         ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                          ^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^^^ text.html.twig meta.embedded.expression.twig keyword.operator.comparison.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig
+#                                  ^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                    ^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                                       ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                        ^ text.html.twig meta.embedded.expression.twig
+#                                         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# named arguments #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                   ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ include('page.twig', with = { title: 'Hi' }, ignore_missing = true) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#          ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#            ^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^^^^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                            ^ text.html.twig meta.embedded.expression.twig
+#                             ^ text.html.twig meta.embedded.expression.twig keyword.operator.assignment.twig
+#                              ^ text.html.twig meta.embedded.expression.twig
+#                               ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#                                ^ text.html.twig meta.embedded.expression.twig
+#                                 ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                       ^ text.html.twig meta.embedded.expression.twig
+#                                        ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                         ^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                                           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                            ^ text.html.twig meta.embedded.expression.twig
+#                                             ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                              ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                               ^ text.html.twig meta.embedded.expression.twig
+#                                                ^^^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                                                              ^ text.html.twig meta.embedded.expression.twig
+#                                                               ^ text.html.twig meta.embedded.expression.twig keyword.operator.assignment.twig
+#                                                                ^ text.html.twig meta.embedded.expression.twig
+#                                                                 ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                                                                     ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                                      ^ text.html.twig meta.embedded.expression.twig
+#                                                                       ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ date(timezone = 'UTC') }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#        ^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^ text.html.twig meta.embedded.expression.twig keyword.operator.assignment.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                    ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                         ^ text.html.twig meta.embedded.expression.twig
+#                          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ 'now'|date(format = 'Y-m-d') }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#    ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#              ^^^^^^ text.html.twig meta.embedded.expression.twig variable.parameter.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^ text.html.twig meta.embedded.expression.twig keyword.operator.assignment.twig
+#                      ^ text.html.twig meta.embedded.expression.twig
+#                       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                        ^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                             ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                              ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                               ^ text.html.twig meta.embedded.expression.twig
+#                                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# calls, members, chains #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                          ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ func() }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ obj.method() }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#       ^^^^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ obj.method(1, 'two') }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#       ^^^^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#               ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                ^ text.html.twig meta.embedded.expression.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                  ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ craft.entries.section('news').limit(5).all() }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#         ^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                 ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                         ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                          ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                              ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                               ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                 ^^^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#                                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                       ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                         ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                          ^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#                                             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                              ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                               ^ text.html.twig meta.embedded.expression.twig
+#                                                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ obj.prop }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#       ^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ obj.0 }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#      ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#       ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ attribute(obj, 'name') }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#            ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#             ^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                   ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                         ^ text.html.twig meta.embedded.expression.twig
+#                          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# filters #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^ text.html.twig comment.block.twig
+#           ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ value|upper }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#              ^ text.html.twig meta.embedded.expression.twig
+#               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ value|default('n/a')|trim|raw }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                  ^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                       ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                        ^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                            ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                             ^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                                ^ text.html.twig meta.embedded.expression.twig
+#                                 ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ value|slice(1, 2) }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#        ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#         ^^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#              ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#               ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                 ^ text.html.twig meta.embedded.expression.twig
+#                  ^ text.html.twig meta.embedded.expression.twig constant.numeric.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>
+>{# special variables #}
+#^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#  ^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                     ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>{{ loop.index }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.language.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#        ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ loop.first }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^ text.html.twig meta.embedded.expression.twig variable.language.twig
+#       ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#        ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ _self }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^ text.html.twig meta.embedded.expression.twig variable.language.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ _context }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.language.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ _charset }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.language.twig
+#           ^ text.html.twig meta.embedded.expression.twig
+#            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ is_granted('ROLE_ADMIN') }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#              ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#               ^^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                         ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                          ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                           ^ text.html.twig meta.embedded.expression.twig
+#                            ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>{{ island }}
+#^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.expression.twig
+#   ^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#         ^ text.html.twig meta.embedded.expression.twig
+#          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>

@@ -1,0 +1,14 @@
+{% verbatim %}
+	<ul class="list">
+		{% for item in items %}
+			<li>{{ item.label }}</li>
+		{% endfor %}
+	</ul>
+	{# not a comment #}
+{% endverbatim %}
+
+{%- verbatim -%}
+	{{ trimmed_delimiters_still_open_a_verbatim_block }}
+{%- endverbatim -%}
+
+{% if real %}{{ real }}{% endif %}

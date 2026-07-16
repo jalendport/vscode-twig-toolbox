@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="{{ locale }}">
+<head>
+	<meta charset="utf-8">
+	<title>{{ title|default('Untitled') }} — {{ siteName }}</title>
+
+	<style>
+		:root {
+			--brand: {{ brand.hex }};
+		}
+		.card {
+			color: {{ brand.text }};
+			padding: {{ spacing }}px;
+		}
+		{% for name, hex in palette %}
+		.swatch--{{ name }} {
+			background: {{ hex }};
+		}
+		{% endfor %}
+		{# a Twig comment inside CSS #}
+	</style>
+
+	<style{{ styleAttrs }}>
+		.x { color: red; }
+	</style>
+</head>
+<body class="{{ bodyClass }} {% if isHome %}is-home{% endif %}"
+	data-id="{{ entry.id }}"
+	{% if analyticsId %}data-analytics="{{ analyticsId }}"{% endif %}
+	{{ extraAttributes|raw }}>
+
+	<!-- {{ renderedAt }} — Twig highlights inside HTML comments too -->
+
+	<div {# a Twig comment inside an HTML tag #} class="wrap">
+		<img src="{{ hero.url }}" alt="{{ hero.alt|e('html_attr') }}">
+		<input type="checkbox" {{ checked ? 'checked' : '' }}>
+	</div>
+
+	<script>
+		const config = {
+			id: {{ entry.id }},
+			title: {{ entry.title|json_encode|raw }},
+		};
+		{% if debug %}
+		console.log('debug', config);
+		{% endif %}
+		{% for item in items %}
+		register({{ item.id }});
+		{% endfor %}
+		// {{ 'a Twig expression inside a JS comment' }}
+	</script>
+
+	<script type="application/json">
+		{ "id": {{ entry.id }} }
+	</script>
+
+	<script>
+		{% verbatim %}
+		const template = `{{ notTwig }}`;
+		{% endverbatim %}
+	</script>
+</body>
+</html>

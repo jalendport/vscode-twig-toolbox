@@ -1,0 +1,49 @@
+{# Craft-only tags. The grammar is dialect-agnostic: these scope as tags here and the
+   language server decides whether they are actually available. #}
+{% requirePermission 'accessCp' %}
+{% exit 404 %}
+{% header 'Cache-Control: no-cache' %}
+{% redirect 'somewhere/else' %}
+{% expires 60 %}
+{% dump entry %}
+
+{% cache globally for 1 hour %}
+	{% nav item in entries %}
+		<li>
+			<a href="{{ item.url }}">{{ item.title }}</a>
+			{% ifchildren %}
+				<ul>{% children %}</ul>
+			{% endifchildren %}
+		</li>
+	{% endnav %}
+{% endcache %}
+
+{% paginate craft.entries.section('news').limit(10) as pageInfo, entries %}
+{% for entry in entries %}
+	{{ entry.title }}
+{% endfor %}
+
+{% switch entry.type.handle %}
+	{% case 'article' %}
+		{% hook 'article.render' %}
+	{% case 'link' %}
+		{{ entry.linkUrl }}
+	{% default %}
+		{{ entry.summary }}
+{% endswitch %}
+
+{% tag 'div' with { class: 'wrapper' } %}
+	{{ content }}
+{% endtag %}
+
+{% js %}
+	console.log({{ entry.id }});
+{% endjs %}
+
+{% css %}
+	.entry-{{ entry.id }} { color: red; }
+{% endcss %}
+
+{% html %}
+	<meta name="entry" content="{{ entry.id }}">
+{% endhtml %}

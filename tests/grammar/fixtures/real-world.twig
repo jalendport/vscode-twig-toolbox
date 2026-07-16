@@ -1,0 +1,73 @@
+{% extends '_layouts/site.twig' %}
+
+{% import '_macros/forms.twig' as forms %}
+
+{% set pageTitle = entry.seoTitle ?? entry.title ?? 'Untitled' %}
+{% set related = entry.relatedEntries.section(['news', 'blog']).limit(3).all() %}
+
+{% block head %}
+	{{ parent() }}
+	<meta property="og:title" content="{{ pageTitle|striptags|trim }}">
+	{% if entry.heroImage|length %}
+		{% set og = entry.heroImage.one() %}
+		<meta property="og:image" content="{{ og.getUrl({ width: 1200, height: 630, mode: 'crop' }) }}">
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+	<article class="post {{ entry.type.handle == 'feature' ? 'post--feature' }}">
+		<h1>{{ pageTitle }}</h1>
+
+		<time datetime="{{ entry.postDate|date('Y-m-d') }}">
+			{{- entry.postDate|date('F j, Y') -}}
+		</time>
+
+		{% for block in entry.body.all() %}
+			{% switch block.type.handle %}
+				{% case 'text' %}
+					<div class="prose">{{ block.text|raw }}</div>
+				{% case 'quote' %}
+					<blockquote>
+						{{ block.quote }}
+						{% if block.attribution is not empty %}
+							<cite>{{ block.attribution }}</cite>
+						{% endif %}
+					</blockquote>
+				{% case 'gallery' %}
+					<ul class="gallery" data-count="{{ block.images|length }}">
+						{% for image in block.images.all() %}
+							<li{{ loop.first ? ' class="is-first"' : '' }}>
+								<img
+									src="{{ image.getUrl('thumb') }}"
+									srcset="{% for w in [400, 800, 1200] %}{{ image.getUrl({ width: w }) }} {{ w }}w{{ not loop.last ? ', ' }}{% endfor %}"
+									alt="{{ image.alt|default(image.title)|e('html_attr') }}"
+									loading="{{ loop.index > 2 ? 'lazy' : 'eager' }}">
+							</li>
+						{% endfor %}
+					</ul>
+				{% default %}
+					{# unknown block type: render nothing in production #}
+					{% if craft.app.config.general.devMode %}
+						<pre>{{ block.type.handle }}</pre>
+					{% endif %}
+			{% endswitch %}
+		{% endfor %}
+
+		{% if related|length %}
+			<aside>
+				<h2>{{ 'Related'|t('site') }}</h2>
+				<ul>
+					{% for item in related|filter(i => i.enabled)|sort((a, b) => b.postDate <=> a.postDate) %}
+						<li><a href="{{ item.url }}">{{ item.title }}</a></li>
+					{% endfor %}
+				</ul>
+			</aside>
+		{% endif %}
+
+		{{ forms.field('comment', { label: 'Leave a comment'|t('site'), required: true }) }}
+	</article>
+
+	{% cache using key "entry-#{entry.id}-#{entry.dateUpdated.timestamp}" for 1 hour %}
+		{% include '_partials/newsletter.twig' with { list: 'weekly' } only %}
+	{% endcache %}
+{% endblock %}

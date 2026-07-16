@@ -1,0 +1,1038 @@
+>{% extends '_layouts/site.twig' %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.extends.twig
+#          ^ text.html.twig meta.embedded.statement.twig
+#           ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#            ^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                              ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                               ^ text.html.twig meta.embedded.statement.twig
+#                                ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{% import '_macros/forms.twig' as forms %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.import.twig
+#         ^ text.html.twig meta.embedded.statement.twig
+#          ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#           ^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                             ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                              ^ text.html.twig meta.embedded.statement.twig
+#                               ^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                 ^ text.html.twig meta.embedded.statement.twig
+#                                  ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                       ^ text.html.twig meta.embedded.statement.twig
+#                                        ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{% set pageTitle = entry.seoTitle ?? entry.title ?? 'Untitled' %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^ text.html.twig meta.embedded.statement.twig keyword.control.set.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#                ^ text.html.twig meta.embedded.statement.twig
+#                 ^ text.html.twig meta.embedded.statement.twig keyword.operator.assignment.twig
+#                  ^ text.html.twig meta.embedded.statement.twig
+#                   ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                        ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                         ^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                 ^ text.html.twig meta.embedded.statement.twig
+#                                  ^^ text.html.twig meta.embedded.statement.twig keyword.operator.ternary.twig
+#                                    ^ text.html.twig meta.embedded.statement.twig
+#                                     ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                          ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                           ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                                ^ text.html.twig meta.embedded.statement.twig
+#                                                 ^^ text.html.twig meta.embedded.statement.twig keyword.operator.ternary.twig
+#                                                   ^ text.html.twig meta.embedded.statement.twig
+#                                                    ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                     ^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                                                             ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                              ^ text.html.twig meta.embedded.statement.twig
+#                                                               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{% set related = entry.relatedEntries.section(['news', 'blog']).limit(3).all() %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^ text.html.twig meta.embedded.statement.twig keyword.control.set.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^ text.html.twig meta.embedded.statement.twig keyword.operator.assignment.twig
+#                ^ text.html.twig meta.embedded.statement.twig
+#                 ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                      ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                       ^^^^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                     ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                      ^^^^^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                             ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                              ^ text.html.twig meta.embedded.statement.twig punctuation.section.array.begin.twig
+#                                               ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                ^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                                                    ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                     ^ text.html.twig meta.embedded.statement.twig punctuation.separator.twig
+#                                                      ^ text.html.twig meta.embedded.statement.twig
+#                                                       ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                        ^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                                                            ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                             ^ text.html.twig meta.embedded.statement.twig punctuation.section.array.end.twig
+#                                                              ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                               ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                                                ^^^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                                                     ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                                                      ^ text.html.twig meta.embedded.statement.twig constant.numeric.twig
+#                                                                       ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                                        ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                                                         ^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                                                            ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                                                             ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                                              ^ text.html.twig meta.embedded.statement.twig
+#                                                                               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{% block head %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.block.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^^ text.html.twig meta.embedded.statement.twig entity.name.section.twig
+#             ^ text.html.twig meta.embedded.statement.twig
+#              ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>	{{ parent() }}
+#^ text.html.twig
+# ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.expression.twig
+#    ^^^^^^ text.html.twig meta.embedded.expression.twig support.function.twig
+#          ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#           ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#            ^ text.html.twig meta.embedded.expression.twig
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>	<meta property="og:title" content="{{ pageTitle|striptags|trim }}">
+#^ text.html.twig
+# ^ text.html.twig meta.tag.metadata.meta.void.html punctuation.definition.tag.begin.html
+#  ^^^^ text.html.twig meta.tag.metadata.meta.void.html entity.name.tag.html
+#      ^ text.html.twig meta.tag.metadata.meta.void.html
+#       ^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html entity.other.attribute-name.html
+#               ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html punctuation.separator.key-value.html
+#                ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html punctuation.definition.string.begin.html
+#                 ^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html
+#                         ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html punctuation.definition.string.end.html
+#                          ^ text.html.twig meta.tag.metadata.meta.void.html
+#                           ^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html entity.other.attribute-name.html
+#                                  ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html punctuation.separator.key-value.html
+#                                   ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html punctuation.definition.string.begin.html
+#                                    ^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                      ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                       ^^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                                                 ^^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                                          ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                                                           ^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                                               ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                ^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                  ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                                   ^ text.html.twig meta.tag.metadata.meta.void.html punctuation.definition.tag.end.html
+>	{% if entry.heroImage|length %}
+#^ text.html.twig
+# ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^ text.html.twig meta.embedded.statement.twig keyword.control.if.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#             ^^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                      ^ text.html.twig meta.embedded.statement.twig keyword.operator.filter.twig
+#                       ^^^^^^ text.html.twig meta.embedded.statement.twig support.function.filter.twig
+#                             ^ text.html.twig meta.embedded.statement.twig
+#                              ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>		{% set og = entry.heroImage.one() %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^^ text.html.twig meta.embedded.statement.twig keyword.control.set.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^ text.html.twig meta.embedded.statement.twig keyword.operator.assignment.twig
+#             ^ text.html.twig meta.embedded.statement.twig
+#              ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                    ^^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                             ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                              ^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                 ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                  ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                   ^ text.html.twig meta.embedded.statement.twig
+#                                    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>		<meta property="og:image" content="{{ og.getUrl({ width: 1200, height: 630, mode: 'crop' }) }}">
+#^^ text.html.twig
+#  ^ text.html.twig meta.tag.metadata.meta.void.html punctuation.definition.tag.begin.html
+#   ^^^^ text.html.twig meta.tag.metadata.meta.void.html entity.name.tag.html
+#       ^ text.html.twig meta.tag.metadata.meta.void.html
+#        ^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html entity.other.attribute-name.html
+#                ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html punctuation.separator.key-value.html
+#                 ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html punctuation.definition.string.begin.html
+#                  ^^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html
+#                          ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.unrecognized.property.html string.quoted.double.html punctuation.definition.string.end.html
+#                           ^ text.html.twig meta.tag.metadata.meta.void.html
+#                            ^^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html entity.other.attribute-name.html
+#                                   ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html punctuation.separator.key-value.html
+#                                    ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html punctuation.definition.string.begin.html
+#                                     ^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                       ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                        ^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                          ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                           ^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig support.function.method.twig
+#                                                 ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                                  ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#                                                   ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                    ^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                         ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                          ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                           ^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig constant.numeric.twig
+#                                                               ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                                ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                 ^^^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                                       ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                                        ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                         ^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig constant.numeric.twig
+#                                                                            ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                                             ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                              ^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                                                  ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                                                   ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                    ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                                                     ^^^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                                                         ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                                                          ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                           ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                                                                            ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                                                             ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                              ^^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                                                ^ text.html.twig meta.tag.metadata.meta.void.html meta.attribute.content.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                                                                 ^ text.html.twig meta.tag.metadata.meta.void.html punctuation.definition.tag.end.html
+>	{% endif %}
+#^ text.html.twig
+# ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endif.twig
+#         ^ text.html.twig meta.embedded.statement.twig
+#          ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{% endblock %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endblock.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>{% block content %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.block.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^^^^^ text.html.twig meta.embedded.statement.twig entity.name.section.twig
+#                ^ text.html.twig meta.embedded.statement.twig
+#                 ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>	<article class="post {{ entry.type.handle == 'feature' ? 'post--feature' }}">
+#^ text.html.twig
+# ^ text.html.twig meta.tag.structure.article.start.html punctuation.definition.tag.begin.html
+#  ^^^^^^^ text.html.twig meta.tag.structure.article.start.html entity.name.tag.html
+#         ^ text.html.twig meta.tag.structure.article.start.html
+#          ^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html entity.other.attribute-name.html
+#               ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html punctuation.separator.key-value.html
+#                ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.begin.html
+#                 ^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html
+#                      ^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                        ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                         ^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                              ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                               ^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                   ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                    ^^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                          ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                                           ^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.comparison.twig
+#                                             ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                                              ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                               ^^^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                      ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                       ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                                                        ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.ternary.twig
+#                                                         ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                                                          ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                           ^^^^^^^^^^^^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                                        ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                                         ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                          ^^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                            ^ text.html.twig meta.tag.structure.article.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                                             ^ text.html.twig meta.tag.structure.article.start.html punctuation.definition.tag.end.html
+>		<h1>{{ pageTitle }}</h1>
+#^^ text.html.twig
+#  ^ text.html.twig meta.tag.structure.h1.start.html punctuation.definition.tag.begin.html
+#   ^^ text.html.twig meta.tag.structure.h1.start.html entity.name.tag.html
+#     ^ text.html.twig meta.tag.structure.h1.start.html punctuation.definition.tag.end.html
+#      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                  ^ text.html.twig meta.embedded.expression.twig
+#                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                     ^^ text.html.twig meta.tag.structure.h1.end.html punctuation.definition.tag.begin.html
+#                       ^^ text.html.twig meta.tag.structure.h1.end.html entity.name.tag.html
+#                         ^ text.html.twig meta.tag.structure.h1.end.html punctuation.definition.tag.end.html
+>
+>		<time datetime="{{ entry.postDate|date('Y-m-d') }}">
+#^^ text.html.twig
+#  ^ text.html.twig meta.tag.inline.time.start.html punctuation.definition.tag.begin.html
+#   ^^^^ text.html.twig meta.tag.inline.time.start.html entity.name.tag.html
+#       ^ text.html.twig meta.tag.inline.time.start.html
+#        ^^^^^^^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html entity.other.attribute-name.html
+#                ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html punctuation.separator.key-value.html
+#                 ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html punctuation.definition.string.begin.html
+#                  ^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                    ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig
+#                     ^^^^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                          ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                           ^^^^^^^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                   ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                                    ^^^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                        ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                         ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                          ^^^^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                               ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                 ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig
+#                                                  ^^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                    ^ text.html.twig meta.tag.inline.time.start.html meta.attribute.datetime.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                     ^ text.html.twig meta.tag.inline.time.start.html punctuation.definition.tag.end.html
+>			{{- entry.postDate|date('F j, Y') -}}
+#^^^ text.html.twig
+#   ^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#      ^ text.html.twig meta.embedded.expression.twig
+#       ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#            ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#             ^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                     ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                      ^^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                          ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                            ^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                                  ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                    ^ text.html.twig meta.embedded.expression.twig
+#                                     ^^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>		</time>
+#^^ text.html.twig
+#  ^^ text.html.twig meta.tag.inline.time.end.html punctuation.definition.tag.begin.html
+#    ^^^^ text.html.twig meta.tag.inline.time.end.html entity.name.tag.html
+#        ^ text.html.twig meta.tag.inline.time.end.html punctuation.definition.tag.end.html
+>
+>		{% for block in entry.body.all() %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^^ text.html.twig meta.embedded.statement.twig keyword.control.for.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^^ text.html.twig meta.embedded.statement.twig keyword.operator.word.twig
+#                 ^ text.html.twig meta.embedded.statement.twig
+#                  ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                       ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                        ^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                            ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                             ^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                 ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                  ^ text.html.twig meta.embedded.statement.twig
+#                                   ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>			{% switch block.type.handle %}
+#^^^ text.html.twig
+#   ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#     ^ text.html.twig meta.embedded.statement.twig
+#      ^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.switch.twig
+#            ^ text.html.twig meta.embedded.statement.twig
+#             ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                  ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                   ^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                       ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                        ^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                              ^ text.html.twig meta.embedded.statement.twig
+#                               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>				{% case 'text' %}
+#^^^^ text.html.twig
+#    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^ text.html.twig meta.embedded.statement.twig keyword.control.case.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#             ^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                 ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                  ^ text.html.twig meta.embedded.statement.twig
+#                   ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					<div class="prose">{{ block.text|raw }}</div>
+#^^^^^ text.html.twig
+#     ^ text.html.twig meta.tag.structure.div.start.html punctuation.definition.tag.begin.html
+#      ^^^ text.html.twig meta.tag.structure.div.start.html entity.name.tag.html
+#         ^ text.html.twig meta.tag.structure.div.start.html
+#          ^^^^^ text.html.twig meta.tag.structure.div.start.html meta.attribute.class.html entity.other.attribute-name.html
+#               ^ text.html.twig meta.tag.structure.div.start.html meta.attribute.class.html punctuation.separator.key-value.html
+#                ^ text.html.twig meta.tag.structure.div.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.begin.html
+#                 ^^^^^ text.html.twig meta.tag.structure.div.start.html meta.attribute.class.html string.quoted.double.html
+#                      ^ text.html.twig meta.tag.structure.div.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.end.html
+#                       ^ text.html.twig meta.tag.structure.div.start.html punctuation.definition.tag.end.html
+#                        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                          ^ text.html.twig meta.embedded.expression.twig
+#                           ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                 ^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                                      ^^^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                                         ^ text.html.twig meta.embedded.expression.twig
+#                                          ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                            ^^ text.html.twig meta.tag.structure.div.end.html punctuation.definition.tag.begin.html
+#                                              ^^^ text.html.twig meta.tag.structure.div.end.html entity.name.tag.html
+#                                                 ^ text.html.twig meta.tag.structure.div.end.html punctuation.definition.tag.end.html
+>				{% case 'quote' %}
+#^^^^ text.html.twig
+#    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^ text.html.twig meta.embedded.statement.twig keyword.control.case.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#             ^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                  ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                   ^ text.html.twig meta.embedded.statement.twig
+#                    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					<blockquote>
+#^^^^^ text.html.twig
+#     ^ text.html.twig meta.tag.structure.blockquote.start.html punctuation.definition.tag.begin.html
+#      ^^^^^^^^^^ text.html.twig meta.tag.structure.blockquote.start.html entity.name.tag.html
+#                ^ text.html.twig meta.tag.structure.blockquote.start.html punctuation.definition.tag.end.html
+>						{{ block.quote }}
+#^^^^^^ text.html.twig
+#      ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.expression.twig
+#         ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#              ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#               ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                    ^ text.html.twig meta.embedded.expression.twig
+#                     ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>						{% if block.attribution is not empty %}
+#^^^^^^ text.html.twig
+#      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^ text.html.twig meta.embedded.statement.twig keyword.control.if.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                 ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                  ^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                             ^ text.html.twig meta.embedded.statement.twig
+#                              ^^ text.html.twig meta.embedded.statement.twig keyword.operator.word.twig
+#                                ^ text.html.twig meta.embedded.statement.twig
+#                                 ^^^ text.html.twig meta.embedded.statement.twig keyword.operator.word.twig
+#                                    ^ text.html.twig meta.embedded.statement.twig
+#                                     ^^^^^ text.html.twig meta.embedded.statement.twig support.function.test.twig
+#                                          ^ text.html.twig meta.embedded.statement.twig
+#                                           ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>							<cite>{{ block.attribution }}</cite>
+#^^^^^^^ text.html.twig
+#       ^ text.html.twig meta.tag.inline.cite.start.html punctuation.definition.tag.begin.html
+#        ^^^^ text.html.twig meta.tag.inline.cite.start.html entity.name.tag.html
+#            ^ text.html.twig meta.tag.inline.cite.start.html punctuation.definition.tag.end.html
+#             ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#               ^ text.html.twig meta.embedded.expression.twig
+#                ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                     ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                      ^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                                 ^ text.html.twig meta.embedded.expression.twig
+#                                  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                    ^^ text.html.twig meta.tag.inline.cite.end.html punctuation.definition.tag.begin.html
+#                                      ^^^^ text.html.twig meta.tag.inline.cite.end.html entity.name.tag.html
+#                                          ^ text.html.twig meta.tag.inline.cite.end.html punctuation.definition.tag.end.html
+>						{% endif %}
+#^^^^^^ text.html.twig
+#      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endif.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					</blockquote>
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.tag.structure.blockquote.end.html punctuation.definition.tag.begin.html
+#       ^^^^^^^^^^ text.html.twig meta.tag.structure.blockquote.end.html entity.name.tag.html
+#                 ^ text.html.twig meta.tag.structure.blockquote.end.html punctuation.definition.tag.end.html
+>				{% case 'gallery' %}
+#^^^^ text.html.twig
+#    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^ text.html.twig meta.embedded.statement.twig keyword.control.case.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#             ^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                    ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                     ^ text.html.twig meta.embedded.statement.twig
+#                      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					<ul class="gallery" data-count="{{ block.images|length }}">
+#^^^^^ text.html.twig
+#     ^ text.html.twig meta.tag.structure.ul.start.html punctuation.definition.tag.begin.html
+#      ^^ text.html.twig meta.tag.structure.ul.start.html entity.name.tag.html
+#        ^ text.html.twig meta.tag.structure.ul.start.html
+#         ^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.class.html entity.other.attribute-name.html
+#              ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.class.html punctuation.separator.key-value.html
+#               ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.begin.html
+#                ^^^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html
+#                       ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.class.html string.quoted.double.html punctuation.definition.string.end.html
+#                        ^ text.html.twig meta.tag.structure.ul.start.html
+#                         ^^^^^^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html entity.other.attribute-name.html
+#                                   ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html punctuation.separator.key-value.html
+#                                    ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html punctuation.definition.string.begin.html
+#                                     ^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                       ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig
+#                                        ^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                             ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                              ^^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                                    ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                                                     ^^^^^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                                           ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig
+#                                                            ^^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                              ^ text.html.twig meta.tag.structure.ul.start.html meta.attribute.data-x.data-count.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                               ^ text.html.twig meta.tag.structure.ul.start.html punctuation.definition.tag.end.html
+>						{% for image in block.images.all() %}
+#^^^^^^ text.html.twig
+#      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^ text.html.twig meta.embedded.statement.twig keyword.control.for.twig
+#            ^ text.html.twig meta.embedded.statement.twig
+#             ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                  ^ text.html.twig meta.embedded.statement.twig
+#                   ^^ text.html.twig meta.embedded.statement.twig keyword.operator.word.twig
+#                     ^ text.html.twig meta.embedded.statement.twig
+#                      ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                           ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                            ^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                  ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                   ^^^ text.html.twig meta.embedded.statement.twig support.function.method.twig
+#                                      ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                       ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                        ^ text.html.twig meta.embedded.statement.twig
+#                                         ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>							<li{{ loop.first ? ' class="is-first"' : '' }}>
+#^^^^^^^ text.html.twig
+#       ^ text.html.twig meta.tag.other.li{{.html punctuation.definition.tag.begin.html
+#        ^^^^ text.html.twig meta.tag.other.li{{.html entity.name.tag.html invalid.illegal.unrecognized-tag.html
+#            ^ text.html.twig meta.tag.other.li{{.html
+#             ^^^^^^^^^^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.loop.first.html entity.other.attribute-name.html
+#                       ^ text.html.twig meta.tag.other.li{{.html
+#                        ^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.?.html entity.other.attribute-name.html
+#                         ^ text.html.twig meta.tag.other.li{{.html
+#                          ^ text.html.twig meta.tag.other.li{{.html invalid.illegal.character-not-allowed-here.html
+#                           ^ text.html.twig meta.tag.other.li{{.html
+#                            ^^^^^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.class.html entity.other.attribute-name.html
+#                                 ^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.class.html punctuation.separator.key-value.html
+#                                  ^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.class.html string.quoted.double.html punctuation.definition.string.begin.html
+#                                   ^^^^^^^^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.class.html string.quoted.double.html
+#                                           ^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.class.html string.quoted.double.html punctuation.definition.string.end.html
+#                                            ^ text.html.twig meta.tag.other.li{{.html invalid.illegal.character-not-allowed-here.html
+#                                             ^ text.html.twig meta.tag.other.li{{.html
+#                                              ^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.:.html entity.other.attribute-name.html
+#                                               ^ text.html.twig meta.tag.other.li{{.html
+#                                                ^^ text.html.twig meta.tag.other.li{{.html invalid.illegal.character-not-allowed-here.html
+#                                                  ^ text.html.twig meta.tag.other.li{{.html
+#                                                   ^^ text.html.twig meta.tag.other.li{{.html meta.attribute.unrecognized.}}.html entity.other.attribute-name.html
+#                                                     ^ text.html.twig meta.tag.other.li{{.html punctuation.definition.tag.end.html
+>								<img
+#^^^^^^^^ text.html.twig
+#        ^ text.html.twig meta.tag.object.img.void.html punctuation.definition.tag.begin.html
+#         ^^^ text.html.twig meta.tag.object.img.void.html entity.name.tag.html
+>									src="{{ image.getUrl('thumb') }}"
+#^^^^^^^^^ text.html.twig meta.tag.object.img.void.html
+#         ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html entity.other.attribute-name.html
+#            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html punctuation.separator.key-value.html
+#             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig
+#                 ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                       ^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig support.function.method.twig
+#                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                              ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                               ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                    ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                     ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig
+#                                       ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.src.html string.quoted.double.html punctuation.definition.string.end.html
+>									srcset="{% for w in [400, 800, 1200] %}{{ image.getUrl({ width: w }) }} {{ w }}w{{ not loop.last ? ', ' }}{% endfor %}"
+#^^^^^^^^^ text.html.twig meta.tag.object.img.void.html
+#         ^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html entity.other.attribute-name.html
+#               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html punctuation.separator.key-value.html
+#                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html punctuation.definition.string.begin.html
+#                 ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#                   ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                    ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig keyword.control.for.twig
+#                       ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                        ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig variable.other.twig
+#                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                          ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig keyword.operator.word.twig
+#                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.array.begin.twig
+#                              ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig constant.numeric.twig
+#                                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.separator.twig
+#                                  ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                                   ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig constant.numeric.twig
+#                                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.separator.twig
+#                                       ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                                        ^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig constant.numeric.twig
+#                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.array.end.twig
+#                                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                                              ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.embedded.end.twig
+#                                                ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                                  ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                   ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                        ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                                         ^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig support.function.method.twig
+#                                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                                                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#                                                                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                  ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                                       ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                                                        ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                                          ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                           ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                              ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html
+#                                                                                 ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                                                                   ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                    ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                                                                     ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                      ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                                        ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html
+#                                                                                         ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                                                                           ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                            ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.word.twig
+#                                                                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                                ^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.language.twig
+#                                                                                                    ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                                                                                     ^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                                                                                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                                          ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.ternary.twig
+#                                                                                                           ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                                                                             ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                                                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                                                                                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig
+#                                                                                                                 ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                                                                   ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#                                                                                                                     ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                                                                                                                      ^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig keyword.control.endfor.twig
+#                                                                                                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig
+#                                                                                                                             ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html meta.embedded.statement.twig punctuation.section.embedded.end.twig
+#                                                                                                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.srcset.html string.quoted.double.html punctuation.definition.string.end.html
+>									alt="{{ image.alt|default(image.title)|e('html_attr') }}"
+#^^^^^^^^^ text.html.twig meta.tag.object.img.void.html
+#         ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html entity.other.attribute-name.html
+#            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html punctuation.separator.key-value.html
+#             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig
+#                 ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                       ^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                          ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                           ^^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                  ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                   ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                                        ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                                         ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                                              ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.filter.twig
+#                                                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig support.function.filter.twig
+#                                                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                                  ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                   ^^^^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                              ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig
+#                                                               ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.alt.html string.quoted.double.html punctuation.definition.string.end.html
+>									loading="{{ loop.index > 2 ? 'lazy' : 'eager' }}">
+#^^^^^^^^^ text.html.twig meta.tag.object.img.void.html
+#         ^^^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html entity.other.attribute-name.html
+#                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html punctuation.separator.key-value.html
+#                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html punctuation.definition.string.begin.html
+#                  ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                    ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                     ^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig variable.language.twig
+#                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                          ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.comparison.twig
+#                                 ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                  ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig constant.numeric.twig
+#                                   ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                    ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig keyword.operator.ternary.twig
+#                                     ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                       ^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                           ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                            ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                             ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig punctuation.separator.twig
+#                                              ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                               ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                ^^^^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig
+#                                                     ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                      ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig
+#                                                       ^^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                         ^ text.html.twig meta.tag.object.img.void.html meta.attribute.unrecognized.loading.html string.quoted.double.html punctuation.definition.string.end.html
+#                                                          ^ text.html.twig meta.tag.object.img.void.html punctuation.definition.tag.end.html
+>							</li>
+#^^^^^^^ text.html.twig
+#       ^^ text.html.twig meta.tag.structure.li.end.html punctuation.definition.tag.begin.html
+#         ^^ text.html.twig meta.tag.structure.li.end.html entity.name.tag.html
+#           ^ text.html.twig meta.tag.structure.li.end.html punctuation.definition.tag.end.html
+>						{% endfor %}
+#^^^^^^ text.html.twig
+#      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#        ^ text.html.twig meta.embedded.statement.twig
+#         ^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endfor.twig
+#               ^ text.html.twig meta.embedded.statement.twig
+#                ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					</ul>
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.tag.structure.ul.end.html punctuation.definition.tag.begin.html
+#       ^^ text.html.twig meta.tag.structure.ul.end.html entity.name.tag.html
+#         ^ text.html.twig meta.tag.structure.ul.end.html punctuation.definition.tag.end.html
+>				{% default %}
+#^^^^ text.html.twig
+#    ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#      ^ text.html.twig meta.embedded.statement.twig
+#       ^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.default.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>					{# unknown block type: render nothing in production #}
+#^^^^^ text.html.twig
+#     ^^ text.html.twig comment.block.twig punctuation.definition.comment.begin.twig
+#       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig comment.block.twig
+#                                                         ^^ text.html.twig comment.block.twig punctuation.definition.comment.end.twig
+>					{% if craft.app.config.general.devMode %}
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#       ^ text.html.twig meta.embedded.statement.twig
+#        ^^ text.html.twig meta.embedded.statement.twig keyword.control.if.twig
+#          ^ text.html.twig meta.embedded.statement.twig
+#           ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                 ^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                    ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                     ^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                           ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                            ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                   ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                    ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                           ^ text.html.twig meta.embedded.statement.twig
+#                                            ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>						<pre>{{ block.type.handle }}</pre>
+#^^^^^^ text.html.twig
+#      ^ text.html.twig meta.tag.structure.pre.start.html punctuation.definition.tag.begin.html
+#       ^^^ text.html.twig meta.tag.structure.pre.start.html entity.name.tag.html
+#          ^ text.html.twig meta.tag.structure.pre.start.html punctuation.definition.tag.end.html
+#           ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#             ^ text.html.twig meta.embedded.expression.twig
+#              ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                    ^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                        ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                         ^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                               ^ text.html.twig meta.embedded.expression.twig
+#                                ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                  ^^ text.html.twig meta.tag.structure.pre.end.html punctuation.definition.tag.begin.html
+#                                    ^^^ text.html.twig meta.tag.structure.pre.end.html entity.name.tag.html
+#                                       ^ text.html.twig meta.tag.structure.pre.end.html punctuation.definition.tag.end.html
+>					{% endif %}
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#       ^ text.html.twig meta.embedded.statement.twig
+#        ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endif.twig
+#             ^ text.html.twig meta.embedded.statement.twig
+#              ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>			{% endswitch %}
+#^^^ text.html.twig
+#   ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#     ^ text.html.twig meta.embedded.statement.twig
+#      ^^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endswitch.twig
+#               ^ text.html.twig meta.embedded.statement.twig
+#                ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>		{% endfor %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endfor.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>		{% if related|length %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^ text.html.twig meta.embedded.statement.twig keyword.control.if.twig
+#       ^ text.html.twig meta.embedded.statement.twig
+#        ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#               ^ text.html.twig meta.embedded.statement.twig keyword.operator.filter.twig
+#                ^^^^^^ text.html.twig meta.embedded.statement.twig support.function.filter.twig
+#                      ^ text.html.twig meta.embedded.statement.twig
+#                       ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>			<aside>
+#^^^ text.html.twig
+#   ^ text.html.twig meta.tag.structure.aside.start.html punctuation.definition.tag.begin.html
+#    ^^^^^ text.html.twig meta.tag.structure.aside.start.html entity.name.tag.html
+#         ^ text.html.twig meta.tag.structure.aside.start.html punctuation.definition.tag.end.html
+>				<h2>{{ 'Related'|t('site') }}</h2>
+#^^^^ text.html.twig
+#    ^ text.html.twig meta.tag.structure.h2.start.html punctuation.definition.tag.begin.html
+#     ^^ text.html.twig meta.tag.structure.h2.start.html entity.name.tag.html
+#       ^ text.html.twig meta.tag.structure.h2.start.html punctuation.definition.tag.end.html
+#        ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#          ^ text.html.twig meta.embedded.expression.twig
+#           ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#            ^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                   ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                    ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                     ^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                      ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                       ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                        ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                            ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                             ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                              ^ text.html.twig meta.embedded.expression.twig
+#                               ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                 ^^ text.html.twig meta.tag.structure.h2.end.html punctuation.definition.tag.begin.html
+#                                   ^^ text.html.twig meta.tag.structure.h2.end.html entity.name.tag.html
+#                                     ^ text.html.twig meta.tag.structure.h2.end.html punctuation.definition.tag.end.html
+>				<ul>
+#^^^^ text.html.twig
+#    ^ text.html.twig meta.tag.structure.ul.start.html punctuation.definition.tag.begin.html
+#     ^^ text.html.twig meta.tag.structure.ul.start.html entity.name.tag.html
+#       ^ text.html.twig meta.tag.structure.ul.start.html punctuation.definition.tag.end.html
+>					{% for item in related|filter(i => i.enabled)|sort((a, b) => b.postDate <=> a.postDate) %}
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#       ^ text.html.twig meta.embedded.statement.twig
+#        ^^^ text.html.twig meta.embedded.statement.twig keyword.control.for.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                ^ text.html.twig meta.embedded.statement.twig
+#                 ^^ text.html.twig meta.embedded.statement.twig keyword.operator.word.twig
+#                   ^ text.html.twig meta.embedded.statement.twig
+#                    ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                           ^ text.html.twig meta.embedded.statement.twig keyword.operator.filter.twig
+#                            ^^^^^^ text.html.twig meta.embedded.statement.twig support.function.filter.twig
+#                                  ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                   ^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#                                    ^ text.html.twig meta.embedded.statement.twig
+#                                     ^^ text.html.twig meta.embedded.statement.twig keyword.operator.arrow.twig
+#                                       ^ text.html.twig meta.embedded.statement.twig
+#                                        ^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                         ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                          ^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                                 ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                  ^ text.html.twig meta.embedded.statement.twig keyword.operator.filter.twig
+#                                                   ^^^^ text.html.twig meta.embedded.statement.twig support.function.filter.twig
+#                                                       ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                                        ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.begin.twig
+#                                                         ^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#                                                          ^ text.html.twig meta.embedded.statement.twig punctuation.separator.twig
+#                                                           ^ text.html.twig meta.embedded.statement.twig
+#                                                            ^ text.html.twig meta.embedded.statement.twig variable.parameter.twig
+#                                                             ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                              ^ text.html.twig meta.embedded.statement.twig
+#                                                               ^^ text.html.twig meta.embedded.statement.twig keyword.operator.arrow.twig
+#                                                                 ^ text.html.twig meta.embedded.statement.twig
+#                                                                  ^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                                   ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                                                    ^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                                                            ^ text.html.twig meta.embedded.statement.twig
+#                                                                             ^^^ text.html.twig meta.embedded.statement.twig keyword.operator.comparison.twig
+#                                                                                ^ text.html.twig meta.embedded.statement.twig
+#                                                                                 ^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                                                  ^ text.html.twig meta.embedded.statement.twig punctuation.accessor.twig
+#                                                                                   ^^^^^^^^ text.html.twig meta.embedded.statement.twig variable.other.property.twig
+#                                                                                           ^ text.html.twig meta.embedded.statement.twig punctuation.section.parens.end.twig
+#                                                                                            ^ text.html.twig meta.embedded.statement.twig
+#                                                                                             ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>						<li><a href="{{ item.url }}">{{ item.title }}</a></li>
+#^^^^^^ text.html.twig
+#      ^ text.html.twig meta.tag.structure.li.start.html punctuation.definition.tag.begin.html
+#       ^^ text.html.twig meta.tag.structure.li.start.html entity.name.tag.html
+#         ^ text.html.twig meta.tag.structure.li.start.html punctuation.definition.tag.end.html
+#          ^ text.html.twig meta.tag.inline.a.start.html punctuation.definition.tag.begin.html
+#           ^ text.html.twig meta.tag.inline.a.start.html entity.name.tag.html
+#            ^ text.html.twig meta.tag.inline.a.start.html
+#             ^^^^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html entity.other.attribute-name.html
+#                 ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html punctuation.separator.key-value.html
+#                  ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html punctuation.definition.string.begin.html
+#                   ^^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                     ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig
+#                      ^^^^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig variable.other.twig
+#                          ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig punctuation.accessor.twig
+#                           ^^^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig variable.other.property.twig
+#                              ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig
+#                               ^^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                 ^ text.html.twig meta.tag.inline.a.start.html meta.attribute.href.html string.quoted.double.html punctuation.definition.string.end.html
+#                                  ^ text.html.twig meta.tag.inline.a.start.html punctuation.definition.tag.end.html
+#                                   ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig
+#                                      ^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                          ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#                                           ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.property.twig
+#                                                ^ text.html.twig meta.embedded.expression.twig
+#                                                 ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+#                                                   ^^ text.html.twig meta.tag.inline.a.end.html punctuation.definition.tag.begin.html
+#                                                     ^ text.html.twig meta.tag.inline.a.end.html entity.name.tag.html
+#                                                      ^ text.html.twig meta.tag.inline.a.end.html punctuation.definition.tag.end.html
+#                                                       ^^ text.html.twig meta.tag.structure.li.end.html punctuation.definition.tag.begin.html
+#                                                         ^^ text.html.twig meta.tag.structure.li.end.html entity.name.tag.html
+#                                                           ^ text.html.twig meta.tag.structure.li.end.html punctuation.definition.tag.end.html
+>					{% endfor %}
+#^^^^^ text.html.twig
+#     ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#       ^ text.html.twig meta.embedded.statement.twig
+#        ^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endfor.twig
+#              ^ text.html.twig meta.embedded.statement.twig
+#               ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>				</ul>
+#^^^^ text.html.twig
+#    ^^ text.html.twig meta.tag.structure.ul.end.html punctuation.definition.tag.begin.html
+#      ^^ text.html.twig meta.tag.structure.ul.end.html entity.name.tag.html
+#        ^ text.html.twig meta.tag.structure.ul.end.html punctuation.definition.tag.end.html
+>			</aside>
+#^^^ text.html.twig
+#   ^^ text.html.twig meta.tag.structure.aside.end.html punctuation.definition.tag.begin.html
+#     ^^^^^ text.html.twig meta.tag.structure.aside.end.html entity.name.tag.html
+#          ^ text.html.twig meta.tag.structure.aside.end.html punctuation.definition.tag.end.html
+>		{% endif %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endif.twig
+#          ^ text.html.twig meta.embedded.statement.twig
+#           ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>
+>		{{ forms.field('comment', { label: 'Leave a comment'|t('site'), required: true }) }}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.expression.twig
+#     ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#          ^ text.html.twig meta.embedded.expression.twig punctuation.accessor.twig
+#           ^^^^^ text.html.twig meta.embedded.expression.twig support.function.method.twig
+#                ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                 ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                  ^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                         ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                          ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                           ^ text.html.twig meta.embedded.expression.twig
+#                            ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.begin.twig
+#                             ^ text.html.twig meta.embedded.expression.twig
+#                              ^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                   ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                    ^ text.html.twig meta.embedded.expression.twig
+#                                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                      ^^^^^^^^^^^^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                                                     ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                      ^ text.html.twig meta.embedded.expression.twig keyword.operator.filter.twig
+#                                                       ^ text.html.twig meta.embedded.expression.twig support.function.filter.twig
+#                                                        ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.begin.twig
+#                                                         ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                          ^^^^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig
+#                                                              ^ text.html.twig meta.embedded.expression.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                               ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                                ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                                                 ^ text.html.twig meta.embedded.expression.twig
+#                                                                  ^^^^^^^^ text.html.twig meta.embedded.expression.twig variable.other.twig
+#                                                                          ^ text.html.twig meta.embedded.expression.twig punctuation.separator.twig
+#                                                                           ^ text.html.twig meta.embedded.expression.twig
+#                                                                            ^^^^ text.html.twig meta.embedded.expression.twig constant.language.twig
+#                                                                                ^ text.html.twig meta.embedded.expression.twig
+#                                                                                 ^ text.html.twig meta.embedded.expression.twig punctuation.section.hash.end.twig
+#                                                                                  ^ text.html.twig meta.embedded.expression.twig punctuation.section.parens.end.twig
+#                                                                                   ^ text.html.twig meta.embedded.expression.twig
+#                                                                                    ^^ text.html.twig meta.embedded.expression.twig punctuation.section.embedded.end.twig
+>	</article>
+#^ text.html.twig
+# ^^ text.html.twig meta.tag.structure.article.end.html punctuation.definition.tag.begin.html
+#   ^^^^^^^ text.html.twig meta.tag.structure.article.end.html entity.name.tag.html
+#          ^ text.html.twig meta.tag.structure.article.end.html punctuation.definition.tag.end.html
+>
+>	{% cache using key "entry-#{entry.id}-#{entry.dateUpdated.timestamp}" for 1 hour %}
+#^ text.html.twig
+# ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.cache.twig
+#         ^ text.html.twig meta.embedded.statement.twig
+#          ^^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#               ^ text.html.twig meta.embedded.statement.twig
+#                ^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                   ^ text.html.twig meta.embedded.statement.twig
+#                    ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig punctuation.definition.string.begin.twig
+#                     ^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig
+#                           ^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.begin.twig
+#                             ^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#                                  ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.accessor.twig
+#                                   ^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig variable.other.property.twig
+#                                     ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.end.twig
+#                                      ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig
+#                                       ^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.begin.twig
+#                                         ^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig variable.other.twig
+#                                              ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.accessor.twig
+#                                               ^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig variable.other.property.twig
+#                                                          ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.accessor.twig
+#                                                           ^^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig variable.other.property.twig
+#                                                                    ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig meta.interpolation.twig punctuation.section.interpolation.end.twig
+#                                                                     ^ text.html.twig meta.embedded.statement.twig string.quoted.double.twig punctuation.definition.string.end.twig
+#                                                                      ^ text.html.twig meta.embedded.statement.twig
+#                                                                       ^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                                          ^ text.html.twig meta.embedded.statement.twig
+#                                                                           ^ text.html.twig meta.embedded.statement.twig constant.numeric.twig
+#                                                                            ^ text.html.twig meta.embedded.statement.twig
+#                                                                             ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                                                 ^ text.html.twig meta.embedded.statement.twig
+#                                                                                  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>		{% include '_partials/newsletter.twig' with { list: 'weekly' } only %}
+#^^ text.html.twig
+#  ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#    ^ text.html.twig meta.embedded.statement.twig
+#     ^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.include.twig
+#            ^ text.html.twig meta.embedded.statement.twig
+#             ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#              ^^^^^^^^^^^^^^^^^^^^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                                       ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                        ^ text.html.twig meta.embedded.statement.twig
+#                                         ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                             ^ text.html.twig meta.embedded.statement.twig
+#                                              ^ text.html.twig meta.embedded.statement.twig punctuation.section.hash.begin.twig
+#                                               ^ text.html.twig meta.embedded.statement.twig
+#                                                ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                    ^ text.html.twig meta.embedded.statement.twig punctuation.separator.twig
+#                                                     ^ text.html.twig meta.embedded.statement.twig
+#                                                      ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.begin.twig
+#                                                       ^^^^^^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig
+#                                                             ^ text.html.twig meta.embedded.statement.twig string.quoted.single.twig punctuation.definition.string.end.twig
+#                                                              ^ text.html.twig meta.embedded.statement.twig
+#                                                               ^ text.html.twig meta.embedded.statement.twig punctuation.section.hash.end.twig
+#                                                                ^ text.html.twig meta.embedded.statement.twig
+#                                                                 ^^^^ text.html.twig meta.embedded.statement.twig variable.other.twig
+#                                                                     ^ text.html.twig meta.embedded.statement.twig
+#                                                                      ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>	{% endcache %}
+#^ text.html.twig
+# ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#   ^ text.html.twig meta.embedded.statement.twig
+#    ^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endcache.twig
+#            ^ text.html.twig meta.embedded.statement.twig
+#             ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>{% endblock %}
+#^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.begin.twig
+#  ^ text.html.twig meta.embedded.statement.twig
+#   ^^^^^^^^ text.html.twig meta.embedded.statement.twig keyword.control.endblock.twig
+#           ^ text.html.twig meta.embedded.statement.twig
+#            ^^ text.html.twig meta.embedded.statement.twig punctuation.section.embedded.end.twig
+>

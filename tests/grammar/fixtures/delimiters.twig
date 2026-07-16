@@ -1,0 +1,18 @@
+{# a one-line comment #}
+{#
+	a multi-line comment
+	{{ this is not an expression }}
+	{% nor is this a tag %}
+#}
+{#- trimmed on both sides -#}
+{#~ line-trimmed on both sides ~#}
+{{ plain }}
+{{- trimmed -}}
+{{~ line_trimmed ~}}
+{{- mixed }}
+{{ mixed -}}
+{% plain %}
+{%- trimmed -%}
+{%~ line_trimmed ~%}
+{%- mixed %}
+{% mixed -%}
