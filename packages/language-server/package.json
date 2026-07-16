@@ -1,0 +1,13 @@
+{
+	"name": "@twig-toolbox/language-server",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Twig Toolbox language server: LSP features, dialect packs, project introspection",
+	"main": "src/server.ts",
+	"types": "src/server.ts",
+	"dependencies": {
+		"@twig-toolbox/parser": "*",
+		"vscode-languageserver": "^10.1.0",
+		"vscode-languageserver-textdocument": "^1.0.12"
+	}
+}

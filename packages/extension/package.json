@@ -1,0 +1,75 @@
+{
+	"name": "twig-toolbox",
+	"displayName": "Twig Toolbox",
+	"description": "Twig language support for VS Code: syntax highlighting and a language server, with first-class CraftCMS awareness.",
+	"version": "0.1.0",
+	"publisher": "jalendport",
+	"engines": {
+		"vscode": "^1.101.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"keywords": [
+		"twig",
+		"craftcms",
+		"craft",
+		"template",
+		"language server"
+	],
+	"icon": "images/icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jalendport/vscode-twig.git"
+	},
+	"main": "./dist/extension.js",
+	"activationEvents": [
+		"onLanguage:twig"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "twig",
+				"aliases": [
+					"Twig",
+					"twig"
+				],
+				"extensions": [
+					".twig",
+					".html.twig"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "twig",
+				"scopeName": "text.html.twig",
+				"path": "./syntaxes/twig.tmLanguage.json"
+			}
+		],
+		"configuration": {
+			"title": "Twig Toolbox",
+			"properties": {
+				"twigToolbox.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the Twig Toolbox language server."
+				}
+			}
+		}
+	},
+	"dependencies": {
+		"@twig-toolbox/language-server": "*",
+		"vscode-languageclient": "^10.1.0"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.101.0"
+	}
+}

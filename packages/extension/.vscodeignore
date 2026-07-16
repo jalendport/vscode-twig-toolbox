@@ -1,0 +1,18 @@
+# Ship only bundled output plus the declared contributions and docs.
+# Everything is excluded first, then the shipped set is allow-listed back in.
+**
+
+!dist/extension.js
+!dist/server.js
+!syntaxes/**
+!language-configuration.json
+!catalogs/**
+!images/icon.png
+!README.md
+!CHANGELOG.md
+!LICENSE
+!package.json
+
+# Never ship sourcemaps or test fixtures that slipped into the allow-listed dirs.
+**/*.map
+**/*.test.*
