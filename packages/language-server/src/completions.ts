@@ -24,6 +24,9 @@ import {
 import { catalogMarkup, firstSentence, markdown } from './markdown';
 import { findRegions } from './regions';
 import { collectSymbols, type SymbolTable, type TwigSymbol } from './symbols';
+import type { TwigToolboxSettings } from './settings';
+import type { TemplateResolver } from './template-resolver';
+import type { TemplateSymbolResolver } from './template-symbols';
 
 /**
  * Completion items for a cursor position.
@@ -37,6 +40,9 @@ import { collectSymbols, type SymbolTable, type TwigSymbol } from './symbols';
 export interface CompletionOptions {
 	readonly catalogRegistry: CatalogRegistry;
 	readonly memberProviders?: readonly MemberProvider[];
+	readonly templateResolver?: TemplateResolver;
+	readonly settings?: TwigToolboxSettings;
+	readonly symbolResolver?: TemplateSymbolResolver;
 }
 
 /** Sort buckets. Lower sorts higher; VS Code compares `sortText` as a string. */
@@ -77,11 +83,13 @@ export function getCompletions(
 	}
 
 	const entries = options.catalogRegistry.getMergedEntries(parsed.workspaceContext);
-	const symbols = collectSymbols(
-		parsed.result.template,
-		parsed.result.source,
-		findRegions(parsed.result.tokens, parsed.result.source.length),
-	);
+	const symbols =
+		options.symbolResolver?.collect(parsed) ??
+		collectSymbols(
+			parsed.result.template,
+			parsed.result.source,
+			findRegions(parsed.result.tokens, parsed.result.source.length),
+		);
 	const range = toRange(parsed.document, context.replace);
 
 	switch (context.kind) {
@@ -116,21 +124,36 @@ export function getCompletions(
 			];
 
 		case 'block-name':
-			return symbols.blocks
-				.filter((block) => block.name !== '')
-				.map((block) => ({
+			return [
+				...symbols.blocks.map((block) => ({
 					label: block.name,
 					kind: CompletionItemKind.Value,
 					detail: 'Block in this template',
 					sortText: `${RANK.local}:${block.name}`,
 					textEdit: { range, newText: block.name },
-				}));
+				})),
+				...(options.symbolResolver?.parentBlocks(parsed) ?? []).map(({ block, uri }) => ({
+					label: block.name,
+					kind: CompletionItemKind.Value,
+					detail: 'Block in parent template',
+					labelDetails: { description: uri },
+					sortText: `${RANK.local}:0:${block.name}`,
+					textEdit: { range, newText: block.name },
+				})),
+			].filter(
+				(item, at, all) =>
+					item.label !== '' &&
+					all.findIndex((other) => other.label === item.label) === at,
+			);
 
 		// Hash keys are the author's own invention, and template paths need the
 		// template roots milestone 08 discovers.
 		case 'hash-key':
-		case 'template-string':
 			return [];
+		case 'template-string':
+			return options.templateResolver === undefined || options.settings === undefined
+				? []
+				: options.templateResolver.completions(parsed.document, context, options.settings);
 	}
 }
 

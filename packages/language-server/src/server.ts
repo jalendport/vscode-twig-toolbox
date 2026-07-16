@@ -1,6 +1,7 @@
 import {
 	createConnection,
 	DidChangeConfigurationNotification,
+	DidChangeWatchedFilesNotification,
 	ProposedFeatures,
 	TextDocuments,
 	TextDocumentSyncKind,
@@ -16,21 +17,26 @@ import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
 import { DEFAULT_SETTINGS, normalizeSettings, type TwigToolboxSettings } from './settings';
 import { createWorkspaceContextResolver } from './workspace';
+import { TemplateResolver } from './template-resolver';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
 let catalogRegistry = CatalogRegistry.fromPacks([]);
 let workspaceFolders: WorkspaceFolder[] = [];
 let hasConfigurationCapability = false;
+let hasWatchedFilesCapability = false;
 let settingsCache = new Map<string, TwigToolboxSettings>();
 let server: TwigServerCore | undefined;
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
 	const client = params.clientInfo?.name ?? 'unknown client';
 	hasConfigurationCapability = params.capabilities.workspace?.configuration === true;
+	hasWatchedFilesCapability =
+		params.capabilities.workspace?.didChangeWatchedFiles?.dynamicRegistration === true;
 	workspaceFolders = params.workspaceFolders ?? [];
 	catalogRegistry = CatalogRegistry.loadDefault();
 	const workspaceContextResolver = createWorkspaceContextResolver(workspaceFolders);
+	const templateResolver = new TemplateResolver(workspaceFolders);
 	server = new TwigServerCore({
 		catalogRegistry,
 		getSettings,
@@ -38,6 +44,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 			void connection.sendDiagnostics({ uri, diagnostics });
 		},
 		resolveWorkspaceContext: (uri) => workspaceContextResolver.resolve(uri),
+		templateResolver,
 	});
 
 	connection.console.info(`Twig Toolbox language server starting (client: ${client})`);
@@ -56,6 +63,10 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 				resolveProvider: false,
 			},
 			hoverProvider: true,
+			definitionProvider: true,
+			documentLinkProvider: {
+				resolveProvider: false,
+			},
 			documentHighlightProvider: true,
 			signatureHelpProvider: {
 				triggerCharacters: ['(', ','],
@@ -71,6 +82,16 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 connection.onInitialized(() => {
 	if (hasConfigurationCapability) {
 		void connection.client.register(DidChangeConfigurationNotification.type);
+	}
+	if (hasWatchedFilesCapability) {
+		void connection.client.register(DidChangeWatchedFilesNotification.type, {
+			watchers: [
+				{ globPattern: '**/*.twig' },
+				{ globPattern: '**/*.html.twig' },
+				{ globPattern: '**/composer.json' },
+				{ globPattern: '**/.env' },
+			],
+		});
 	}
 	connection.console.info('Twig Toolbox language server ready');
 });
@@ -95,6 +116,12 @@ connection.onCompletion(
 );
 
 connection.onHover(({ textDocument, position }) => server?.hover(textDocument.uri, position));
+
+connection.onDefinition(({ textDocument, position }) =>
+	server?.definition(textDocument.uri, position),
+);
+
+connection.onDocumentLinks(({ textDocument }) => server?.documentLinks(textDocument.uri) ?? []);
 
 connection.onDocumentHighlight(
 	({ textDocument, position }) => server?.documentHighlights(textDocument.uri, position) ?? [],
@@ -122,6 +149,13 @@ connection.onDidChangeConfiguration(() => {
 	void server?.refreshAllDiagnostics();
 });
 
+connection.onDidChangeWatchedFiles(({ changes }) => {
+	for (const change of changes) {
+		server?.invalidateFile(change.uri);
+	}
+	void server?.refreshAllDiagnostics();
+});
+
 documents.listen(connection);
 connection.listen();
 
@@ -137,7 +171,7 @@ async function getSettings(uri: string): Promise<TwigToolboxSettings> {
 
 	const rawSettings: unknown = await connection.workspace.getConfiguration({
 		scopeUri: uri,
-		section: 'twigToolbox.diagnostics',
+		section: 'twigToolbox',
 	});
 	const settings = normalizeSettings(rawSettings);
 	settingsCache.set(uri, settings);

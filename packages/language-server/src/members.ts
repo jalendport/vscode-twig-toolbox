@@ -1,6 +1,6 @@
 import type { Expression } from '@twig-toolbox/parser';
 import type { ParsedDocument } from './document-store';
-import type { SymbolTable, TwigSymbol } from './symbols';
+import type { MacroDefinition, SymbolTable, TwigSymbol } from './symbols';
 
 /**
  * Member completions for `{{ receiver.‸ }}`.
@@ -26,6 +26,7 @@ export interface MemberCompletion {
 	readonly source?: string;
 	/** Snippet body; defaults to the plain name. */
 	readonly insertText?: string;
+	readonly macro?: MacroDefinition;
 }
 
 export interface MemberContext {
@@ -88,19 +89,19 @@ const loopMemberProvider: MemberProvider = {
 };
 
 /**
- * `{% import _self as m %}` → `{{ m.‸ }}`. Only `_self` resolves today; pointing
- * an import at another template needs the loader that milestone 08 builds.
+ * `{% import _self as m %}` and cross-file macro namespaces → `{{ m.‸ }}`.
  */
-const selfMacroProvider: MemberProvider = {
-	id: 'twig.macros.self',
+const macroNamespaceProvider: MemberProvider = {
+	id: 'twig.macros',
 	provideMembers: ({ symbol, symbols }) =>
-		symbol?.typeName === 'macros:_self'
-			? symbols.macros.map((macro) => ({
+		symbol?.typeName === 'macros:_self' || symbol?.macroMembers !== undefined
+			? (symbol.macroMembers ?? symbols.macros).map((macro) => ({
 					name: macro.name,
 					detail: macro.signature,
 					documentation: 'Macro defined in this template.',
 					source: 'Twig',
 					insertText: `${macro.name}(${macro.params.length > 0 ? '$1' : ''})`,
+					macro,
 				}))
 			: [],
 };
@@ -111,7 +112,7 @@ function withTwigSource(member: MemberCompletion): MemberCompletion {
 
 export const BUILTIN_MEMBER_PROVIDERS: readonly MemberProvider[] = [
 	loopMemberProvider,
-	selfMacroProvider,
+	macroNamespaceProvider,
 ];
 
 /** First provider that recognises the receiver wins; the rest are not consulted. */

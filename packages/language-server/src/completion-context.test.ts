@@ -58,6 +58,7 @@ describe.each([
 	['{{ { ke‸y: 1 } }}', 'hash-key'],
 	['{% include "a.tw‸ig" %}', 'template-string'],
 	['{{ block("ti‸") }}', 'block-name'],
+	['{% block ‸ %}{% endblock %}', 'block-name'],
 ])('classifies %j', (marked, expected) => {
 	it(`as ${expected}`, () => {
 		expect(kindAt(marked)).toBe(expected);
@@ -91,7 +92,6 @@ describe('binding positions', () => {
 		'{% for it‸em in x %}',
 		'{% set ‸ %}',
 		'{% set x‸ = 1 %}',
-		'{% block ‸ %}{% endblock %}',
 		'{% macro fo‸o() %}{% endmacro %}',
 		'{% from "m.twig" import butt‸ %}',
 		'{% import "m.twig" as fo‸rms %}',

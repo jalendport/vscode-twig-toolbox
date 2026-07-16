@@ -61,16 +61,12 @@ export function symbolMarkdown(symbol: TwigSymbol, source: string): string {
 
 	parts.push(symbolDescription(symbol));
 
+	const definitionSource = symbol.definitionSource ?? source;
 	const definingLine = symbol.definitionRange
-		? sourceSnippet(source, symbol.definitionRange)
+		? sourceSnippet(definitionSource, symbol.definitionRange)
 		: '';
 	if (definingLine !== '') {
 		parts.push(codeBlock(definingLine));
-	}
-	if (symbol.importedFrom !== undefined && symbol.importedFrom !== '_self') {
-		parts.push(
-			'Imported macro signature is a local stub until template loading lands in milestone 08.',
-		);
 	}
 	return parts.join('\n\n');
 }

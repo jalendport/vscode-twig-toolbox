@@ -1,6 +1,8 @@
 import type {
 	CompletionItem,
+	Definition,
 	Diagnostic,
+	DocumentLink,
 	DocumentHighlight,
 	Hover,
 	Position,
@@ -15,6 +17,9 @@ import { getMergedCompletions, getMergedHover } from './merge';
 import type { MemberProvider } from './members';
 import type { TwigToolboxSettings } from './settings';
 import { getSignatureHelp } from './signatures';
+import { getDefinition, getTemplateDocumentLinks } from './template-navigation';
+import type { TemplateResolver } from './template-resolver';
+import { TemplateSymbolResolver } from './template-symbols';
 
 export interface TwigServerCoreOptions {
 	readonly catalogRegistry: CatalogRegistry;
@@ -24,6 +29,7 @@ export interface TwigServerCoreOptions {
 	readonly resolveWorkspaceContext?: (uri: string) => WorkspaceCatalogContext;
 	/** Defaults to the builtins; milestone 10 adds project-typed members here. */
 	readonly memberProviders?: readonly MemberProvider[];
+	readonly templateResolver?: TemplateResolver;
 }
 
 export class TwigServerCore {
@@ -32,12 +38,14 @@ export class TwigServerCore {
 	private readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[]) => void;
 	private readonly documents: DocumentStore;
 	private readonly memberProviders: readonly MemberProvider[] | undefined;
+	private readonly templateResolver: TemplateResolver | undefined;
 
 	constructor(options: TwigServerCoreOptions) {
 		this.catalogRegistry = options.catalogRegistry;
 		this.getSettings = options.getSettings;
 		this.publishDiagnostics = options.publishDiagnostics;
 		this.memberProviders = options.memberProviders;
+		this.templateResolver = options.templateResolver;
 		const storeOptions: DocumentStoreOptions = {
 			onParsed: (document) => {
 				void this.publishParsedDiagnostics(document);
@@ -67,28 +75,38 @@ export class TwigServerCore {
 		return this.documents.getParsed(uri);
 	}
 
-	complete(uri: string, position: Position): CompletionItem[] {
+	async complete(uri: string, position: Position): Promise<CompletionItem[]> {
 		const parsed = this.documents.getParsed(uri);
 		if (parsed === undefined) {
 			return [];
 		}
+		const settings = await this.getSettings(uri);
+		const symbolResolver = this.symbolResolver(settings);
 
 		return getMergedCompletions(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
+			...(this.templateResolver === undefined
+				? {}
+				: { templateResolver: this.templateResolver }),
+			settings,
+			...(symbolResolver === undefined ? {} : { symbolResolver }),
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
 		});
 	}
 
-	hover(uri: string, position: Position): Hover | undefined {
+	async hover(uri: string, position: Position): Promise<Hover | undefined> {
 		const parsed = this.documents.getParsed(uri);
 		if (parsed === undefined) {
 			return undefined;
 		}
+		const settings = await this.getSettings(uri);
+		const symbolResolver = this.symbolResolver(settings);
 
 		return getMergedHover(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
+			...(symbolResolver === undefined ? {} : { symbolResolver }),
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
@@ -106,18 +124,51 @@ export class TwigServerCore {
 		return parsed === undefined ? undefined : getTagCompletion(parsed, position, trigger);
 	}
 
-	signatureHelp(uri: string, position: Position): SignatureHelp | undefined {
+	async signatureHelp(uri: string, position: Position): Promise<SignatureHelp | undefined> {
 		const parsed = this.documents.getParsed(uri);
 		if (parsed === undefined) {
 			return undefined;
 		}
+		const settings = await this.getSettings(uri);
+		const symbolResolver = this.symbolResolver(settings);
 
 		return getSignatureHelp(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
+			...(symbolResolver === undefined ? {} : { symbolResolver }),
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
 		});
+	}
+
+	async definition(uri: string, position: Position): Promise<Definition | undefined> {
+		const parsed = this.documents.getParsed(uri);
+		if (parsed === undefined || this.templateResolver === undefined) {
+			return undefined;
+		}
+		const settings = await this.getSettings(uri);
+		return getDefinition(
+			parsed,
+			parsed.document.offsetAt(position),
+			this.documents,
+			this.templateResolver,
+			settings,
+			new TemplateSymbolResolver(this.documents, this.templateResolver, settings),
+		);
+	}
+
+	async documentLinks(uri: string): Promise<DocumentLink[]> {
+		const parsed = this.documents.getParsed(uri);
+		if (parsed === undefined || this.templateResolver === undefined) {
+			return [];
+		}
+		const settings = await this.getSettings(uri);
+		return getTemplateDocumentLinks(parsed, this.templateResolver, settings);
+	}
+
+	invalidateFile(uri: string): void {
+		this.documents.invalidate(uri);
+		this.templateResolver?.invalidate(uri);
 	}
 
 	async refreshDiagnostics(uri: string): Promise<void> {
@@ -135,6 +186,15 @@ export class TwigServerCore {
 
 	private async publishParsedDiagnostics(parsed: ParsedDocument): Promise<void> {
 		const settings = await this.getSettings(parsed.uri);
-		this.publishDiagnostics(parsed.uri, getDiagnostics(parsed, settings, this.catalogRegistry));
+		this.publishDiagnostics(
+			parsed.uri,
+			getDiagnostics(parsed, settings, this.catalogRegistry, this.templateResolver),
+		);
+	}
+
+	private symbolResolver(settings: TwigToolboxSettings): TemplateSymbolResolver | undefined {
+		return this.templateResolver === undefined
+			? undefined
+			: new TemplateSymbolResolver(this.documents, this.templateResolver, settings);
 	}
 }

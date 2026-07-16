@@ -53,6 +53,7 @@ describe('TwigServerCore diagnostics', () => {
 	it('updates unknown-name diagnostics when settings change', async () => {
 		const published = createPublishedDiagnostics();
 		let settings: TwigToolboxSettings = {
+			templateRoots: [],
 			diagnostics: {
 				unknownNames: 'warning',
 				ignoredNames: [],
@@ -71,6 +72,7 @@ describe('TwigServerCore diagnostics', () => {
 		});
 
 		settings = {
+			templateRoots: [],
 			diagnostics: {
 				unknownNames: 'warning',
 				ignoredNames: ['umarkdown'],

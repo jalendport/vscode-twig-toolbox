@@ -37,6 +37,8 @@ export interface TwigSymbol {
 	readonly scope: SourceRange;
 	/** Source range of the construct that introduced the symbol. */
 	readonly definitionRange?: SourceRange;
+	readonly definitionUri?: string;
+	readonly definitionSource?: string;
 	/** Innermost wall enclosing the definition; 0 is the template itself. */
 	readonly wall: number;
 	/** Short right-hand summary, e.g. a macro signature or the loop sequence. */
@@ -45,6 +47,7 @@ export interface TwigSymbol {
 	readonly signature?: string;
 	readonly params?: readonly MacroParam[];
 	readonly importedFrom?: string;
+	readonly macroMembers?: readonly MacroDefinition[];
 	/** Key member providers resolve members against — see `members.ts`. */
 	readonly typeName?: string;
 }
@@ -71,6 +74,18 @@ export interface SymbolTable {
 	readonly blocks: readonly BlockDefinition[];
 }
 
+export interface ExternalTemplateSymbols {
+	readonly uri: string;
+	readonly source: string;
+	readonly macros: readonly MacroDefinition[];
+	readonly blocks: readonly BlockDefinition[];
+}
+
+export interface CollectSymbolOptions {
+	readonly documentUri?: string;
+	readonly resolveTemplateSymbols?: (templateName: string) => ExternalTemplateSymbols | undefined;
+}
+
 interface Wall {
 	readonly id: number;
 	readonly range: SourceRange;
@@ -94,6 +109,7 @@ class Collector {
 		private readonly regions: readonly TwigRegion[],
 		/** Pre-collected: `{% from _self import x %}` may precede the macro. */
 		readonly macros: readonly MacroDefinition[],
+		private readonly options: CollectSymbolOptions,
 	) {}
 
 	/** End of a tag's `{% … %}` header — where its body, and its scopes, begin. */
@@ -244,6 +260,7 @@ class Collector {
 		}
 		const template = tag.template;
 		const importedFrom = template === undefined ? undefined : this.text(template);
+		const external = isSelf(template) ? undefined : this.externalSymbols(template);
 		this.add({
 			name: tag.alias.name,
 			kind: 'macro-namespace',
@@ -252,15 +269,20 @@ class Collector {
 			wall: state.wall,
 			detail: importedFrom === undefined ? 'macros' : `macros from ${importedFrom}`,
 			...(importedFrom === undefined ? {} : { importedFrom }),
-			// Cross-template macros need the loader from milestone 08; `_self`
-			// resolves against this document's own macros today.
-			...(isSelf(template) ? { typeName: 'macros:_self' } : {}),
+			...(isSelf(template)
+				? { typeName: 'macros:_self' }
+				: external === undefined
+					? {}
+					: { typeName: 'macros', macroMembers: external.macros }),
+			...(external === undefined ? {} : { definitionUri: external.uri }),
+			...(external === undefined ? {} : { definitionSource: external.source }),
 		});
 	}
 
 	private fromTag(tag: FromTag, state: WalkState): void {
 		const local = isSelf(tag.template);
 		const importedFrom = tag.template === undefined ? undefined : this.text(tag.template);
+		const external = local ? undefined : this.externalSymbols(tag.template);
 		for (const imported of tag.imports) {
 			const name = imported.alias?.name ?? imported.macroName?.name;
 			if (name === undefined) {
@@ -268,12 +290,15 @@ class Collector {
 			}
 			const macro = local
 				? this.macros.find((candidate) => candidate.name === imported.macroName?.name)
-				: undefined;
+				: external?.macros.find((candidate) => candidate.name === imported.macroName?.name);
 			this.add({
 				name,
 				kind: 'macro',
 				scope: { start: tag.end, end: state.wallEnd },
-				definitionRange: { start: tag.start, end: tag.end },
+				definitionRange:
+					macro === undefined ? { start: tag.start, end: tag.end } : macro.range,
+				...(external === undefined ? {} : { definitionUri: external.uri }),
+				...(external === undefined ? {} : { definitionSource: external.source }),
 				wall: state.wall,
 				detail: macro?.signature ?? `${name}()`,
 				signature: macro?.signature ?? `${name}()`,
@@ -285,6 +310,12 @@ class Collector {
 
 	private text(node: { start: number; end: number }): string {
 		return this.source.slice(node.start, node.end);
+	}
+
+	private externalSymbols(template: Expression | undefined): ExternalTemplateSymbols | undefined {
+		return template?.type === 'StringLiteral' && template.parts.length <= 1
+			? this.options.resolveTemplateSymbols?.(template.value)
+			: undefined;
 	}
 }
 
@@ -332,8 +363,9 @@ export function collectSymbols(
 	template: Template,
 	source: string,
 	regions: readonly TwigRegion[],
+	options: CollectSymbolOptions = {},
 ): SymbolTable {
-	const collector = new Collector(source, regions, collectMacros(template, source));
+	const collector = new Collector(source, regions, collectMacros(template, source), options);
 	collector.walk(template.body, { wall: 0, wallEnd: template.end });
 
 	const wallAt = (offset: number): number => {

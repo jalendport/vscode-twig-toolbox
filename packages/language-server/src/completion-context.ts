@@ -63,7 +63,11 @@ export type CompletionContext =
 	| (Slot & { readonly kind: 'member-access'; readonly object: Expression })
 	| (Slot & { readonly kind: 'hash-key' })
 	| (Slot & { readonly kind: 'named-argument'; readonly owner: ArgumentOwner | undefined })
-	| (Slot & { readonly kind: 'template-string' })
+	| (Slot & {
+			readonly kind: 'template-string';
+			readonly value: string;
+			readonly valueRange: SourceRange;
+	  })
 	| (Slot & { readonly kind: 'block-name' });
 
 /** Identifiers that bind a new name rather than reference an existing one. */
@@ -234,7 +238,7 @@ export function classifyCompletion(parsed: ParsedDocument, offset: number): Comp
 		}
 	}
 
-	return classifyExpression(path, region, offset) ?? tagFallback(path, region, offset);
+	return classifyExpression(path, region, offset, source) ?? tagFallback(path, region, offset);
 }
 
 /**
@@ -246,12 +250,21 @@ function classifyExpression(
 	path: readonly AnyNode[],
 	region: TwigRegion,
 	offset: number,
+	source: string,
 ): CompletionContext | undefined {
 	const replace = wordSlot(region, offset);
 
 	for (let at = path.length - 1; at >= 0; at--) {
 		const node = path[at] as AnyNode;
 		const child = path[at + 1];
+
+		if (
+			node.type === 'BlockTag' &&
+			child !== undefined &&
+			(child === node.blockName || child === node.endName)
+		) {
+			return { kind: 'block-name', replace };
+		}
 
 		if (child !== undefined && isBindingSlot(node, child)) {
 			return { kind: 'none' };
@@ -350,7 +363,7 @@ function classifyExpression(
 				return { kind: 'hash-key', replace };
 
 			case 'StringLiteral':
-				return stringContext(path, at, offset);
+				return stringContext(path, at, offset, source);
 
 			default:
 				break;
@@ -396,7 +409,12 @@ function namedOwner(
  * Two positions are not: a template path (milestone 08 fills these in) and the
  * name argument of `block()`.
  */
-function stringContext(path: readonly AnyNode[], at: number, offset: number): CompletionContext {
+function stringContext(
+	path: readonly AnyNode[],
+	at: number,
+	offset: number,
+	source: string,
+): CompletionContext {
 	const literal = path[at];
 	if (literal?.type !== 'StringLiteral' || offset <= literal.start || offset >= literal.end) {
 		return { kind: 'none' };
@@ -404,8 +422,16 @@ function stringContext(path: readonly AnyNode[], at: number, offset: number): Co
 	const inner: SourceRange = { start: literal.start + 1, end: literal.end - 1 };
 
 	const parent = path[at - 1];
-	if (parent !== undefined && isTemplateRef(parent, literal)) {
-		return { kind: 'template-string', replace: inner };
+	if (isTemplateRef(path, at, literal)) {
+		if (literal.parts.length > 1) {
+			return { kind: 'none' };
+		}
+		return {
+			kind: 'template-string',
+			value: literal.value,
+			valueRange: inner,
+			replace: stringSegment(inner, offset, source),
+		};
 	}
 
 	const owner = ownerOf(path, at - 1);
@@ -415,7 +441,11 @@ function stringContext(path: readonly AnyNode[], at: number, offset: number): Co
 	return { kind: 'none' };
 }
 
-function isTemplateRef(parent: AnyNode, literal: AnyNode): boolean {
+function isTemplateRef(path: readonly AnyNode[], at: number, literal: AnyNode): boolean {
+	const parent = path[at - 1];
+	if (parent === undefined) {
+		return false;
+	}
 	switch (parent.type) {
 		case 'IncludeTag':
 		case 'ExtendsTag':
@@ -424,9 +454,49 @@ function isTemplateRef(parent: AnyNode, literal: AnyNode): boolean {
 		case 'FromTag':
 		case 'UseTag':
 			return parent.template === literal;
+		case 'Argument':
+			return isTemplateArgument(path, at, parent);
 		default:
 			return false;
 	}
+}
+
+function isTemplateArgument(path: readonly AnyNode[], at: number, argument: AnyNode): boolean {
+	if (argument.type !== 'Argument') {
+		return false;
+	}
+	const call = path[at - 2];
+	if (call?.type !== 'CallExpression' || call.callee.type !== 'Identifier') {
+		return false;
+	}
+	const index = call.args.findIndex((candidate) => candidate === argument);
+	switch (call.callee.name) {
+		case 'include':
+		case 'source':
+			return index === 0;
+		case 'block':
+			return index === 1;
+		default:
+			return false;
+	}
+}
+
+function stringSegment(inner: SourceRange, offset: number, source?: string): SourceRange {
+	if (source === undefined) {
+		return { start: offset, end: offset };
+	}
+
+	let start = offset;
+	while (start > inner.start && source[start - 1] !== '/' && source[start - 1] !== '\\') {
+		start--;
+	}
+
+	let end = offset;
+	while (end < inner.end && source[end] !== '/' && source[end] !== '\\') {
+		end++;
+	}
+
+	return { start, end };
 }
 
 /**
@@ -465,7 +535,7 @@ function tagFallback(
 			return { kind: 'none' };
 		case 'BlockTag':
 			return bindingZone(region, offset, 'name', [], 1)
-				? { kind: 'none' }
+				? { kind: 'block-name', replace }
 				: { kind: 'expression', replace };
 		default:
 			return { kind: 'expression', replace };

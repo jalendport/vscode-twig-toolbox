@@ -1,8 +1,10 @@
+import { readFileSync, statSync } from 'node:fs';
 import { parse, type ParseResult } from '@twig-toolbox/parser';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import type { WorkspaceCatalogContext } from './catalog';
 import { createEmbeddedDocuments, type EmbeddedDocuments } from './embedded-documents';
 import { findRegions } from './regions';
+import { uriToFilePath } from './workspace';
 
 export interface ParsedDocument {
 	readonly uri: string;
@@ -63,10 +65,17 @@ interface DocumentEntry {
 	timer: ReturnType<typeof setTimeout> | undefined;
 }
 
+interface ExternalEntry {
+	parsed: ParsedDocument;
+	mtimeMs: number;
+	size: number;
+}
+
 const DEFAULT_PARSE_DELAY_MS = 200;
 
 export class DocumentStore {
 	private readonly entries = new Map<string, DocumentEntry>();
+	private readonly externalEntries = new Map<string, ExternalEntry>();
 	private readonly parseDelayMs: number;
 	private readonly resolveWorkspaceContext: (uri: string) => WorkspaceCatalogContext;
 	private readonly onParsed: ((document: ParsedDocument) => void) | undefined;
@@ -130,6 +139,47 @@ export class DocumentStore {
 		}
 
 		return entry.parsed;
+	}
+
+	getParsedFile(uri: string): ParsedDocument | undefined {
+		const open = this.getParsed(uri);
+		if (open !== undefined) {
+			return open;
+		}
+
+		const filePath = uriToFilePath(uri);
+		if (filePath === undefined) {
+			return undefined;
+		}
+
+		try {
+			const stat = statSync(filePath);
+			const cached = this.externalEntries.get(uri);
+			if (
+				cached !== undefined &&
+				cached.mtimeMs === stat.mtimeMs &&
+				cached.size === stat.size
+			) {
+				return cached.parsed;
+			}
+
+			const text = readFileSync(filePath, 'utf8');
+			const document = TextDocument.create(uri, 'twig', Math.floor(stat.mtimeMs), text);
+			const parsed = createParsedDocument(document, this.resolveWorkspaceContext(uri));
+			this.externalEntries.set(uri, { parsed, mtimeMs: stat.mtimeMs, size: stat.size });
+			return parsed;
+		} catch {
+			this.externalEntries.delete(uri);
+			return undefined;
+		}
+	}
+
+	invalidate(uri: string): void {
+		this.externalEntries.delete(uri);
+		const open = this.entries.get(uri);
+		if (open !== undefined) {
+			open.stale = true;
+		}
 	}
 
 	parseNow(uri: string): ParsedDocument {

@@ -88,6 +88,15 @@
 					"default": [],
 					"description": "Twig tag, filter, function, and test names ignored by unknown-name diagnostics."
 				},
+				"twigToolbox.templateRoots": {
+					"scope": "resource",
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"description": "Template root directories, relative to the workspace folder unless absolute. Auto-detected roots are used when empty."
+				},
 				"twigToolbox.autoClosingTags": {
 					"scope": "resource",
 					"type": "boolean",

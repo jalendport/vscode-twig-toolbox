@@ -16,10 +16,12 @@ import {
 import { BUILTIN_MEMBER_PROVIDERS, provideMembers, type MemberProvider } from './members';
 import { findRegions, regionAt, type TwigRegion } from './regions';
 import { collectSymbols, type MacroDefinition, type SymbolTable } from './symbols';
+import type { TemplateSymbolResolver } from './template-symbols';
 
 export interface SignatureOptions {
 	readonly catalogRegistry: CatalogRegistry;
 	readonly memberProviders?: readonly MemberProvider[];
+	readonly symbolResolver?: TemplateSymbolResolver;
 }
 
 type SignatureTarget =
@@ -31,8 +33,14 @@ type SignatureTarget =
 	| {
 			readonly kind: 'macro';
 			readonly macro: MacroDefinition;
+			readonly source: string;
 			readonly argOpen: Token;
 	  };
+
+interface ResolvedMacro {
+	readonly macro: MacroDefinition;
+	readonly source: string;
+}
 
 export function getSignatureHelp(
 	parsed: ParsedDocument,
@@ -53,7 +61,8 @@ export function getSignatureHelp(
 	}
 
 	const path = nodePathAt(template, offset);
-	const symbols = collectSymbols(template, source, regions);
+	const symbols =
+		options.symbolResolver?.collect(parsed) ?? collectSymbols(template, source, regions);
 	const target = signatureTarget(path, region, offset, parsed, symbols, options);
 	if (target === undefined) {
 		return undefined;
@@ -64,7 +73,7 @@ export function getSignatureHelp(
 		target,
 	);
 	return {
-		signatures: [signatureInformation(target, source)],
+		signatures: [signatureInformation(target)],
 		activeSignature: 0,
 		activeParameter,
 	};
@@ -89,7 +98,7 @@ function signatureTarget(
 			}
 			const macro = macroForCall(node.callee, symbols, offset, parsed, options);
 			if (macro !== undefined) {
-				return { kind: 'macro', macro, argOpen };
+				return { kind: 'macro', macro: macro.macro, source: macro.source, argOpen };
 			}
 			if (node.callee.type === 'Identifier') {
 				const entry =
@@ -122,7 +131,7 @@ function macroForCall(
 	offset: number,
 	parsed: ParsedDocument,
 	options: SignatureOptions,
-): MacroDefinition | undefined {
+): ResolvedMacro | undefined {
 	if (callee.type === 'Identifier') {
 		const symbol = symbols.resolve(callee.name, offset);
 		if (
@@ -131,13 +140,17 @@ function macroForCall(
 			symbol.signature !== undefined
 		) {
 			return {
-				name: callee.name,
-				signature: symbol.signature,
-				params: symbol.params,
-				range: symbol.definitionRange ?? symbol.scope,
+				macro: {
+					name: callee.name,
+					signature: symbol.signature,
+					params: symbol.params,
+					range: symbol.definitionRange ?? symbol.scope,
+				},
+				source: symbol.definitionSource ?? parsed.result.source,
 			};
 		}
-		return symbols.macros.find((macro) => macro.name === callee.name);
+		const macro = symbols.macros.find((candidate) => candidate.name === callee.name);
+		return macro === undefined ? undefined : { macro, source: parsed.result.source };
 	}
 
 	if (
@@ -150,26 +163,43 @@ function macroForCall(
 	const property = callee.property;
 
 	if (callee.object.type === 'Identifier' && callee.object.name === '_self') {
-		return symbols.macros.find((macro) => macro.name === property.name);
+		const macro = symbols.macros.find((candidate) => candidate.name === property.name);
+		return macro === undefined ? undefined : { macro, source: parsed.result.source };
+	}
+
+	const namespace =
+		callee.object.type === 'Identifier'
+			? symbols.resolve(callee.object.name, offset)
+			: undefined;
+	const namespaceMacro = namespace?.macroMembers?.find(
+		(candidate) => candidate.name === property.name,
+	);
+	if (namespaceMacro !== undefined) {
+		return {
+			macro: namespaceMacro,
+			source: namespace?.definitionSource ?? parsed.result.source,
+		};
 	}
 
 	const members = provideMembers(options.memberProviders ?? BUILTIN_MEMBER_PROVIDERS, {
 		object: callee.object,
-		symbol:
-			callee.object.type === 'Identifier'
-				? symbols.resolve(callee.object.name, offset)
-				: undefined,
+		symbol: namespace,
 		symbols,
 		document: parsed,
 		offset,
 	});
 	const member = members.find((candidate) => candidate.name === property.name);
-	return member === undefined
-		? undefined
-		: symbols.macros.find((macro) => macro.name === member.name);
+	if (member?.macro !== undefined) {
+		return { macro: member.macro, source: namespace?.definitionSource ?? parsed.result.source };
+	}
+	const macro =
+		member === undefined
+			? undefined
+			: symbols.macros.find((candidate) => candidate.name === member.name);
+	return macro === undefined ? undefined : { macro, source: parsed.result.source };
 }
 
-function signatureInformation(target: SignatureTarget, source: string): SignatureInformation {
+function signatureInformation(target: SignatureTarget): SignatureInformation {
 	if (target.kind === 'catalog') {
 		return {
 			label: target.entry.signature,
@@ -183,11 +213,12 @@ function signatureInformation(target: SignatureTarget, source: string): Signatur
 		};
 	}
 
-	const parameters = localParameters(target.macro.params, source);
+	const macroSource = target.source;
+	const parameters = localParameters(target.macro.params, macroSource);
 	return {
 		label: target.macro.signature,
 		documentation: markdown(
-			localMacroMarkdown(target.macro.signature, parameters, source, target.macro.range),
+			localMacroMarkdown(target.macro.signature, parameters, macroSource, target.macro.range),
 		),
 		parameters: parameters.map((parameter) => ({
 			label: parameterLabel(target.macro.signature, parameter.name),

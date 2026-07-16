@@ -20,10 +20,12 @@ import {
 import { BUILTIN_MEMBER_PROVIDERS, provideMembers, type MemberProvider } from './members';
 import { findRegions, regionAt, tokenAt, type TwigRegion } from './regions';
 import { collectSymbols, type MacroDefinition, type SymbolTable, type TwigSymbol } from './symbols';
+import type { TemplateSymbolResolver } from './template-symbols';
 
 export interface HoverOptions {
 	readonly catalogRegistry: CatalogRegistry;
 	readonly memberProviders?: readonly MemberProvider[];
+	readonly symbolResolver?: TemplateSymbolResolver;
 }
 
 export function getHover(
@@ -51,9 +53,17 @@ export function getHover(
 
 	const path = nodePathAt(template, offset);
 	const entries = options.catalogRegistry.getMergedEntries(parsed.workspaceContext);
-	const symbols = collectSymbols(template, source, regions);
+	const symbols =
+		options.symbolResolver?.collect(parsed) ?? collectSymbols(template, source, regions);
 
-	const localDefinition = localDefinitionHover(path, offset, symbols, source, parsed);
+	const localDefinition = localDefinitionHover(
+		path,
+		offset,
+		symbols,
+		source,
+		parsed,
+		options.symbolResolver,
+	);
 	if (localDefinition !== undefined) {
 		return localDefinition;
 	}
@@ -61,6 +71,11 @@ export function getHover(
 	const member = memberHover(path, offset, parsed, symbols, options);
 	if (member !== undefined) {
 		return member;
+	}
+
+	const parent = parentFunctionHover(path, offset, parsed, options.symbolResolver);
+	if (parent !== undefined) {
+		return parent;
 	}
 
 	const catalog = catalogHover(path, region, offset, source, parsed, entries, symbols);
@@ -88,6 +103,7 @@ function localDefinitionHover(
 	symbols: SymbolTable,
 	source: string,
 	parsed: ParsedDocument,
+	symbolResolver: TemplateSymbolResolver | undefined,
 ): Hover | undefined {
 	const child = identifierAt(path, offset);
 	if (child === undefined) {
@@ -183,14 +199,21 @@ function localDefinitionHover(
 					? undefined
 					: source.slice(tag.template.start, tag.template.end);
 			const importedName = parent.macroName?.name ?? child.name;
+			const external =
+				tag.template?.type === 'StringLiteral'
+					? symbolResolver?.symbolsForTemplate(parsed.uri, tag.template.value)
+					: undefined;
 			const macro =
 				importedFrom === '_self'
 					? symbols.macros.find((candidate) => candidate.name === importedName)
-					: undefined;
+					: external?.macros.find((candidate) => candidate.name === importedName);
 			return hover(
 				symbolMarkdown(
 					syntheticSymbol(child.name, 'macro', {
-						definitionRange: { start: tag.start, end: tag.end },
+						definitionRange:
+							macro === undefined ? { start: tag.start, end: tag.end } : macro.range,
+						...(external === undefined ? {} : { definitionUri: external.uri }),
+						...(external === undefined ? {} : { definitionSource: external.source }),
 						detail: macro?.signature ?? `${child.name}()`,
 						signature: macro?.signature ?? `${child.name}()`,
 						...(macro === undefined ? {} : { params: macro.params }),
@@ -277,6 +300,47 @@ function memberHover(
 	return member === undefined ? undefined : hover(memberMarkdown(member), parsed, property);
 }
 
+function parentFunctionHover(
+	path: readonly AnyNode[],
+	offset: number,
+	parsed: ParsedDocument,
+	symbolResolver: TemplateSymbolResolver | undefined,
+): Hover | undefined {
+	const call = nearest(path, 'CallExpression');
+	if (
+		call?.callee.type !== 'Identifier' ||
+		call.callee.name !== 'parent' ||
+		!inside(call.callee, offset) ||
+		symbolResolver === undefined
+	) {
+		return undefined;
+	}
+
+	const block = enclosingBlock(path);
+	const blockName = block?.blockName?.name;
+	if (blockName === undefined) {
+		return undefined;
+	}
+	const parentBlock = symbolResolver.parentBlock(parsed, blockName);
+	if (parentBlock === undefined) {
+		return undefined;
+	}
+	const snippet = sourceSnippet(parentBlock.source, parentBlock.block.range);
+	return hover(
+		[
+			'```twig',
+			`parent() -> block ${blockName}`,
+			'```',
+			`Overridden block from ${parentBlock.uri}.`,
+			snippet === '' ? undefined : `\`\`\`twig\n${snippet}\n\`\`\``,
+		]
+			.filter((part): part is string => part !== undefined)
+			.join('\n\n'),
+		parsed,
+		call.callee,
+	);
+}
+
 function catalogHover(
 	path: readonly AnyNode[],
 	region: TwigRegion,
@@ -347,6 +411,27 @@ function macroByName(
 	return symbols.macros.find(
 		(macro) => macro.name === name && macro.range.start === definitionStart,
 	);
+}
+
+function enclosingBlock(
+	path: readonly AnyNode[],
+): Extract<AnyNode, { type: 'BlockTag' }> | undefined {
+	for (let at = path.length - 1; at >= 0; at--) {
+		const node = path[at];
+		if (node?.type === 'BlockTag') {
+			return node;
+		}
+	}
+	return undefined;
+}
+
+function sourceSnippet(
+	source: string,
+	range: { readonly start: number; readonly end: number },
+): string {
+	const snippet = source.slice(range.start, range.end).trim();
+	const firstBreak = snippet.indexOf('\n');
+	return firstBreak === -1 ? snippet : snippet.slice(0, firstBreak).trim();
 }
 
 function identifierAt(path: readonly AnyNode[], offset: number): Identifier | undefined {

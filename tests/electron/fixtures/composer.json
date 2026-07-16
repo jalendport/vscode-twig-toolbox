@@ -1,0 +1,5 @@
+{
+	"require": {
+		"craftcms/cms": "^5.0"
+	}
+}

@@ -10,6 +10,8 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogEntryKind, CatalogEntryMap, CatalogRegistry } from './catalog';
 import type { ParsedDocument } from './document-store';
 import type { TwigToolboxSettings, UnknownNamesSetting } from './settings';
+import type { TemplateResolver } from './template-resolver';
+import { collectTemplateReferences } from './template-references';
 
 type UnknownDiagnosticKind = Extract<CatalogEntryKind, 'tags' | 'filters' | 'functions' | 'tests'>;
 
@@ -25,11 +27,13 @@ export function getDiagnostics(
 	parsed: ParsedDocument,
 	settings: TwigToolboxSettings,
 	catalogRegistry: CatalogRegistry,
+	templateResolver?: TemplateResolver,
 ): Diagnostic[] {
 	const entries = catalogRegistry.getMergedEntries(parsed.workspaceContext);
 	return [
 		...parsed.result.errors.map((error) => parseErrorToDiagnostic(error, parsed)),
 		...getUnknownNameDiagnostics(parsed, settings, entries),
+		...getMissingTemplateDiagnostics(parsed, settings, templateResolver),
 	];
 }
 
@@ -107,6 +111,37 @@ function getUnknownNameDiagnostics(
 	}
 
 	return diagnostics;
+}
+
+function getMissingTemplateDiagnostics(
+	parsed: ParsedDocument,
+	settings: TwigToolboxSettings,
+	templateResolver: TemplateResolver | undefined,
+): Diagnostic[] {
+	if (
+		templateResolver === undefined ||
+		severityForUnknownNames(settings.diagnostics.unknownNames) === undefined
+	) {
+		return [];
+	}
+
+	return collectTemplateReferences(parsed).flatMap((reference) =>
+		templateResolver.resolve(parsed.uri, reference.name, settings).length > 0
+			? []
+			: [
+					{
+						range: offsetRange(
+							parsed.document,
+							reference.range.start,
+							reference.range.end,
+						),
+						severity: DiagnosticSeverity.Hint,
+						code: 'template-not-found',
+						source: DIAGNOSTIC_SOURCE,
+						message: `Template "${reference.name}" was not found.`,
+					},
+				],
+	);
 }
 
 function collectNameReferences(root: AnyNode): NameReference[] {

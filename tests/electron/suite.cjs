@@ -25,6 +25,7 @@ module.exports.run = async function run() {
 	assert.deepEqual(diagnostic.range.end, new vscode.Position(0, 12));
 
 	await testCompletions();
+	await testTemplateNavigation();
 	await testEmbedded();
 	await testEmmet();
 };
@@ -59,6 +60,33 @@ async function testCompletions() {
 	const item = find(expressions, 'item');
 	assert.ok(item, 'expected the loop variable `item`');
 	assert.equal(item.kind, vscode.CompletionItemKind.Variable);
+}
+
+async function testTemplateNavigation() {
+	const uri = vscode.Uri.file(path.join(__dirname, 'fixtures', 'templates', 'navigation.twig'));
+	const document = await vscode.workspace.openTextDocument(uri);
+	await vscode.window.showTextDocument(document);
+
+	const pathItems = await completionsAt(uri, new vscode.Position(0, 22));
+	assert.ok(find(pathItems, 'card.twig'), 'expected template path completion under _partials/');
+
+	const definitions = await vscode.commands.executeCommand(
+		'vscode.executeDefinitionProvider',
+		uri,
+		new vscode.Position(1, 14),
+	);
+	assert.ok(
+		definitions.some((definition) =>
+			definition.uri.fsPath.endsWith(path.join('templates', '_layout.twig')),
+		),
+		'expected extends definition to land on _layout.twig',
+	);
+
+	const links = await vscode.commands.executeCommand('vscode.executeLinkProvider', uri);
+	assert.ok(
+		links.some((link) => link.target.fsPath.endsWith(path.join('templates', '_layout.twig'))),
+		'expected document link for _layout.twig',
+	);
 }
 
 /**

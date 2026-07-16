@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { WorkspaceFolder } from 'vscode-languageserver/node';
 import type { WorkspaceCatalogContext } from './catalog';
 
@@ -56,7 +56,7 @@ function readComposerPackages(root: string): string[] {
 	}
 }
 
-function uriToFilePath(uri: string): string | undefined {
+export function uriToFilePath(uri: string): string | undefined {
 	if (!uri.startsWith('file:')) {
 		return undefined;
 	}
@@ -68,7 +68,11 @@ function uriToFilePath(uri: string): string | undefined {
 	}
 }
 
-function isInside(filePath: string, root: string): boolean {
+export function filePathToUri(filePath: string): string {
+	return pathToFileURL(filePath).toString();
+}
+
+export function isInside(filePath: string, root: string): boolean {
 	const parent = dirname(filePath);
 	const normalizedRoot = root.endsWith('/') ? root : `${root}/`;
 	return filePath === root || parent === root || parent.startsWith(normalizedRoot);
