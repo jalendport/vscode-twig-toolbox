@@ -294,6 +294,144 @@ describe('template navigation', () => {
 		}
 	});
 
+	it('resolves a variable set in the including template', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/index.twig',
+				'{% set heading = entry.title %}{% include "_partials/card" %}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/_partials/card.twig', '<h1>{{ head‸ing }}</h1>');
+			const card = openMarked(server, uri);
+
+			const definition = (await server.definition(card.uri, card.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(fixture.uri('templates/index.twig'));
+			expect(definition[0]?.range.start).toEqual({ line: 0, character: 0 });
+
+			const hover = await server.hover(card.uri, card.position);
+			expect(hoverText(hover)).toContain('heading = entry.title');
+			expect(hoverText(hover)).toContain('index');
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('walks context transitively through a chain of includes', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write('templates/a.twig', '{% set banner = "hello" %}{% include "b" %}');
+			fixture.write('templates/b.twig', '{% include "c" %}');
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/c.twig', '{{ ban‸ner }}');
+			const c = openMarked(server, uri);
+
+			const definition = (await server.definition(c.uri, c.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(fixture.uri('templates/a.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('stops at `only`, which replaces the context wholesale', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write('templates/index.twig', '{% set heading = "hi" %}{% include "b" only %}');
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			expect(await server.definition(b.uri, b.position)).toEqual([]);
+			expect(await server.hover(b.uri, b.position)).toBeUndefined();
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('treats a `with` key as the definition site', async () => {
+		const fixture = createCraftFixture();
+		try {
+			const includerUri = fixture.write(
+				'templates/index.twig',
+				'{% include "b" with { heading: entry.title } only %}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			const definition = (await server.definition(b.uri, b.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(includerUri);
+			expect(definition[0]?.range.start).toEqual({ line: 0, character: 22 });
+
+			expect(hoverText(await server.hover(b.uri, b.position))).toContain(
+				'heading = entry.title',
+			);
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('returns every includer that defines the name', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write('templates/one.twig', '{% set heading = "one" %}{% include "b" %}');
+			fixture.write('templates/two.twig', '{% set heading = "two" %}{% include "b" %}');
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			const definition = (await server.definition(b.uri, b.position)) as Location[];
+			expect(definition.map((location) => location.uri).sort()).toEqual(
+				[fixture.uri('templates/one.twig'), fixture.uri('templates/two.twig')].sort(),
+			);
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('picks up an edit to the including template', async () => {
+		const fixture = createCraftFixture();
+		try {
+			const includerUri = fixture.write('templates/index.twig', '{% include "b" %}');
+			const server = createServer(fixture);
+			server.openDocument(TextDocument.create(includerUri, 'twig', 1, '{% include "b" %}'));
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			expect(await server.definition(b.uri, b.position)).toEqual([]);
+
+			const updated = '{% set heading = "hi" %}{% include "b" %}';
+			writeFileSync(join(fixture.templates, 'index.twig'), updated);
+			server.updateDocument(TextDocument.create(includerUri, 'twig', 2, updated));
+
+			const definition = (await server.definition(b.uri, b.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(includerUri);
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('resolves inherited variables in a bare, non-Craft workspace', async () => {
+		const fixture = createBareFixture();
+		try {
+			fixture.write('a.twig', '{% for item in items %}{% include "b" %}{% endfor %}');
+			const server = createServer(fixture);
+			const uri = fixture.write('b.twig', '{{ it‸em }}');
+			const b = openMarked(server, uri);
+
+			const definition = (await server.definition(b.uri, b.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(fixture.uri('a.twig'));
+			expect(hoverText(await server.hover(b.uri, b.position))).toContain('for … in items');
+		} finally {
+			fixture.dispose();
+		}
+	});
+
 	it('reports missing static templates only when unknown names are enabled', async () => {
 		const fixture = createCraftFixture();
 		try {

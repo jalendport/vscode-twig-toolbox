@@ -127,6 +127,42 @@ async function testTemplateNavigation() {
 		links.some((link) => link.target.fsPath.endsWith(path.join('templates', '_layout.twig'))),
 		'expected document link for _layout.twig',
 	);
+
+	await testInheritedContext();
+}
+
+/**
+ * A variable the partial never sets, resolved through the real workspace scan.
+ *
+ * `card.twig` renders `{{ title }}` and only `context.twig` — which it has no
+ * reference to — says what that is. The unit tests build the index over a tmp
+ * directory; this is the one that shows it finding the shipped template root.
+ */
+async function testInheritedContext() {
+	const uri = vscode.Uri.file(
+		path.join(__dirname, 'fixtures', 'templates', '_partials', 'card.twig'),
+	);
+	const document = await vscode.workspace.openTextDocument(uri);
+	await vscode.window.showTextDocument(document);
+
+	// `<article>{{ ti‸tle }}</article>`
+	const at = new vscode.Position(0, 14);
+	const definitions = await vscode.commands.executeCommand(
+		'vscode.executeDefinitionProvider',
+		uri,
+		at,
+	);
+	assert.ok(
+		definitions.some((definition) =>
+			definition.uri.fsPath.endsWith(path.join('templates', 'context.twig')),
+		),
+		'expected `title` to resolve to the `{% set %}` in context.twig',
+	);
+
+	const hovers = await vscode.commands.executeCommand('vscode.executeHoverProvider', uri, at);
+	const markdown = hovers.map((hover) => text(hover)).join('\n');
+	assert.match(markdown, /title = "Hello"/, 'expected the defining expression on hover');
+	assert.match(markdown, /context/, 'expected the defining template named on hover');
 }
 
 /**
