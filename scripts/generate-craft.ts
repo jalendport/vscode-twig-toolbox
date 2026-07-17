@@ -10,6 +10,7 @@ import type {
 	DialectPack,
 } from '../packages/language-server/src/catalog';
 import { cacheRoot, ensureCheckout, repoRoot } from './lib/checkout';
+import { apiMemberUrl, apiPageUrl } from './lib/craft-api';
 import {
 	buildSignature,
 	deepMerge,
@@ -17,6 +18,7 @@ import {
 	parsePhpParameters,
 	pruneUndefined,
 } from './lib/php';
+import { PhpClassIndex, type PhpClassMember } from './lib/php-class';
 
 /**
  * Builds `catalogs/craft.json` from pinned `craftcms/cms` and `craftcms/docs`
@@ -37,6 +39,7 @@ import {
 
 const CMS_REPOSITORY = 'https://github.com/craftcms/cms.git';
 const DOCS_REPOSITORY = 'https://github.com/craftcms/docs.git';
+const YII_REPOSITORY = 'https://github.com/yiisoft/yii2.git';
 
 /** craftcms/docs @ main. */
 const DOCS_REF = 'c21b31983e901b6c9d1b79052eb115c9325f58f3';
@@ -44,8 +47,28 @@ const DOCS_REF = 'c21b31983e901b6c9d1b79052eb115c9325f58f3';
 const CRAFT_5_REF = '9dece66d9d35f9f2615f5f2107c98d2334c71cfc';
 /** craftcms/cms @ 4.18.5. */
 const CRAFT_4_REF = '3f51275df56f897829213d23f6f16d269a65ec55';
+/**
+ * yiisoft/yii2 @ 2.0.55.
+ *
+ * One ref for both majors, because both pin the same one: Craft 4.18.5 and
+ * 5.10.11 each require `~2.0.55.0`. Craft is half of `craft.app.*` and Yii is
+ * the other half — `craft.app.request.queryString` is Yii's property on Craft's
+ * class — so without this checkout the model would stop at the class Craft
+ * happens to declare, which is not where a template's chain stops.
+ */
+const YII_REF = 'babee66def599432735a1ed39c9cf0bc5163a775';
 
-const CMS_SPARSE_PATHS = ['src/web/twig', 'src/elements/db', 'src/helpers'];
+const CMS_SPARSE_PATHS = [
+	'src/base',
+	'src/config',
+	'src/elements/db',
+	'src/helpers',
+	'src/i18n',
+	'src/models',
+	'src/services',
+	'src/web',
+];
+const YII_SPARSE_PATHS = ['framework/base', 'framework/i18n', 'framework/web'];
 const DOCS_SPARSE_PATHS = [
 	'docs/5.x/reference/twig',
 	'docs/5.x/development',
@@ -55,6 +78,7 @@ const DOCS_SPARSE_PATHS = [
 ];
 
 const docsCheckout = join(cacheRoot, 'craft-docs');
+const yiiCheckout = join(cacheRoot, 'yii2');
 const outputPath = join(repoRoot, 'catalogs', 'craft.json');
 const docsIndexPath = join(repoRoot, 'catalogs', 'craft.docs-index.json');
 const overridesPath = join(repoRoot, 'catalogs', 'overrides', 'craft.json');
@@ -148,6 +172,101 @@ const QUERY_ARTIFACTS: Record<string, string> = {
 /** The object every element query inherits its execution methods from. */
 const ELEMENT_QUERY_OBJECT = 'ElementQuery';
 
+/** What `craft.app` is. Every modelled application class is reached from here. */
+const APPLICATION_CLASS = 'craft\\web\\Application';
+
+/**
+ * How far the class walk follows types out of `craft.app`.
+ *
+ * Two is not a round number, it is the shape of the thing: the application, its
+ * services, and what a service hands back. `craft.app.config.general.devMode`
+ * and `craft.app.sites.currentSite.handle` are both exactly that deep, and past
+ * it the return types stop being a template's vocabulary and start being
+ * Craft's internals.
+ */
+const MAX_CLASS_DEPTH = 2;
+
+/**
+ * The `craft.app` services worth modelling.
+ *
+ * `ApplicationTrait` declares 68, and a completion list with `composer`, `gc`,
+ * `mutex` and `migrator` in it is a worse list than one without them: those
+ * services exist for Craft's own console commands, and nothing a template can
+ * write reaches them. This is the front-end runtime — the request and response,
+ * the session and the user, the view, URLs, config, sites, i18n — and it is a
+ * list rather than a rule because "would a template author type this?" is not a
+ * property of the source.
+ *
+ * The content schema is the deliberate omission. `elements`, `fields`, `entries`
+ * and friends answer questions about entries and custom fields, which milestone
+ * 10 answers from the project's own config with the project's own handles; a
+ * scraped `getFieldByHandle(): FieldInterface` competes with that and loses.
+ */
+const APP_SERVICES = new Set([
+	'config',
+	'formatter',
+	'formattingLocale',
+	'globals',
+	'locale',
+	'plugins',
+	'request',
+	'response',
+	'security',
+	'session',
+	'sites',
+	'urlManager',
+	'user',
+	'view',
+]);
+
+/**
+ * Where the inheritance walk stops.
+ *
+ * Yii's object plumbing is public and inherited by everything: `init()`,
+ * `trigger()`, `attachBehavior()`, `canGetProperty()`. It is real API and it is
+ * not the API anyone is looking for in a Twig file, so the walk takes the class
+ * and its meaningful parents and leaves the framework's base classes alone.
+ */
+const STOP_CLASSES = new Set([
+	'yii\\base\\BaseObject',
+	'yii\\base\\Behavior',
+	'yii\\base\\Component',
+	'yii\\base\\Module',
+	'yii\\base\\ServiceLocator',
+	'yii\\di\\ServiceLocator',
+]);
+
+/**
+ * Framework hooks a class overrides rather than offers. `init()` is Yii's
+ * lifecycle and `rules()`/`fields()` are its model plumbing; a class redeclaring
+ * one puts it back in reach of the walk, and it is noise wherever it lands.
+ */
+const DENIED_METHODS = new Set([
+	'attributeLabels',
+	'attributes',
+	'behaviors',
+	'extraFields',
+	'fields',
+	'init',
+	'rules',
+]);
+
+/**
+ * Classes the walk will model, and the branches it will not.
+ *
+ * Only Craft's own classes are modelled, and that falls out of the link policy
+ * rather than taste: Craft's reference has no `yii-*` pages, so a chain that
+ * carried on into `yii\web\Response` would be offering members it cannot
+ * document. The chain ends where the documentation does.
+ *
+ * `craft\elements\*` and `craft\base\*` are excluded for the same reason as the
+ * services above — `ElementInterface` and `FieldInterface` are the element and
+ * custom-field surface, which the element-query objects and milestone 10's
+ * project introspection describe with real handles instead of interfaces.
+ */
+const MODELLED_PREFIX = 'craft\\';
+const UNMODELLED_PREFIXES = ['craft\\base\\', 'craft\\elements\\'];
+
 /**
  * Query-method arguments a template never passes: `$db` is a connection, and
  * `$q` is the count expression `count()` defaults to `'*'`. Both are Yii's, and
@@ -179,6 +298,12 @@ function main(): void {
 		repository: DOCS_REPOSITORY,
 		ref: DOCS_REF,
 		sparsePaths: DOCS_SPARSE_PATHS,
+	});
+	ensureCheckout({
+		directory: yiiCheckout,
+		repository: YII_REPOSITORY,
+		ref: YII_REF,
+		sparsePaths: YII_SPARSE_PATHS,
 	});
 	for (const source of [craft4, craft5]) {
 		ensureCheckout({
@@ -587,7 +712,229 @@ function buildObjects(
 		}
 	}
 
+	for (const [name, object] of buildAppObjects(source)) {
+		objects.set(name, object);
+	}
+
 	return objects;
+}
+
+// ---------------------------------------------------------------------------
+// The craft.app.* class model
+// ---------------------------------------------------------------------------
+
+/**
+ * Everything reachable from `craft.app`, as objects the chain resolver can walk.
+ *
+ * A breadth-first walk out of `craft\web\Application`, bounded three ways: it
+ * only follows types into Craft's own classes, only to `MAX_CLASS_DEPTH`, and
+ * only through the services in `APP_SERVICES`. The bounds are the feature —
+ * every class it models is one a template author dots into, and the walk stops
+ * where their vocabulary does rather than where the source runs out.
+ *
+ * Objects are keyed by fully-qualified name. The names in this map are opaque to
+ * everything downstream, and an FQN is the one name that cannot collide:
+ * `craft\web\User` (the component) and `craft\elements\User` (the element) are
+ * both `User`, and are not the same object.
+ */
+function buildAppObjects(source: CraftSource): Map<string, CatalogObject> {
+	const index = new PhpClassIndex([
+		{ prefix: 'craft\\', directory: join(source.checkout, 'src') },
+		{ prefix: 'yii\\', directory: join(yiiCheckout, 'framework') },
+	]);
+
+	const objects = new Map<string, CatalogObject>();
+	const queued = new Set<string>([APPLICATION_CLASS]);
+	const queue: { fqn: string; depth: number }[] = [{ fqn: APPLICATION_CLASS, depth: 0 }];
+
+	while (queue.length > 0) {
+		const { fqn, depth } = queue.shift() as { fqn: string; depth: number };
+		const object = buildClassObject(source, index, fqn, depth);
+		if (object === undefined) {
+			continue;
+		}
+		objects.set(fqn, object);
+
+		for (const member of object.members) {
+			if (member.type === undefined || queued.has(member.type)) {
+				continue;
+			}
+			queued.add(member.type);
+			queue.push({ fqn: member.type, depth: depth + 1 });
+		}
+	}
+
+	return pruneUnresolvableTypes(objects);
+}
+
+/**
+ * Drops a `type` that names an object the walk did not produce.
+ *
+ * A class can be queued and then decline to be modelled — an enum, an interface
+ * with nothing public on it, a class outside the checked-out paths. The member
+ * that pointed at it is still real and still worth completing; what it can no
+ * longer claim is that the chain continues through it. Leaving the name in place
+ * would make the pack promise an object it does not contain.
+ */
+function pruneUnresolvableTypes(objects: Map<string, CatalogObject>): Map<string, CatalogObject> {
+	for (const object of objects.values()) {
+		object.members = object.members.map((member) =>
+			member.type !== undefined && !objects.has(member.type)
+				? (pruneUndefined({ ...member, type: undefined }) as CatalogMember)
+				: member,
+		);
+	}
+	return objects;
+}
+
+function buildClassObject(
+	source: CraftSource,
+	index: PhpClassIndex,
+	fqn: string,
+	depth: number,
+): CatalogObject | undefined {
+	const parsed = index.read(fqn);
+	if (parsed === undefined) {
+		return undefined;
+	}
+
+	const members = templateFacingMembers(index, fqn, depth === 0);
+	if (members.length === 0) {
+		return undefined;
+	}
+
+	return {
+		name: fqn,
+		description: docblockSummary(parsed.docblock ?? '') ?? `An instance of \`${fqn}\`.`,
+		docsUrl: apiPageUrl(source.major, fqn),
+		members: members
+			.map((member) => buildClassMember(source, fqn, member, depth))
+			.sort((a, b) => a.name.localeCompare(b.name)),
+	};
+}
+
+/**
+ * A class's members, minus the ones no template would write.
+ *
+ * The application itself is the one class filtered by name rather than by shape:
+ * its services are the entry points, and `APP_SERVICES` is the list of them.
+ */
+function templateFacingMembers(
+	index: PhpClassIndex,
+	fqn: string,
+	isApplication: boolean,
+): PhpClassMember[] {
+	const members = withoutAccessors(index.members(fqn, { stopAt: STOP_CLASSES }));
+
+	if (isApplication) {
+		return members.filter(
+			(member) => member.kind === 'property' && APP_SERVICES.has(member.name),
+		);
+	}
+
+	return members.filter(
+		(member) => member.kind === 'property' || !DENIED_METHODS.has(member.name),
+	);
+}
+
+/**
+ * Drops the methods that only exist to back a property.
+ *
+ * Yii resolves `craft.app.request.queryString` through `getQueryString()`, and
+ * Craft's config resolves `->devMode(true)` through a fluent setter beside
+ * `$devMode`. Both are the property said twice: offering all three of
+ * `queryString`, `getQueryString()` and `devMode()` describes PHP's calling
+ * conventions, not Craft's API, and a template writes the property.
+ */
+function withoutAccessors(members: readonly PhpClassMember[]): PhpClassMember[] {
+	const properties = new Set(
+		members.filter((member) => member.kind === 'property').map((member) => member.name),
+	);
+
+	return members.filter((member) => {
+		if (member.kind === 'property') {
+			return true;
+		}
+
+		const accessor = /^(?:get|set)([A-Z]\w*)$/.exec(member.name)?.[1];
+		if (accessor !== undefined && properties.has(lowerFirst(accessor))) {
+			return false;
+		}
+
+		return !(member.returnsSelf && properties.has(member.name));
+	});
+}
+
+function buildClassMember(
+	source: CraftSource,
+	objectClass: string,
+	member: PhpClassMember,
+	depth: number,
+): CatalogMember {
+	const parameters = member.parameters.map((parameter) =>
+		pruneUndefined({ ...parameter, type: normalizeType(parameter.type) }),
+	);
+	// A type is a promise that the chain keeps resolving, so it is only made for
+	// a class that will be in the pack: past the depth cap, or outside Craft's
+	// own namespace, the member is a leaf and says so by naming no type.
+	const type =
+		depth < MAX_CLASS_DEPTH && member.typeClass !== undefined && isModelled(member.typeClass)
+			? member.typeClass
+			: undefined;
+
+	return pruneUndefined({
+		name: member.name,
+		kind: member.kind,
+		type,
+		signature:
+			member.kind === 'property'
+				? `${member.name}: ${normalizeType(member.type) ?? 'mixed'}`
+				: buildSignature(member.name, parameters),
+		parameters,
+		description: memberDescription(member, objectClass),
+		docsUrl: apiMemberUrl({
+			major: source.major,
+			objectClass,
+			declaringClass: member.declaringClass,
+			kind: member.kind,
+			name: member.name,
+		}),
+		sinceVersion: docblockSince(member.docblock ?? ''),
+		completionSnippet:
+			member.kind === 'property'
+				? member.name
+				: `${member.name}(${parameters.length > 0 ? '$1' : ''})`,
+		source: { phpClass: member.declaringClass },
+	});
+}
+
+function memberDescription(member: PhpClassMember, objectClass: string): string {
+	const summary = member.summary === undefined ? undefined : normalizeMarkdown(member.summary);
+	if (summary !== undefined && summary.length >= 8) {
+		return summary;
+	}
+
+	const docblock = member.docblock ?? '';
+	return (
+		docblockSummary(docblock) ??
+		docblockVarSummary(docblock) ??
+		`The ${member.name} ${member.kind} of ${shortName(objectClass)}.`
+	);
+}
+
+function isModelled(fqn: string): boolean {
+	return (
+		fqn.startsWith(MODELLED_PREFIX) &&
+		!UNMODELLED_PREFIXES.some((prefix) => fqn.startsWith(prefix))
+	);
+}
+
+function shortName(fqn: string): string {
+	return fqn.split('\\').pop() ?? fqn;
+}
+
+function lowerFirst(value: string): string {
+	return value.charAt(0).toLowerCase() + value.slice(1);
 }
 
 /**
@@ -657,6 +1004,10 @@ function buildCraftVariable(
 		members.push({
 			name: 'app',
 			kind: 'property',
+			// The one member whose type is asserted rather than read: `$app` is
+			// declared as a union of the web and console applications, and a
+			// template only ever runs inside the web one.
+			type: APPLICATION_CLASS,
 			signature: 'app: Application',
 			parameters: [],
 			description:
@@ -1058,6 +1409,24 @@ function docblockSummary(docblock: string): string | undefined {
 
 function docblockSince(docblock: string): string | undefined {
 	return /@since\s+([0-9][^\s*]*)/.exec(docblock)?.[1];
+}
+
+/**
+ * The prose in `@var string The URI segment Craft should look for…`.
+ *
+ * Craft's config classes describe a property inside its `@var` rather than above
+ * it, so `docblockSummary` — which stops dead at the first tag — sees nothing at
+ * all. That is most of `craft.app.config.general`, which is too much of the
+ * front-end surface to hand back undocumented.
+ */
+function docblockVarSummary(docblock: string): string | undefined {
+	const line = /@var\s+\S+\s+([^\n]*)/.exec(docblock)?.[1];
+	if (line === undefined) {
+		return undefined;
+	}
+
+	const description = normalizeMarkdown(line);
+	return description.length >= 8 ? description : undefined;
 }
 
 /** Docs-flavoured markdown down to something a hover panel can render. */
