@@ -3,6 +3,7 @@ import type {
 	CatalogMemberWithProvenance,
 	CatalogObjectWithProvenance,
 	CatalogRegistry,
+	WorkspaceCatalogContext,
 } from './catalog';
 import type { MemberCompletion, MemberContext, MemberProvider } from './members';
 
@@ -32,9 +33,45 @@ export function createCraftMemberProvider(registry: CatalogRegistry): MemberProv
 			}
 
 			const object = resolveObject(context.object, context, objects, registry);
-			return object === undefined ? [] : object.members.map(toCompletion);
+			if (object === undefined) {
+				return [];
+			}
+
+			const major = craftMajor(context.document.workspaceContext);
+			return object.members.map((member) => toCompletion(member, major));
 		},
 	};
+}
+
+/**
+ * Craft publishes its class reference once per major, at the same paths.
+ *
+ * The pack is generated from Craft 5 and merged with 4, so one URL is baked per
+ * member and it is the 5 one. Sending a Craft 4 project to the Craft 5 reference
+ * is how a docs link ends up describing a signature the reader does not have, so
+ * the major the project actually installed picks the host directory here, at the
+ * point where the project is known. Only the class reference moves: every other
+ * `docsUrl` in the pack is versioned already, or is not Craft's to version.
+ */
+const API_PREFIX = 'https://docs.craftcms.com/api/';
+const GENERATED_MAJOR = 5;
+
+function craftMajor(context: WorkspaceCatalogContext): number | undefined {
+	const version = context.packageVersions?.['craftcms/cms'];
+	const major =
+		version === undefined ? Number.NaN : Number.parseInt(version.replace(/^v/i, ''), 10);
+	return Number.isNaN(major) ? undefined : major;
+}
+
+export function versionedDocsUrl(docsUrl: string, major: number | undefined): string {
+	const generated = `${API_PREFIX}v${GENERATED_MAJOR}/`;
+	if (major === undefined || major === GENERATED_MAJOR || !docsUrl.startsWith(generated)) {
+		return docsUrl;
+	}
+	// 4 is the only other major the pack covers. A project on something newer
+	// than what this was generated from is better served by the reference that
+	// exists than by a guess at a URL that may not.
+	return major === 4 ? `${API_PREFIX}v4/${docsUrl.slice(generated.length)}` : docsUrl;
 }
 
 function resolveObject(
@@ -85,7 +122,10 @@ function resolveType(
 	}
 }
 
-function toCompletion(member: CatalogMemberWithProvenance): MemberCompletion {
+function toCompletion(
+	member: CatalogMemberWithProvenance,
+	major: number | undefined,
+): MemberCompletion {
 	return {
 		name: member.name,
 		detail: member.signature,
@@ -95,7 +135,7 @@ function toCompletion(member: CatalogMemberWithProvenance): MemberCompletion {
 		available: member.available,
 		signature: member.signature,
 		parameters: member.parameters,
-		docsUrl: member.docsUrl,
+		docsUrl: versionedDocsUrl(member.docsUrl, major),
 		...(member.sinceVersion === undefined ? {} : { sinceVersion: member.sinceVersion }),
 		...(member.removedVersion === undefined ? {} : { removedVersion: member.removedVersion }),
 		...(member.deprecated === undefined ? {} : { deprecated: member.deprecated }),
