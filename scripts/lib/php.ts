@@ -129,20 +129,23 @@ export function buildSignature(name: string, parameters: readonly CatalogParamet
 		.join(', ')})`;
 }
 
-export function deepMerge<T extends Record<string, unknown>>(base: T, override: Partial<T>): T {
-	const merged: Record<string, unknown> = { ...base };
+export function deepMerge<T extends object>(base: T, override: Partial<T>): T {
+	const baseRecord = base as Record<string, unknown>;
+	const merged: Record<string, unknown> = { ...baseRecord };
 
 	for (const [key, value] of Object.entries(override)) {
+		const baseValue = baseRecord[key];
+
 		if (
 			value &&
 			!Array.isArray(value) &&
 			typeof value === 'object' &&
-			base[key] &&
-			!Array.isArray(base[key]) &&
-			typeof base[key] === 'object'
+			baseValue &&
+			!Array.isArray(baseValue) &&
+			typeof baseValue === 'object'
 		) {
 			merged[key] = deepMerge(
-				base[key] as Record<string, unknown>,
+				baseValue as Record<string, unknown>,
 				value as Record<string, unknown>,
 			);
 		} else if (value !== undefined) {
@@ -153,8 +156,20 @@ export function deepMerge<T extends Record<string, unknown>>(base: T, override: 
 	return merged as T;
 }
 
-export function pruneUndefined<T extends Record<string, unknown>>(value: T): T {
+/**
+ * The type `pruneUndefined` earns: a key whose value could be `undefined` comes
+ * back optional and non-`undefined`, because the key is gone when it was. That
+ * is exactly the shape `exactOptionalPropertyTypes` asks for, so pruned objects
+ * assign straight to the catalog interfaces without a cast.
+ */
+export type Pruned<T> = {
+	[K in keyof T as undefined extends T[K] ? never : K]: T[K];
+} & {
+	[K in keyof T as undefined extends T[K] ? K : never]?: Exclude<T[K], undefined>;
+};
+
+export function pruneUndefined<T extends object>(value: T): Pruned<T> {
 	return Object.fromEntries(
 		Object.entries(value).filter(([, propertyValue]) => propertyValue !== undefined),
-	) as T;
+	) as Pruned<T>;
 }

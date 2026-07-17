@@ -18,6 +18,6 @@
 		"resolveJsonModule": true,
 		"noEmit": true
 	},
-	"include": ["packages/*/src/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
+	"include": ["packages/*/src/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
 	"exclude": ["**/dist/**", "**/node_modules/**"]
 }

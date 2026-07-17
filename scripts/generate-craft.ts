@@ -277,7 +277,7 @@ function buildEntries(source: CraftSource, kind: CatalogEntryKind): CatalogEntry
 					phpClass: sourced?.phpClass,
 					docsPath: documented === undefined ? undefined : docsPath(source, kind),
 				}),
-			}) as CatalogEntry;
+			});
 		});
 }
 
@@ -843,7 +843,12 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 	)) {
 		const inFour = four.objects.get(name);
 		const inFive = five.objects.get(name);
+		// `name` comes from the union of both majors' keys, so one of these is always set.
 		const base = inFive ?? inFour;
+		if (!base) {
+			throw new Error(`No scraped object for "${name}" in either major`);
+		}
+
 		objects.set(name, {
 			...base,
 			members: [
@@ -991,7 +996,7 @@ function parseTable(markdown: string): DocsRow[] {
 				anchor: link.startsWith('#') ? link.slice(1) : undefined,
 				sinceVersion: /<Since\s+ver="([^"]+)"/.exec(trailing)?.[1],
 				twigCore: link.includes('twig.symfony.com'),
-			}) as DocsRow,
+			}),
 		);
 	}
 

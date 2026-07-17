@@ -29,12 +29,18 @@ const pinnedTwigRef = 'da8bd407000b6ef1adfce829ac9921f12b544617';
 const docsBaseUrl = 'https://twig.symfony.com/doc/3.x';
 
 const entryKinds: CatalogEntryKind[] = ['tags', 'filters', 'functions', 'tests', 'globals'];
+
+/** Kinds that have a `doc/<dir>/` tree upstream — everything but globals. */
+type DocumentedKind = Exclude<CatalogEntryKind, 'globals'>;
+/** Kinds registered as `new TwigFilter(…)`-style callables rather than token parsers. */
+type CallableKind = Extract<CatalogEntryKind, 'filters' | 'functions' | 'tests'>;
+
 const docsDirectories = {
 	tags: 'tags',
 	filters: 'filters',
 	functions: 'functions',
 	tests: 'tests',
-} satisfies Partial<Record<CatalogEntryKind, string>>;
+} satisfies Record<DocumentedKind, string>;
 
 type SourceEntry = Partial<CatalogEntry> & Pick<CatalogEntry, 'name'>;
 type OverrideCatalog = {
@@ -55,17 +61,6 @@ interface DocumentationEntry {
 	};
 }
 
-interface RegisteredCallable {
-	name: string;
-	extension: string;
-	phpClass: string;
-	method?: string;
-	parameters: CatalogParameter[];
-	deprecated?: {
-		sinceVersion: string;
-		message?: string;
-	};
-}
 
 ensureTwigCheckout();
 
@@ -147,7 +142,7 @@ function readDocumentationEntries(): Record<CatalogEntryKind, Map<string, Docume
 	const entries = createEntryMaps<DocumentationEntry>();
 
 	for (const [kind, docsDirectory] of Object.entries(docsDirectories) as [
-		CatalogEntryKind,
+		DocumentedKind,
 		string,
 	][]) {
 		const slugs = readDocsIndex(docsDirectory);
@@ -210,7 +205,11 @@ function readTokenParsers(): SourceEntry[] {
 	for (const sourceFile of sourceFiles) {
 		const source = readFileSync(sourceFile, 'utf8');
 		for (const match of source.matchAll(/new\s+([A-Za-z]+TokenParser)\s*\(/g)) {
-			parserClasses.add(match[1]);
+			const [, className] = match;
+			if (!className) {
+				throw new Error(`Unable to read token parser class from: ${match[0]}`);
+			}
+			parserClasses.add(className);
 		}
 	}
 
@@ -247,16 +246,16 @@ function readTokenParsers(): SourceEntry[] {
 }
 
 function readRegisteredCallables(
-	kind: Extract<CatalogEntryKind, 'filters' | 'functions' | 'tests'>,
+	kind: CallableKind,
 	className: 'TwigFilter' | 'TwigFunction' | 'TwigTest',
-): RegisteredCallable[] {
+): SourceEntry[] {
 	const extensionFiles = [
 		join(twigCheckout, 'src', 'Extension', 'CoreExtension.php'),
 		join(twigCheckout, 'src', 'Extension', 'DebugExtension.php'),
 		join(twigCheckout, 'src', 'Extension', 'EscaperExtension.php'),
 		join(twigCheckout, 'src', 'Extension', 'StringLoaderExtension.php'),
 	];
-	const callables: RegisteredCallable[] = [];
+	const callables: SourceEntry[] = [];
 
 	for (const extensionFile of extensionFiles) {
 		const source = readFileSync(extensionFile, 'utf8');
@@ -265,6 +264,10 @@ function readRegisteredCallables(
 
 		for (const match of source.matchAll(constructorPattern)) {
 			const [, name, constructorRest = ''] = match;
+			if (!name) {
+				throw new Error(`Unable to read ${className} name from: ${match[0]}`);
+			}
+
 			const method = readCallableMethod(constructorRest);
 			const options = readOptions(constructorRest);
 			const parameters = method
@@ -285,7 +288,7 @@ function readRegisteredCallables(
 						extension,
 						phpClass: method ? `CoreExtension::${method}` : extension,
 					},
-				}) as RegisteredCallable,
+				}),
 			);
 		}
 	}
@@ -309,7 +312,7 @@ function readOptions(constructorRest: string): string {
 function readMethodParameters(
 	source: string,
 	method: string,
-	kind: Extract<CatalogEntryKind, 'filters' | 'functions' | 'tests'>,
+	kind: CallableKind,
 	options: string,
 ): CatalogParameter[] {
 	const match = source.match(new RegExp(`function\\s+${method}\\s*\\(([^)]*)\\)`, 's'));
@@ -324,16 +327,15 @@ function readMethodParameters(
 		visibleParameters.shift();
 	}
 
-	return visibleParameters.map((parameter) => ({
-		...parameter,
-		type: normalizeType(parameter.type),
-	}));
+	return visibleParameters.map((parameter) =>
+		pruneUndefined({
+			...parameter,
+			type: normalizeType(parameter.type),
+		}),
+	);
 }
 
-function readSyntheticParameters(
-	kind: Extract<CatalogEntryKind, 'filters' | 'functions' | 'tests'>,
-	options: string,
-): CatalogParameter[] {
+function readSyntheticParameters(kind: CallableKind, options: string): CatalogParameter[] {
 	if (kind === 'tests' && options.includes('one_mandatory_argument')) {
 		return [
 			{
@@ -477,10 +479,15 @@ function readDocumentedParameters(source: string): CatalogParameter[] {
 	for (const line of argumentsSection.split('\n')) {
 		const bullet = line.match(/^\*\s+``([^`]+)``:\s*(.*)$/);
 		if (bullet) {
+			const [, name, summary = ''] = bullet;
+			if (!name) {
+				throw new Error(`Unable to read documented parameter name from: ${line}`);
+			}
+
 			currentParameter = {
-				name: bullet[1],
-				optional: /default|optional|if provided/i.test(bullet[2]),
-				description: normalizeRst(bullet[2]),
+				name,
+				optional: /default|optional|if provided/i.test(summary),
+				description: normalizeRst(summary),
 			};
 			parameters.push(currentParameter);
 			continue;
@@ -496,7 +503,7 @@ function readDocumentedParameters(source: string): CatalogParameter[] {
 	return parameters;
 }
 
-function readDeprecation(options: string): RegisteredCallable['deprecated'] | undefined {
+function readDeprecation(options: string): CatalogEntry['deprecated'] | undefined {
 	const version = options.match(/DeprecatedCallableInfo\('twig\/twig',\s*'([^']+)'/)?.[1];
 	if (!version) {
 		return undefined;
