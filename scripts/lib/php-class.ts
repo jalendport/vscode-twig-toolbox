@@ -14,9 +14,9 @@ import { parsePhpParameters, type PhpParameter } from './php';
  * trait, and half of what `craft.app.request.*` offers is Yii's.
  *
  * So every member remembers the class that declared it. That is what decides
- * where its documentation lives (see `craft-api.ts`), and it is not recoverable
- * afterwards: by the time members are flattened onto one object, a member from a
- * trait and one from the class look identical.
+ * where its documentation lives (see the language server's `craft-api.ts`), and
+ * it is not recoverable afterwards: by the time members are flattened onto one
+ * object, a member from a trait and one from the class look identical.
  */
 
 export interface NamespaceRoot {
@@ -110,6 +110,44 @@ export class PhpClassIndex {
 	 * inherited member keeps its own — and keeps being recorded as the declarer.
 	 */
 	members(fqn: string, options: MemberWalkOptions = {}): PhpClassMember[] {
+		return this.walk(fqn, options, true);
+	}
+
+	/**
+	 * Only what `fqn` itself brings: its own declarations and its traits'.
+	 *
+	 * This is the half of `members()` that a class does not share with its parent,
+	 * and it is what makes the catalog storable once per declaration. `Entry`,
+	 * `Asset` and `User` each inherit the ~200 members of `craft\base\Element`;
+	 * flattening those into all three is how the same surface gets paid for three
+	 * times, so the catalog stores this and names the parent instead.
+	 *
+	 * Traits are folded in rather than named, because a trait is not something a
+	 * class extends — a class uses several, and the catalog's `extends` is one
+	 * link. Folding them costs nothing: a trait is used by one or two classes, and
+	 * each member still remembers the trait as its `declaringClass`, which is what
+	 * the documentation link is derived from.
+	 */
+	ownMembers(fqn: string, options: MemberWalkOptions = {}): PhpClassMember[] {
+		return this.walk(fqn, options, false);
+	}
+
+	/**
+	 * The class `fqn` extends, when the walk is allowed to follow it.
+	 *
+	 * A parent in `stopAt` is not a parent as far as the model is concerned: the
+	 * chain is meant to end at Yii's object plumbing, and saying so here keeps the
+	 * "where does the walk stop" rule in one place rather than two.
+	 */
+	parentOf(fqn: string, options: MemberWalkOptions = {}): string | undefined {
+		const parent = this.read(fqn)?.parent;
+		if (parent === undefined || options.stopAt?.has(parent) === true) {
+			return undefined;
+		}
+		return this.read(parent) === undefined ? undefined : parent;
+	}
+
+	private walk(fqn: string, options: MemberWalkOptions, followParent: boolean): PhpClassMember[] {
 		const collected: PhpClassMember[] = [];
 		const seenNames = new Set<string>();
 		const visited = new Set<string>();
@@ -136,7 +174,7 @@ export class PhpClassIndex {
 			for (const trait of parsed.traits) {
 				visit(trait);
 			}
-			if (parsed.parent !== undefined) {
+			if (followParent && parsed.parent !== undefined) {
 				visit(parsed.parent);
 			}
 		};
@@ -245,8 +283,12 @@ function readDocblockProperties(
 	}
 
 	const members: PhpClassMember[] = [];
+	// The summary is horizontal whitespace away, never a newline away: `\s*` here
+	// matches the line break and lets a property without a summary swallow the
+	// next `@property` line as its own — which drops that property entirely, and
+	// does it to every other one in a run of them.
 	for (const match of docblock.matchAll(
-		/@property(?:-read|-write)?\s+([^\s$]+)\s+\$(\w+)\s*([^\n]*)/g,
+		/@property(?:-read|-write)?\s+([^\s$]+)\s+\$(\w+)[ \t]*([^\n]*)/g,
 	)) {
 		const [, type = '', name = '', summary = ''] = match;
 		members.push(
@@ -275,8 +317,10 @@ function readDocblockMethods(
 	}
 
 	const members: PhpClassMember[] = [];
+	// `[ \t]*` for the same reason as `@property` above: a `@method` line with no
+	// trailing prose must not eat the one under it.
 	for (const match of docblock.matchAll(
-		/@method\s+(?:static\s+)?([^\s(]+)\s+(\w+)\(([^)]*)\)\s*([^\n]*)/g,
+		/@method\s+(?:static\s+)?([^\s(]+)\s+(\w+)\(([^)]*)\)[ \t]*([^\n]*)/g,
 	)) {
 		const [, type = '', name = '', parameterSource = '', summary = ''] = match;
 		members.push(
