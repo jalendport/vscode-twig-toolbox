@@ -122,6 +122,29 @@ async function testCraftPack() {
 		/api\/v5\/craft-web-request\.html#public-properties/,
 		'expected the Craft class reference on hover',
 	);
+
+	// `{{ currentUser.photo.‸getDataUrl }}` — the class model, which is a second
+	// catalog file loaded lazily on the first member lookup. This is the one test
+	// that proves it is found in the *packaged* layout rather than the repo's.
+	const photoMembers = await completionsAt(uri, new vscode.Position(5, 21));
+	assert.ok(find(photoMembers, 'getDataUrl'), 'expected `getDataUrl` on the user’s photo');
+	assert.ok(find(photoMembers, 'dataUrl'), 'expected `dataUrl` on the user’s photo');
+
+	// The derived link: no member of the class model carries a `docsUrl`, so this
+	// is a URL computed from the declaring class at hover time.
+	const photoHovers = await vscode.commands.executeCommand(
+		'vscode.executeHoverProvider',
+		uri,
+		new vscode.Position(5, 25),
+	);
+	const photoMarkdown = photoHovers
+		.flatMap((hover) => hover.contents.map((content) => content.value ?? String(content)))
+		.join('\n');
+	assert.match(
+		photoMarkdown,
+		/api\/v5\/craft-elements-asset\.html#method-getdataurl/,
+		'expected a derived link to the Asset reference',
+	);
 }
 
 async function testTemplateNavigation() {
