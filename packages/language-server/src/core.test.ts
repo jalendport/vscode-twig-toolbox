@@ -111,6 +111,42 @@ describe('TwigServerCore diagnostics', () => {
 	});
 });
 
+describe('space-triggered completions', () => {
+	it('answers a space typed right after an opening delimiter', async () => {
+		const server = createServer(createPublishedDiagnostics());
+		const document = createDocument('{{ }}');
+		server.openDocument(document);
+
+		const afterOutput = await server.complete(document.uri, { line: 0, character: 3 }, ' ');
+		expect(afterOutput.length).toBeGreaterThan(0);
+
+		const tagDocument = createDocument('{% %}', 1, 'file:///project/templates/tag.twig');
+		server.openDocument(tagDocument);
+		const afterTag = await server.complete(tagDocument.uri, { line: 0, character: 3 }, ' ');
+		expect(afterTag.length).toBeGreaterThan(0);
+	});
+
+	it('stays silent for a space anywhere else', async () => {
+		const server = createServer(createPublishedDiagnostics());
+		const document = createDocument('<p>hello {{ user }}</p>');
+		server.openDocument(document);
+
+		// In HTML prose.
+		expect(await server.complete(document.uri, { line: 0, character: 9 }, ' ')).toEqual([]);
+		// Mid-expression, after an identifier.
+		expect(await server.complete(document.uri, { line: 0, character: 17 }, ' ')).toEqual([]);
+	});
+
+	it('leaves other triggers and manual invokes ungated', async () => {
+		const server = createServer(createPublishedDiagnostics());
+		const document = createDocument('{{ }}');
+		server.openDocument(document);
+
+		const manual = await server.complete(document.uri, { line: 0, character: 3 });
+		expect(manual.length).toBeGreaterThan(0);
+	});
+});
+
 function createServer(
 	published: ReturnType<typeof createPublishedDiagnostics>,
 	options: {

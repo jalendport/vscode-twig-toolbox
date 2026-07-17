@@ -94,10 +94,27 @@ export class TwigServerCore {
 		return this.documents.getParsed(uri);
 	}
 
-	async complete(uri: string, position: Position): Promise<CompletionItem[]> {
+	async complete(
+		uri: string,
+		position: Position,
+		triggerCharacter?: string,
+	): Promise<CompletionItem[]> {
 		const parsed = this.documents.getParsed(uri);
 		if (parsed === undefined) {
 			return [];
+		}
+		// A space triggers completions only right after an opening delimiter —
+		// `{{ ` / `{% ` (and their whitespace-control forms). Any other space
+		// in the document answers with nothing, so the trigger stays silent in
+		// HTML prose, attributes and mid-expression.
+		if (triggerCharacter === ' ') {
+			const lineBeforeCursor = parsed.document.getText({
+				start: { line: position.line, character: 0 },
+				end: position,
+			});
+			if (!/(\{\{-?|\{%-?)\s+$/.test(lineBeforeCursor)) {
+				return [];
+			}
 		}
 		const settings = await this.getSettings(uri);
 		const symbolResolver = this.symbolResolver(settings);

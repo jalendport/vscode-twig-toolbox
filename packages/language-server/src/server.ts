@@ -70,11 +70,15 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		capabilities: {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			completionProvider: {
-				// Space is deliberately absent: it would fire on every word of
-				// every HTML attribute. `{` and `%` catch a region being
-				// opened, `<` and `/` an HTML tag, `:` a CSS declaration, the
-				// rest a slot being created.
-				triggerCharacters: ['{', '%', '|', '.', '"', "'", '<', '/', ':', '&'],
+				// `{` and `%` catch a region being opened, `<` and `/` an HTML
+				// tag, `:` a CSS declaration, the rest a slot being created.
+				// Space is registered but answered only immediately after an
+				// opening delimiter (`{{ `, `{% `) — the house style puts a
+				// space inside the braces, and without this the popup `{{`
+				// opened dies the moment the space lands. Everywhere else a
+				// space-triggered request returns nothing before any provider
+				// runs.
+				triggerCharacters: ['{', '%', '|', '.', '"', "'", '<', '/', ':', '&', ' '],
 				resolveProvider: false,
 			},
 			hoverProvider: true,
@@ -130,7 +134,8 @@ documents.onDidClose(({ document }) => {
 });
 
 connection.onCompletion(
-	({ textDocument, position }) => server?.complete(textDocument.uri, position) ?? [],
+	({ textDocument, position, context }) =>
+		server?.complete(textDocument.uri, position, context?.triggerCharacter) ?? [],
 );
 
 connection.onHover(({ textDocument, position }) => server?.hover(textDocument.uri, position));
