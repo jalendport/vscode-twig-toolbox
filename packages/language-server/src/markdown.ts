@@ -26,7 +26,9 @@ export function catalogMarkdown(entry: CatalogEntryWithProvenance): string {
 	}
 	parts.push(`**Source:** ${entry.pack.displayName}`);
 	parts.push(...availabilityNotes(entry.pack.displayName, entry));
-	parts.push(`[Documentation ↗](${entry.docsUrl})`);
+	if (entry.docsUrl !== undefined) {
+		parts.push(`[Documentation ↗](${entry.docsUrl})`);
+	}
 	return parts.join('\n\n');
 }
 
