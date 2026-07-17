@@ -67,9 +67,21 @@ and 5 are both supported.
   modelled class by class, so `craft.app.request.queryString` and `craft.app.config.general.devMode`
   complete and chain. Every segment hovers, each linking to the class reference page that documents
   it — for the Craft major the project actually has installed.
+- The element classes are modelled to the same depth: `craft\elements\Entry`, `Asset`, `User`,
+  `Category`, `Tag`, `GlobalSet`, `Address` and the `craft\base\Element` they share. Globals are
+  typed (`currentUser` is a `User`), element queries are typed by what they return
+  (`craft.entries.one()` is an `Entry`), and chains cross freely between them — so
+  `currentUser.photo.getDataUrl` and `craft.entries.one().author.photo.dataUrl` resolve on every
+  segment. `.all()` yields a list, which the model deliberately does not type; the chain ends there
+  and Twig's array access takes over.
 - Project-config introspection: reads `config/project/**/*.yaml` and completes your project's real
   section, entry-type, asset-volume, global-set, category-group, tag-group and site handles, with
   go-to-definition into the YAML that declares them.
+- Your custom fields are merged with Craft's own members on the same object, and typed by what the
+  field yields: an Assets field is an `AssetQuery`, so `entry.myAssetsField.one().dataUrl` chains
+  from your YAML into Craft's classes and back out. A handle that collides with a member Craft
+  already has wins the completion — in your project, that name is your field — while hover keeps
+  Craft's documentation link for it.
 
 **Settings**
 

@@ -100,8 +100,9 @@ Detected automatically from `composer.json`. In a Craft project you additionally
 tag, filter, function, test and global, version-gated to Craft 4 or 5, plus the `craft.*` API
 including element query chains.
 
-`craft.app.*` is modelled too, class by class, so the chain keeps resolving and **every segment**
-of it hovers with a link to the class reference for the version you're on:
+Craft's classes are modelled too — `craft.app.*` and the elements alike — so the chain keeps
+resolving and **every segment** of it hovers with a link to the class reference for the version
+you're on:
 
 ```twig
 {{ craft.app.request.queryString }}
@@ -109,17 +110,28 @@ of it hovers with a link to the class reference for the version you're on:
 
 {{ craft.app.config.general.‸ }}
 {#                          ↑ devMode, siteToken, and the rest of GeneralConfig #}
+
+{{ currentUser.photo.getDataUrl }}
+{#      ↑        ↑        ↑ a User, its Asset, and the Asset's own members #}
 ```
 
+Globals are typed, and so is what a query returns: `currentUser` is a `User`, `craft.entries.one()`
+is an `Entry`, and `entry.author.photo` walks from one element to the next. `.all()` gives you a
+list rather than an element, so the chain stops there and Twig's array access takes over — the
+model would rather say nothing than guess.
+
 Then the good part: Twig Toolbox reads your `config/project/**/*.yaml` and completes **your**
-handles.
+handles, merged with Craft's own members on the same object.
 
 ```twig
 {% set posts = craft.entries.section('‸') %}
 {#                                   ↑ your real section handles #}
 
 {{ entry.‸ }}
-{#        ↑ your real custom field handles #}
+{#        ↑ your custom field handles, and Craft's title, postDate, author… #}
+
+{{ entry.myAssetsField.one().‸ }}
+{#                            ↑ your field is an AssetQuery, so this is an Asset #}
 ```
 
 Section, entry-type, asset-volume, global-set, category-group, tag-group and site handles all
