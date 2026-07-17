@@ -57,6 +57,10 @@ and 5 are both supported.
   version-gated across Craft 4 and 5, offered only in Craft projects.
 - Completions, hover and signature help for the `craft.*` API surface, including element query
   chains.
+- Deep `craft.app.*` awareness: the application, its front-end services and what they return are
+  modelled class by class, so `craft.app.request.queryString` and `craft.app.config.general.devMode`
+  complete and chain. Every segment hovers, each linking to the class reference page that documents
+  it — for the Craft major the project actually has installed.
 - Project-config introspection: reads `config/project/**/*.yaml` and completes your project's real
   section, entry-type, asset-volume, global-set, category-group, tag-group and site handles, with
   go-to-definition into the YAML that declares them.

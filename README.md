@@ -100,6 +100,17 @@ Detected automatically from `composer.json`. In a Craft project you additionally
 tag, filter, function, test and global, version-gated to Craft 4 or 5, plus the `craft.*` API
 including element query chains.
 
+`craft.app.*` is modelled too, class by class, so the chain keeps resolving and **every segment**
+of it hovers with a link to the class reference for the version you're on:
+
+```twig
+{{ craft.app.request.queryString }}
+{#     ↑      ↑         ↑ each one hovers, each one links #}
+
+{{ craft.app.config.general.‸ }}
+{#                          ↑ devMode, siteToken, and the rest of GeneralConfig #}
+```
+
 Then the good part: Twig Toolbox reads your `config/project/**/*.yaml` and completes **your**
 handles.
 
@@ -237,6 +248,13 @@ probably from a plugin. Add it to `twigToolbox.diagnostics.ignoredNames`. Craft 
 ### Is Twig 1 or 2 supported?
 
 No. Twig Toolbox targets **Twig 3** semantics only. Craft 4 and 5 are both supported.
+
+### Why does VS Code ask before opening docs.craftcms.com?
+
+That's VS Code's link protection, and it applies to every extension — extensions cannot whitelist
+domains for you (by design). Click **Trust docs.craftcms.com** the first time and you won't be
+asked again. To pre-trust the documentation domains, run **"Manage Trusted Domains"** from the
+command palette and add `*.craftcms.com` and `twig.symfony.com`.
 
 ### Does it work in Cursor and VSCodium?
 
