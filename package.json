@@ -11,17 +11,19 @@
 	],
 	"scripts": {
 		"build": "npm run typecheck && node scripts/build.mjs",
+		"build:production": "npm run typecheck && node scripts/build.mjs --production",
 		"watch": "node scripts/build.mjs --watch",
 		"generate:core": "tsx scripts/generate-core.ts",
 		"generate:craft": "tsx scripts/generate-craft.ts",
 		"typecheck": "tsc --noEmit",
+		"bench": "node --expose-gc --import tsx tests/perf/bench.ts",
 		"test": "vitest run && npm run test:grammar",
 		"test:grammar": "node scripts/grammar-test.mjs",
 		"test:grammar:update": "node scripts/grammar-test.mjs --update",
 		"test:electron": "npm run build && node tests/electron/run.mjs",
 		"lint": "eslint . && prettier --check .",
 		"format": "prettier --write .",
-		"package": "npm run build && node scripts/package.mjs",
+		"package": "npm run build:production && node scripts/package.mjs",
 		"clean": "node scripts/clean.mjs"
 	},
 	"devDependencies": {

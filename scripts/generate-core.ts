@@ -61,7 +61,6 @@ interface DocumentationEntry {
 	};
 }
 
-
 ensureTwigCheckout();
 
 const sourceEntries = readSourceEntries();
@@ -157,7 +156,7 @@ function readDocumentationEntries(): Record<CatalogEntryKind, Map<string, Docume
 	return entries;
 }
 
-function buildEntries(kind: Exclude<CatalogEntryKind, 'globals'>): CatalogEntry[] {
+function buildEntries(kind: DocumentedKind): CatalogEntry[] {
 	const docs = documentationEntries[kind];
 	const source = sourceEntries[kind];
 	const names = [...new Set([...docs.keys(), ...source.keys()])].sort((a, b) =>
@@ -391,7 +390,7 @@ function readDocsIndex(docsDirectory: string): string[] {
 
 function parseDocumentationFile(
 	docsPath: string,
-	kind: Exclude<CatalogEntryKind, 'globals'>,
+	kind: DocumentedKind,
 	slug: string,
 ): DocumentationEntry {
 	const source = readFileSync(docsPath, 'utf8');
@@ -550,7 +549,7 @@ function mergeParameters(
 }
 
 function buildCompletionSnippet(
-	kind: Exclude<CatalogEntryKind, 'globals'>,
+	kind: DocumentedKind,
 	name: string,
 	parameters: CatalogParameter[],
 ): string {
