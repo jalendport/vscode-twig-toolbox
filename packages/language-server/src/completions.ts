@@ -338,7 +338,7 @@ function handleItems(slot: CraftQueryHandleSlot, range: Range): CompletionItem[]
 		kind: CompletionItemKind.Value,
 		detail: handle.kind,
 		documentation: markdown(`${handle.name}\n\nDefined in \`${handle.sourceFile}\`.`),
-		labelDetails: { description: 'Craft project' },
+		labelDetails: { description: 'Craft CMS project' },
 		sortText: `${RANK.local}:${handle.handle}`,
 		textEdit: { range, newText: handle.handle },
 	}));

@@ -112,7 +112,7 @@ function fieldCompletion(field: CraftField): MemberCompletion {
 			`${field.name} (${fieldTypeName(field.type)}).`,
 			`Defined in \`${field.sourceFile}\`.`,
 		].join('\n\n'),
-		source: 'Craft project',
+		source: 'Craft CMS project',
 		sortText: `1:${field.handle}`,
 	};
 }
