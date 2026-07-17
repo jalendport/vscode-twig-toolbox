@@ -9,6 +9,7 @@ import type {
 	CatalogParameter,
 	DialectPack,
 } from '../packages/language-server/src/catalog';
+import { type ChangelogVersions, parseCraftChangelog } from './lib/changelog';
 import { cacheRoot, ensureCheckout, repoRoot } from './lib/checkout';
 import { apiMemberUrl, apiPageUrl } from './lib/craft-api';
 import {
@@ -35,6 +36,13 @@ import { PhpClassIndex, type PhpClassMember } from './lib/php-class';
  * Craft 5 side by side: what only 5 has is `sinceVersion: 5.0.0`, what only 4
  * has is `removedVersion: 5.0.0`, and a `<Since ver="5.6.0" />` marker in the
  * docs overrides the diff whenever the docs know something more precise.
+ *
+ * The diff is a blunt instrument, though: it dates everything Craft added during
+ * a major to that major's `.0`, because presence in one checkout is all it can
+ * see. Each major's changelog can see the rest — it says which release added
+ * each name — so it fills in underneath the docs and above the diff. Its claims
+ * are deliberately hard to make (see `lib/changelog.ts`); a name it cannot be
+ * sure of keeps the coarser answer, which is wrong only about precision.
  */
 
 const CMS_REPOSITORY = 'https://github.com/craftcms/cms.git';
@@ -288,6 +296,8 @@ interface DocsRow {
 interface Scrape {
 	readonly entries: Record<CatalogEntryKind, Map<string, CatalogEntry>>;
 	readonly objects: Map<string, CatalogObject>;
+	/** When this major's releases added each name, where its changelog says so. */
+	readonly changelog: ChangelogVersions;
 }
 
 main();
@@ -359,7 +369,24 @@ function scrape(source: CraftSource): Scrape {
 		}
 	}
 
-	return { entries, objects: buildObjects(source, entries) };
+	return {
+		entries,
+		objects: buildObjects(source, entries),
+		changelog: readChangelog(source),
+	};
+}
+
+/**
+ * One major's release notes. Each checkout keeps only its own major's, under the
+ * name Craft publishes it as (`CHANGELOG-v4.md`), so the file the Craft 4
+ * checkout has is the Craft 4 changelog and the parser is told which major to
+ * expect rather than trusting that.
+ */
+function readChangelog(source: CraftSource): ChangelogVersions {
+	return parseCraftChangelog(
+		readFileSync(join(source.checkout, 'CHANGELOG.md'), 'utf8'),
+		source.major,
+	);
 }
 
 function buildEntries(source: CraftSource, kind: CatalogEntryKind): CatalogEntry[] {
@@ -1183,7 +1210,7 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 	const entries = createEntryMaps<CatalogEntry>();
 
 	for (const kind of entryKinds) {
-		for (const [name, merged] of mergeItems(four.entries[kind], five.entries[kind])) {
+		for (const [name, merged] of mergeEntries(four, five, kind)) {
 			entries[kind].set(name, merged);
 		}
 	}
@@ -1235,6 +1262,72 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 		},
 		objects: [...objects.values()],
 	} as DialectPack;
+}
+
+/**
+ * One kind's entries across the two majors, with the changelog filling in what
+ * the docs and the diff between them cannot say.
+ *
+ * The rule that matters is which major's changelog gets to speak. A name Craft 4
+ * has did not arrive in Craft 5, whatever 5's changelog says about the release
+ * that carried it: `uuid()` is in 4.18.5's source and 5's notes announce it under
+ * 5.9.0, because 5.9.0 is where it landed and 4.17.0 is where it was backported
+ * to. Taking 5.9.0 would hide `uuid()` from the Craft 4 projects that have it, so
+ * the changelog of a major the name is absent from is not evidence about it, and
+ * is not read.
+ *
+ * That leaves the backport itself imprecise in the other direction — `uuid()`
+ * comes out as 4.17.0, which offers it to Craft 5.0 projects that lack it. That
+ * is the trade `isAvailable` already makes everywhere: an extra completion costs
+ * less than a missing one.
+ */
+function mergeEntries(
+	four: Scrape,
+	five: Scrape,
+	kind: CatalogEntryKind,
+): Map<string, CatalogEntry> {
+	const merged = new Map<string, CatalogEntry>();
+	const names = [...new Set([...four.entries[kind].keys(), ...five.entries[kind].keys()])].sort(
+		(a, b) => a.localeCompare(b),
+	);
+
+	for (const name of names) {
+		const inFour = four.entries[kind].get(name);
+		const inFive = five.entries[kind].get(name);
+		const mined = (inFour === undefined ? five : four).changelog[kind].get(name);
+
+		if (inFive === undefined) {
+			// `name` comes from the union of both majors' keys, so one is always set.
+			const only = inFour as CatalogEntry;
+			merged.set(
+				name,
+				pruneUndefined({
+					...only,
+					sinceVersion: only.sinceVersion ?? mined,
+					removedVersion: CRAFT_5_BASELINE,
+				}),
+			);
+			continue;
+		}
+
+		if (inFour === undefined) {
+			merged.set(name, {
+				...inFive,
+				sinceVersion: inFive.sinceVersion ?? mined ?? CRAFT_5_BASELINE,
+			});
+			continue;
+		}
+
+		merged.set(
+			name,
+			pruneUndefined({
+				...inFive,
+				sinceVersion: inFive.sinceVersion ?? inFour.sinceVersion ?? mined,
+			}),
+		);
+	}
+
+	return merged;
 }
 
 /**

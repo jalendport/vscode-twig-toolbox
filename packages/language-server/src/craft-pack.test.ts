@@ -698,6 +698,72 @@ describe('Craft catalog completeness', () => {
 	});
 });
 
+/**
+ * Where each entry's `sinceVersion` came from, checked at the seams.
+ *
+ * Four sources answer this question and they disagree, so the order they
+ * disagree in is the feature: a hand override beats Craft's docs, which beat
+ * Craft's changelog, which beats the 4-vs-5 diff. Each case below is one rung of
+ * that ladder, named because the value is only right if it came from the right
+ * place — `uuid()` at `4.17.0` and `uuid()` at `5.9.0` are both defensible
+ * readings of the changelog, and only one of them is this pack's.
+ */
+describe('Craft catalog version metadata', () => {
+	function entry(kind: 'filters' | 'functions' | 'globals', name: string) {
+		return craftPack.entries[kind].find((candidate) => candidate.name === name);
+	}
+
+	/**
+	 * `primarySite` is in Craft 4.14's changelog and Craft 5's docs carry
+	 * `<Since ver="5.6.0" />`. Both are true — it landed in 5.6.0 and was
+	 * backported — and the docs are the version Craft chose to publish, so the
+	 * mined one does not get to overwrite it.
+	 */
+	it('lets a docs Since badge outrank the changelog', () => {
+		expect(entry('globals', 'primarySite')?.sinceVersion).toBe('5.6.0');
+	});
+
+	/**
+	 * Neither of these has a badge. The diff can only see that Craft 5 has them
+	 * and say `5.0.0`; the changelog says which release, and it is right.
+	 */
+	it('lets the changelog outrank the 4-vs-5 diff', () => {
+		expect(entry('functions', 'randomString')?.sinceVersion).toBe('5.9.0');
+		expect(entry('globals', 'PHP_INT_MAX')?.sinceVersion).toBe('5.6.0');
+	});
+
+	/**
+	 * The rule that keeps the mining honest. `uuid()` is in both majors' sources,
+	 * and both majors' changelogs claim it — 4.17.0 backported what 5.9.0 added.
+	 * Taking Craft 5's answer would gate `uuid()` out of the Craft 4 projects that
+	 * have had it since 4.17, so a major the name is present in is the only one
+	 * allowed to date it.
+	 */
+	it('does not let Craft 5 date a name Craft 4 already has', () => {
+		expect(entry('functions', 'uuid')?.sinceVersion).toBe('4.17.0');
+	});
+
+	// Nothing mined may contradict the diff it refines: a name Craft 4 lacks
+	// cannot predate Craft 5, and a name Craft 5 lacks is still gone in 5.
+	it('keeps every mined version inside the major that could have added it', () => {
+		for (const entries of Object.values(craftPack.entries)) {
+			for (const candidate of entries) {
+				if (candidate.sinceVersion === undefined) {
+					continue;
+				}
+				expect(candidate.sinceVersion, candidate.name).toMatch(/^[45]\./);
+			}
+		}
+	});
+
+	it('still marks what Craft 5 removed', () => {
+		const object = craftPack.objects?.find((candidate) => candidate.name === 'craft');
+		expect(
+			object?.members.find((member) => member.name === 'matrixBlocks')?.removedVersion,
+		).toBe('5.0.0');
+	});
+});
+
 interface ServerOptions {
 	readonly publishDiagnostics?: (uri: string, diagnostics: Diagnostic[]) => void;
 	readonly settings?: TwigToolboxSettings;

@@ -339,7 +339,8 @@
           "extension": "Extension",
           "phpClass": "Extension::addressFilter",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.0.0"
       },
       {
         "name": "append",
@@ -435,7 +436,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.4.0"
       },
       {
         "name": "base64_encode",
@@ -447,7 +449,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.4.0"
       },
       {
         "name": "boolean",
@@ -459,7 +462,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "camel",
@@ -840,7 +844,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "group",
@@ -962,7 +967,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "intersect",
@@ -1164,7 +1170,8 @@
           "extension": "Extension",
           "phpClass": "Extension::moneyFilter",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.0.0"
       },
       {
         "name": "multisort",
@@ -1528,7 +1535,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/filters.md"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "time",
@@ -1932,7 +1940,8 @@
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/functions.md"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "canDelete",
@@ -1943,7 +1952,8 @@
         "completionSnippet": "canDelete($0)",
         "source": {
           "extension": "Extension"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "canDeleteForSite",
@@ -1954,7 +1964,8 @@
         "completionSnippet": "canDeleteForSite($0)",
         "source": {
           "extension": "Extension"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "canDuplicate",
@@ -1965,7 +1976,8 @@
         "completionSnippet": "canDuplicate($0)",
         "source": {
           "extension": "Extension"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "canSave",
@@ -1976,7 +1988,8 @@
         "completionSnippet": "canSave($0)",
         "source": {
           "extension": "Extension"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "canView",
@@ -1987,7 +2000,8 @@
         "completionSnippet": "canView($0)",
         "source": {
           "extension": "Extension"
-        }
+        },
+        "sinceVersion": "4.3.0"
       },
       {
         "name": "ceil",
@@ -2049,7 +2063,8 @@
           "extension": "Extension",
           "phpClass": "Extension::collectFunction",
           "docsPath": "docs/5.x/reference/twig/functions.md"
-        }
+        },
+        "sinceVersion": "4.0.0"
       },
       {
         "name": "combine",
@@ -2239,7 +2254,8 @@
           "extension": "Extension",
           "phpClass": "UrlHelper::encodeUrl",
           "docsPath": "docs/5.x/reference/twig/functions.md"
-        }
+        },
+        "sinceVersion": "4.13.0"
       },
       {
         "name": "endBody",
@@ -2656,7 +2672,7 @@
           "phpClass": "StringHelper::randomString",
           "docsPath": "docs/5.x/reference/twig/functions.md"
         },
-        "sinceVersion": "5.0.0"
+        "sinceVersion": "5.9.0"
       },
       {
         "name": "raw",
@@ -2968,7 +2984,8 @@
           "extension": "Extension",
           "phpClass": "StringHelper::UUID",
           "docsPath": "docs/5.x/reference/twig/functions.md"
-        }
+        },
+        "sinceVersion": "4.17.0"
       }
     ],
     "tests": [
@@ -3249,7 +3266,7 @@
         "source": {
           "extension": "Extension"
         },
-        "sinceVersion": "5.0.0"
+        "sinceVersion": "5.6.0"
       },
       {
         "name": "POS_BEGIN",
