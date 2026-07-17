@@ -7,14 +7,15 @@ import type {
 	CatalogMember,
 	CatalogObject,
 	CatalogParameter,
+	ClassPack,
 	DialectPack,
 } from '../packages/language-server/src/catalog';
 import { type ChangelogVersions, parseCraftChangelog } from './lib/changelog';
 import { cacheRoot, ensureCheckout, repoRoot } from './lib/checkout';
-import { apiMemberUrl, apiPageUrl } from './lib/craft-api';
 import {
 	buildSignature,
 	deepMerge,
+	firstSentence,
 	normalizeType,
 	parsePhpParameters,
 	pruneUndefined,
@@ -68,8 +69,12 @@ const YII_REF = 'babee66def599432735a1ed39c9cf0bc5163a775';
 
 const CMS_SPARSE_PATHS = [
 	'src/base',
+	'src/behaviors',
 	'src/config',
-	'src/elements/db',
+	'src/db',
+	'src/elements',
+	'src/fields',
+	'src/fs',
 	'src/helpers',
 	'src/i18n',
 	'src/models',
@@ -88,8 +93,10 @@ const DOCS_SPARSE_PATHS = [
 const docsCheckout = join(cacheRoot, 'craft-docs');
 const yiiCheckout = join(cacheRoot, 'yii2');
 const outputPath = join(repoRoot, 'catalogs', 'craft.json');
+const classesOutputPath = join(repoRoot, 'catalogs', 'craft-classes.json');
 const docsIndexPath = join(repoRoot, 'catalogs', 'craft.docs-index.json');
 const overridesPath = join(repoRoot, 'catalogs', 'overrides', 'craft.json');
+const classOverridesPath = join(repoRoot, 'catalogs', 'overrides', 'craft-classes.json');
 
 /** The major that a name's presence or absence is measured against. */
 const CRAFT_5_BASELINE = '5.0.0';
@@ -184,15 +191,61 @@ const ELEMENT_QUERY_OBJECT = 'ElementQuery';
 const APPLICATION_CLASS = 'craft\\web\\Application';
 
 /**
- * How far the class walk follows types out of `craft.app`.
+ * How far the class walk *discovers* new classes from a root.
  *
  * Two is not a round number, it is the shape of the thing: the application, its
  * services, and what a service hands back. `craft.app.config.general.devMode`
  * and `craft.app.sites.currentSite.handle` are both exactly that deep, and past
  * it the return types stop being a template's vocabulary and start being
  * Craft's internals.
+ *
+ * It bounds discovery only, not typing. A member pointing at a class the model
+ * already has keeps its type however deep it was found, because the cost of
+ * saying so is a name the file already carries: `craft.app.user.identity` is
+ * three deep and yields a `User`, which is a root in its own right. Typing is
+ * decided afterwards, by whether the target was modelled at all — see
+ * `pruneUnresolvableTypes`.
  */
 const MAX_CLASS_DEPTH = 2;
+
+/**
+ * The element classes, which are the content half of the model.
+ *
+ * These are roots rather than discoveries because nothing in `craft.app` points
+ * at them within the depth bound, and they are what a template spends its day
+ * dotting into: `entry.title`, `currentUser.photo`, `asset.getDataUrl`. Every
+ * one of them inherits the bulk of its surface from `craft\base\Element`, which
+ * is why the base is a root too — modelled once, named by the rest.
+ *
+ * `MatrixBlock` is Craft 4's and absent from 5; a root the checkout does not
+ * have is skipped, and the version merge is what turns that into
+ * `removedVersion: 5.0.0`.
+ */
+const ELEMENT_CLASSES = [
+	'craft\\base\\Element',
+	'craft\\elements\\Address',
+	'craft\\elements\\Asset',
+	'craft\\elements\\Category',
+	'craft\\elements\\Entry',
+	'craft\\elements\\GlobalSet',
+	'craft\\elements\\MatrixBlock',
+	'craft\\elements\\Tag',
+	'craft\\elements\\User',
+];
+
+/**
+ * Globals whose type the model can name, and what they are.
+ *
+ * A list rather than a scrape, for the same reason `APP_SERVICES` is one:
+ * `Extension::getGlobals()` builds these by calling into Craft
+ * (`Craft::$app->getUser()->getIdentity()`), and a return type is not something
+ * that expression has. The names are few, stable, and documented.
+ */
+const GLOBAL_OBJECT_TYPES: Record<string, string> = {
+	craft: 'craft',
+	currentUser: 'craft\\elements\\User',
+	currentSite: 'craft\\models\\Site',
+};
 
 /**
  * The `craft.app` services worth modelling.
@@ -205,13 +258,22 @@ const MAX_CLASS_DEPTH = 2;
  * list rather than a rule because "would a template author type this?" is not a
  * property of the source.
  *
- * The content schema is the deliberate omission. `elements`, `fields`, `entries`
- * and friends answer questions about entries and custom fields, which milestone
- * 10 answers from the project's own config with the project's own handles; a
- * scraped `getFieldByHandle(): FieldInterface` competes with that and loses.
+ * The content services (`elements`, `fields`, `entries`, `assets`, `categories`,
+ * `users`) were the deliberate omission, on the grounds that milestone 10
+ * answers the same questions with the project's own handles. That was half
+ * right and half a dead end: milestone 10 knows `entry.myAssetsField` is an
+ * Assets field, and knew nothing about what an Assets field *is*. The two are
+ * complements rather than competitors — the project config names the fields, the
+ * class model types them — so the services are in, and the merge happens where
+ * both are known, in the member provider.
  */
 const APP_SERVICES = new Set([
+	'assets',
+	'categories',
 	'config',
+	'elements',
+	'entries',
+	'fields',
 	'formatter',
 	'formattingLocale',
 	'globals',
@@ -224,6 +286,7 @@ const APP_SERVICES = new Set([
 	'sites',
 	'urlManager',
 	'user',
+	'users',
 	'view',
 ]);
 
@@ -260,20 +323,20 @@ const DENIED_METHODS = new Set([
 ]);
 
 /**
- * Classes the walk will model, and the branches it will not.
+ * Classes a member's type is allowed to name.
  *
- * Only Craft's own classes are modelled, and that falls out of the link policy
- * rather than taste: Craft's reference has no `yii-*` pages, so a chain that
- * carried on into `yii\web\Response` would be offering members it cannot
- * document. The chain ends where the documentation does.
+ * Only Craft's own, and that falls out of the link policy rather than taste:
+ * Craft's reference has no `yii-*` pages, so a chain that carried on into
+ * `yii\web\Response` would be offering members it cannot document. The chain
+ * ends where the documentation does.
  *
- * `craft\elements\*` and `craft\base\*` are excluded for the same reason as the
- * services above — `ElementInterface` and `FieldInterface` are the element and
- * custom-field surface, which the element-query objects and milestone 10's
- * project introspection describe with real handles instead of interfaces.
+ * Yii's classes still reach the model, as *parents* rather than as types:
+ * `craft\web\Request extends yii\web\Request`, and half of what
+ * `craft.app.request.*` offers is declared up there. A parent is a place members
+ * are stored, not a place a chain arrives at, so nothing links to its page — the
+ * members it lends are documented against the Craft class doing the extending.
  */
 const MODELLED_PREFIX = 'craft\\';
-const UNMODELLED_PREFIXES = ['craft\\base\\', 'craft\\elements\\'];
 
 /**
  * Query-method arguments a template never passes: `$db` is a connection, and
@@ -296,6 +359,8 @@ interface DocsRow {
 interface Scrape {
 	readonly entries: Record<CatalogEntryKind, Map<string, CatalogEntry>>;
 	readonly objects: Map<string, CatalogObject>;
+	/** The deep class model, shipped separately and loaded on demand. */
+	readonly classes: Map<string, CatalogObject>;
 	/** When this major's releases added each name, where its changelog says so. */
 	readonly changelog: ChangelogVersions;
 }
@@ -324,9 +389,69 @@ function main(): void {
 		});
 	}
 
-	const pack = applyOverrides(mergeMajors(scrape(craft4), scrape(craft5)));
+	const four = scrape(craft4);
+	const five = scrape(craft5);
+
+	const pack = applyOverrides(mergeMajors(four, five));
+	const classPack = applyClassOverrides(mergeClassPack(four, five));
+	assertObjectTypesResolve(pack, classPack);
+
 	writeFileSync(outputPath, `${JSON.stringify(pack, null, 2)}\n`);
+	writeFileSync(classesOutputPath, `${JSON.stringify(classPack, null, 2)}\n`);
 	writeFileSync(docsIndexPath, `${JSON.stringify(buildDocsIndex(craft5), null, 2)}\n`);
+}
+
+/**
+ * The class model, as its own pack.
+ *
+ * It is a separate file because of what it costs to have around: it is the
+ * larger half of Craft's surface by an order of magnitude, and nothing needs it
+ * until someone types a `.`. The server reads it on the first member lookup and
+ * not before, so a project that never dots into anything never pays for it —
+ * which is every project, for the first few seconds of every session.
+ */
+function mergeClassPack(four: Scrape, five: Scrape): ClassPack {
+	return {
+		schemaVersion: 1,
+		pack: 'craft',
+		classes: [...mergeObjects(four.classes, five.classes).values()],
+	};
+}
+
+/**
+ * Every `objectType` and every member `type` names something the model has.
+ *
+ * The two files are generated together and read apart, so a name that resolves
+ * here and not at runtime is exactly the bug this catches: `currentUser` is a
+ * global in one file whose type is a class in the other, and nothing but this
+ * checks that the two agree. A chain resolver handed a type it cannot find
+ * silently stops, which looks identical to a template the model knows nothing
+ * about — a false negative that would never show up as a failure.
+ */
+function assertObjectTypesResolve(pack: DialectPack, classPack: ClassPack): void {
+	const known = new Set([
+		...(pack.objects ?? []).map((object) => object.name),
+		...classPack.classes.map((object) => object.name),
+	]);
+
+	for (const entry of pack.entries.globals) {
+		if (entry.objectType !== undefined && !known.has(entry.objectType)) {
+			throw new Error(`Global "${entry.name}" names unmodelled object "${entry.objectType}"`);
+		}
+	}
+
+	for (const object of [...(pack.objects ?? []), ...classPack.classes]) {
+		if (object.extends !== undefined && !known.has(object.extends)) {
+			throw new Error(`Object "${object.name}" extends unmodelled "${object.extends}"`);
+		}
+		for (const member of object.members) {
+			if (member.type !== undefined && !known.has(member.type)) {
+				throw new Error(
+					`Member "${object.name}.${member.name}" names unmodelled type "${member.type}"`,
+				);
+			}
+		}
+	}
 }
 
 /**
@@ -369,11 +494,12 @@ function scrape(source: CraftSource): Scrape {
 		}
 	}
 
-	return {
-		entries,
-		objects: buildObjects(source, entries),
-		changelog: readChangelog(source),
-	};
+	const objects = buildObjects(source, entries);
+	const classes = buildClassObjects(source);
+	pruneUnresolvableTypes(objects, classes);
+	pruneUnresolvableTypes(classes, objects);
+
+	return { entries, objects, classes, changelog: readChangelog(source) };
 }
 
 /**
@@ -423,7 +549,9 @@ function buildEntries(source: CraftSource, kind: CatalogEntryKind): CatalogEntry
 				docsUrl: docsUrl(source, kind, documented),
 				sinceVersion: documented?.sinceVersion,
 				completionSnippet: buildCompletionSnippet(kind, name, parameters),
-				...(kind === 'globals' && name === 'craft' ? { objectType: 'craft' } : {}),
+				...(kind === 'globals' && GLOBAL_OBJECT_TYPES[name] !== undefined
+					? { objectType: GLOBAL_OBJECT_TYPES[name] }
+					: {}),
 				source: pruneUndefined({
 					extension: sourced?.extension,
 					phpClass: sourced?.phpClass,
@@ -720,6 +848,14 @@ function stripHiddenParameters(
 // The craft.* object model
 // ---------------------------------------------------------------------------
 
+/**
+ * The docs-driven half of the model: `craft` itself and the element queries.
+ *
+ * These stay in `craft.json` because they are small, they are what a `craft.*`
+ * completion needs immediately, and their documentation lives on hand-written
+ * docs pages rather than in the class reference — so unlike the class model,
+ * their links cannot be derived and have to be carried.
+ */
 function buildObjects(
 	source: CraftSource,
 	entries: Record<CatalogEntryKind, Map<string, CatalogEntry>>,
@@ -729,21 +865,49 @@ function buildObjects(
 	objects.set(craftVariable.name, craftVariable);
 	objects.set(ELEMENT_QUERY_OBJECT, buildElementQueryObject(source));
 
+	const elementQuery = objects.get(ELEMENT_QUERY_OBJECT) as CatalogObject;
 	for (const member of craftVariable.members) {
 		if (member.type === undefined || QUERY_ARTIFACTS[member.type] === undefined) {
 			continue;
 		}
-		const query = buildQueryObject(source, member.type);
+		const query = buildQueryObject(source, member.type, elementQuery);
 		if (query !== undefined) {
 			objects.set(query.name, query);
 		}
 	}
 
-	for (const [name, object] of buildAppObjects(source)) {
-		objects.set(name, object);
+	return objects;
+}
+
+/**
+ * `craft.entries.one()` is an `Entry`, and this is where the model learns it.
+ *
+ * `ElementQuery.one()` can only say "an element"; the concrete query knows
+ * which. Craft says so itself, in the `@replace {element-class}` marker its docs
+ * tooling reads to write "Returns an entry" onto the right page — every query
+ * class carries one, in both majors, so this is read rather than mapped.
+ *
+ * `one()` is the only execution method that gets a type, and the reason is the
+ * schema rather than the source: `all()` returns a *list* of entries, `ids()` a
+ * list of ints, and a member's `type` names one object. Nothing here can say
+ * "many of these", so `all()` names no type and the chain ends — which is
+ * correct, because what a template does next is Twig's array access, not ours.
+ */
+function elementResultMembers(
+	source: CraftSource,
+	php: string,
+	elementQuery: CatalogObject,
+): CatalogMember[] {
+	const elementClass = /@replace \{element-class\}\s+\\?([\w\\]+)/.exec(php)?.[1];
+	const one = elementQuery.members.find((member) => member.name === 'one');
+	if (elementClass === undefined || one === undefined) {
+		return [];
+	}
+	if (classIndex(source).read(elementClass) === undefined) {
+		return [];
 	}
 
-	return objects;
+	return [{ ...one, type: elementClass }];
 }
 
 // ---------------------------------------------------------------------------
@@ -751,37 +915,54 @@ function buildObjects(
 // ---------------------------------------------------------------------------
 
 /**
- * Everything reachable from `craft.app`, as objects the chain resolver can walk.
+ * The class model: everything reachable from `craft.app` and from the elements.
  *
- * A breadth-first walk out of `craft\web\Application`, bounded three ways: it
- * only follows types into Craft's own classes, only to `MAX_CLASS_DEPTH`, and
- * only through the services in `APP_SERVICES`. The bounds are the feature —
- * every class it models is one a template author dots into, and the walk stops
- * where their vocabulary does rather than where the source runs out.
+ * A breadth-first walk out of a set of roots, bounded three ways: it only
+ * follows types into Craft's own classes, only discovers to `MAX_CLASS_DEPTH`,
+ * and only leaves `craft.app` through the services in `APP_SERVICES`. The bounds
+ * are the feature — every class it models is one a template author dots into,
+ * and the walk stops where their vocabulary does rather than where the source
+ * runs out.
+ *
+ * Members are stored on the class that declares them and nowhere else. A class
+ * names its parent and inherits the rest at load time, which is the difference
+ * between modelling `craft\base\Element` once and modelling it once per element
+ * type. Parents are walked whether or not they are Craft's, because that is
+ * where the members are; they are just never somewhere a chain can arrive.
  *
  * Objects are keyed by fully-qualified name. The names in this map are opaque to
  * everything downstream, and an FQN is the one name that cannot collide:
  * `craft\web\User` (the component) and `craft\elements\User` (the element) are
  * both `User`, and are not the same object.
  */
-function buildAppObjects(source: CraftSource): Map<string, CatalogObject> {
-	const index = new PhpClassIndex([
-		{ prefix: 'craft\\', directory: join(source.checkout, 'src') },
-		{ prefix: 'yii\\', directory: join(yiiCheckout, 'framework') },
-	]);
+function buildClassObjects(source: CraftSource): Map<string, CatalogObject> {
+	const index = classIndex(source);
+	const roots = [APPLICATION_CLASS, ...ELEMENT_CLASSES];
 
 	const objects = new Map<string, CatalogObject>();
-	const queued = new Set<string>([APPLICATION_CLASS]);
-	const queue: { fqn: string; depth: number }[] = [{ fqn: APPLICATION_CLASS, depth: 0 }];
+	const queued = new Set<string>(roots);
+	const queue: { fqn: string; depth: number }[] = roots.map((fqn) => ({ fqn, depth: 0 }));
 
 	while (queue.length > 0) {
 		const { fqn, depth } = queue.shift() as { fqn: string; depth: number };
-		const object = buildClassObject(source, index, fqn, depth);
+		const object = buildClassObject(index, fqn);
 		if (object === undefined) {
 			continue;
 		}
 		objects.set(fqn, object);
 
+		// A parent carries members this class is claiming by name, so it has to
+		// be modelled whatever it is and however deep it sits — the alternative
+		// is an `extends` pointing at nothing.
+		const parent = classParent(index, fqn);
+		if (parent !== undefined && !queued.has(parent)) {
+			queued.add(parent);
+			queue.push({ fqn: parent, depth });
+		}
+
+		if (depth >= MAX_CLASS_DEPTH) {
+			continue;
+		}
 		for (const member of object.members) {
 			if (member.type === undefined || queued.has(member.type)) {
 				continue;
@@ -791,22 +972,52 @@ function buildAppObjects(source: CraftSource): Map<string, CatalogObject> {
 		}
 	}
 
-	return pruneUnresolvableTypes(objects);
+	return objects;
 }
 
 /**
- * Drops a `type` that names an object the walk did not produce.
+ * The parent a class inherits its catalog members from.
+ *
+ * The application is deliberately an orphan. Its surface is bounded by name
+ * rather than by shape — `APP_SERVICES` is the whole of it — and it extends
+ * `yii\web\Application`, so naming that parent would hand the model every
+ * component Yii declares and undo the bound at load time. Nothing is lost:
+ * `craft.app`'s services are all declared on Craft's own trait.
+ */
+function classParent(index: PhpClassIndex, fqn: string): string | undefined {
+	return fqn === APPLICATION_CLASS ? undefined : index.parentOf(fqn, { stopAt: STOP_CLASSES });
+}
+
+function classIndex(source: CraftSource): PhpClassIndex {
+	return new PhpClassIndex([
+		{ prefix: 'craft\\', directory: join(source.checkout, 'src') },
+		{ prefix: 'yii\\', directory: join(yiiCheckout, 'framework') },
+	]);
+}
+
+/**
+ * Drops a `type` that names an object no pack produced.
  *
  * A class can be queued and then decline to be modelled — an enum, an interface
- * with nothing public on it, a class outside the checked-out paths. The member
- * that pointed at it is still real and still worth completing; what it can no
- * longer claim is that the chain continues through it. Leaving the name in place
- * would make the pack promise an object it does not contain.
+ * with nothing public on it, a class outside the checked-out paths, or one the
+ * depth bound stopped short of. The member that pointed at it is still real and
+ * still worth completing; what it can no longer claim is that the chain
+ * continues through it. Leaving the name in place would make the pack promise an
+ * object it does not contain, which is the one thing a chain resolver cannot
+ * recover from.
+ *
+ * `others` is the rest of the model: the two files reference each other across
+ * the split — `craft.entries` is an `EntryQuery` in one and `EntryQuery.one()`
+ * is a `craft\elements\Entry` in the other — so resolvability is a question
+ * about the union, not about either file alone.
  */
-function pruneUnresolvableTypes(objects: Map<string, CatalogObject>): Map<string, CatalogObject> {
+function pruneUnresolvableTypes(
+	objects: Map<string, CatalogObject>,
+	others: ReadonlyMap<string, CatalogObject>,
+): Map<string, CatalogObject> {
 	for (const object of objects.values()) {
 		object.members = object.members.map((member) =>
-			member.type !== undefined && !objects.has(member.type)
+			member.type !== undefined && !objects.has(member.type) && !others.has(member.type)
 				? (pruneUndefined({ ...member, type: undefined }) as CatalogMember)
 				: member,
 		);
@@ -814,46 +1025,55 @@ function pruneUnresolvableTypes(objects: Map<string, CatalogObject>): Map<string
 	return objects;
 }
 
-function buildClassObject(
-	source: CraftSource,
-	index: PhpClassIndex,
-	fqn: string,
-	depth: number,
-): CatalogObject | undefined {
+/**
+ * One class, carrying only what it declares.
+ *
+ * A class with nothing of its own is still worth emitting when it has a parent:
+ * it is the link in the chain that says where the members are, and dropping it
+ * would strand `extends` at a name the pack does not contain.
+ */
+function buildClassObject(index: PhpClassIndex, fqn: string): CatalogObject | undefined {
 	const parsed = index.read(fqn);
 	if (parsed === undefined) {
 		return undefined;
 	}
 
-	const members = templateFacingMembers(index, fqn, depth === 0);
-	if (members.length === 0) {
+	const parent = classParent(index, fqn);
+	const members = templateFacingMembers(index, fqn);
+	if (members.length === 0 && parent === undefined) {
 		return undefined;
 	}
 
-	return {
+	return pruneUndefined({
 		name: fqn,
-		description: docblockSummary(parsed.docblock ?? '') ?? `An instance of \`${fqn}\`.`,
-		docsUrl: apiPageUrl(source.major, fqn),
+		extends: parent,
+		description: firstSentence(
+			docblockSummary(parsed.docblock ?? '') ?? `An instance of \`${fqn}\`.`,
+		),
 		members: members
-			.map((member) => buildClassMember(source, fqn, member, depth))
+			.map((member) => buildClassMember(fqn, member))
 			.sort((a, b) => a.name.localeCompare(b.name)),
-	};
+	});
 }
 
 /**
- * A class's members, minus the ones no template would write.
+ * What a class itself brings, minus the members no template would write.
  *
- * The application itself is the one class filtered by name rather than by shape:
- * its services are the entry points, and `APP_SERVICES` is the list of them.
+ * The accessor rule needs the inherited picture even though the result is only
+ * this class's: `Asset` declares `getVolume()` and `craft\base\Element` declares
+ * `@property $volume`, and the two are the same member said twice. Deciding that
+ * from `Asset`'s own declarations alone would keep both — so the property names
+ * come from the full walk, and only the members are this class's.
+ *
+ * The application is the one class filtered by name rather than by shape: its
+ * services are the entry points, and `APP_SERVICES` is the list of them.
  */
-function templateFacingMembers(
-	index: PhpClassIndex,
-	fqn: string,
-	isApplication: boolean,
-): PhpClassMember[] {
-	const members = withoutAccessors(index.members(fqn, { stopAt: STOP_CLASSES }));
+function templateFacingMembers(index: PhpClassIndex, fqn: string): PhpClassMember[] {
+	const inherited = index.members(fqn, { stopAt: STOP_CLASSES });
+	const own = index.ownMembers(fqn, { stopAt: STOP_CLASSES });
+	const members = withoutAccessors(own, inherited);
 
-	if (isApplication) {
+	if (fqn === APPLICATION_CLASS) {
 		return members.filter(
 			(member) => member.kind === 'property' && APP_SERVICES.has(member.name),
 		);
@@ -865,17 +1085,29 @@ function templateFacingMembers(
 }
 
 /**
- * Drops the methods that only exist to back a property.
+ * Drops the methods that are not a name a template would ever read through.
  *
- * Yii resolves `craft.app.request.queryString` through `getQueryString()`, and
- * Craft's config resolves `->devMode(true)` through a fluent setter beside
- * `$devMode`. Both are the property said twice: offering all three of
- * `queryString`, `getQueryString()` and `devMode()` describes PHP's calling
- * conventions, not Craft's API, and a template writes the property.
+ * A read accessor is *kept*. Twig resolves `asset.dataUrl` and `asset.getDataUrl`
+ * to the same `getDataUrl()` call, both are written in real templates, and a
+ * model that offers only one of them dead-ends a chain that works. It is a
+ * second name for one member rather than a second member, so the provider ranks
+ * it below the property (see `accessorProperty` in `craft-members.ts`) — that
+ * costs a sort key rather than a completion.
+ *
+ * The two that go are the two that are not that:
+ *
+ * - `setX()` beside `$x` is a write. Nothing a template does calls it, and it is
+ *   not another way to spell reading `x`.
+ * - `devMode()` beside `$devMode` is Craft's fluent config setter — the same
+ *   name as the property, not a second one. Keeping it would put two members
+ *   called `devMode` on the object, and only one of them can survive the flatten.
  */
-function withoutAccessors(members: readonly PhpClassMember[]): PhpClassMember[] {
+function withoutAccessors(
+	members: readonly PhpClassMember[],
+	inherited: readonly PhpClassMember[] = members,
+): PhpClassMember[] {
 	const properties = new Set(
-		members.filter((member) => member.kind === 'property').map((member) => member.name),
+		inherited.filter((member) => member.kind === 'property').map((member) => member.name),
 	);
 
 	return members.filter((member) => {
@@ -883,8 +1115,8 @@ function withoutAccessors(members: readonly PhpClassMember[]): PhpClassMember[] 
 			return true;
 		}
 
-		const accessor = /^(?:get|set)([A-Z]\w*)$/.exec(member.name)?.[1];
-		if (accessor !== undefined && properties.has(lowerFirst(accessor))) {
+		const setter = /^set([A-Z]\w*)$/.exec(member.name)?.[1];
+		if (setter !== undefined && properties.has(lowerFirst(setter))) {
 			return false;
 		}
 
@@ -892,20 +1124,29 @@ function withoutAccessors(members: readonly PhpClassMember[]): PhpClassMember[] 
 	});
 }
 
-function buildClassMember(
-	source: CraftSource,
-	objectClass: string,
-	member: PhpClassMember,
-	depth: number,
-): CatalogMember {
+/**
+ * One member, stored against the class that declares it.
+ *
+ * No `docsUrl`: the link is a pure function of the declaring class, the kind and
+ * the name, and the object it is reached through — all of which are known at
+ * lookup time, where the project's Craft major is known too. Storing it would be
+ * ~40 bytes a member to bake in one major's answer for both.
+ *
+ * `source.phpClass` is dropped when the declaring class *is* this class, which
+ * is the overwhelming majority: it is the same string as the object's own name,
+ * and the reader can see that. What survives is the interesting case — a member
+ * a trait or a Yii parent declared, which is exactly the case the link policy
+ * turns on.
+ */
+function buildClassMember(objectClass: string, member: PhpClassMember): CatalogMember {
 	const parameters = member.parameters.map((parameter) =>
 		pruneUndefined({ ...parameter, type: normalizeType(parameter.type) }),
 	);
 	// A type is a promise that the chain keeps resolving, so it is only made for
-	// a class that will be in the pack: past the depth cap, or outside Craft's
-	// own namespace, the member is a leaf and says so by naming no type.
+	// a class the model can carry on into. Whether it actually did is settled
+	// afterwards by `pruneUnresolvableTypes`.
 	const type =
-		depth < MAX_CLASS_DEPTH && member.typeClass !== undefined && isModelled(member.typeClass)
+		member.typeClass !== undefined && isModelled(member.typeClass)
 			? member.typeClass
 			: undefined;
 
@@ -919,41 +1160,33 @@ function buildClassMember(
 				: buildSignature(member.name, parameters),
 		parameters,
 		description: memberDescription(member, objectClass),
-		docsUrl: apiMemberUrl({
-			major: source.major,
-			objectClass,
-			declaringClass: member.declaringClass,
-			kind: member.kind,
-			name: member.name,
-		}),
 		sinceVersion: docblockSince(member.docblock ?? ''),
 		completionSnippet:
 			member.kind === 'property'
 				? member.name
 				: `${member.name}(${parameters.length > 0 ? '$1' : ''})`,
-		source: { phpClass: member.declaringClass },
+		...(member.declaringClass === objectClass
+			? {}
+			: { source: { phpClass: member.declaringClass } }),
 	});
 }
 
 function memberDescription(member: PhpClassMember, objectClass: string): string {
 	const summary = member.summary === undefined ? undefined : normalizeMarkdown(member.summary);
 	if (summary !== undefined && summary.length >= 8) {
-		return summary;
+		return firstSentence(summary);
 	}
 
 	const docblock = member.docblock ?? '';
-	return (
+	return firstSentence(
 		docblockSummary(docblock) ??
-		docblockVarSummary(docblock) ??
-		`The ${member.name} ${member.kind} of ${shortName(objectClass)}.`
+			docblockVarSummary(docblock) ??
+			`The ${member.name} ${member.kind} of ${shortName(objectClass)}.`,
 	);
 }
 
 function isModelled(fqn: string): boolean {
-	return (
-		fqn.startsWith(MODELLED_PREFIX) &&
-		!UNMODELLED_PREFIXES.some((prefix) => fqn.startsWith(prefix))
-	);
+	return fqn.startsWith(MODELLED_PREFIX);
 }
 
 function shortName(fqn: string): string {
@@ -1113,7 +1346,11 @@ function buildElementQueryObject(source: CraftSource): CatalogObject {
  * the source only has to say whether each one returns the query (keeping the
  * chain open) or a result (ending it).
  */
-function buildQueryObject(source: CraftSource, className: string): CatalogObject | undefined {
+function buildQueryObject(
+	source: CraftSource,
+	className: string,
+	elementQuery: CatalogObject,
+): CatalogObject | undefined {
 	const slug = QUERY_ARTIFACTS[className];
 	if (slug === undefined) {
 		return undefined;
@@ -1125,9 +1362,13 @@ function buildQueryObject(source: CraftSource, className: string): CatalogObject
 
 	const artifact = readFileSync(artifactPath, 'utf8');
 	const php = readQueryClass(source, className);
-	const members: CatalogMember[] = [];
+	const members: CatalogMember[] = elementResultMembers(source, php, elementQuery);
+	const claimed = new Set(members.map((member) => member.name));
 
 	for (const row of parseTable(artifact)) {
+		if (claimed.has(row.name)) {
+			continue;
+		}
 		const declared = findQueryMethod(source, php, row.name);
 		const parameters = declared?.parameters ?? [{ name: 'value', optional: false }];
 
@@ -1215,28 +1456,7 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 		}
 	}
 
-	const objects = new Map<string, CatalogObject>();
-	for (const name of [...new Set([...four.objects.keys(), ...five.objects.keys()])].sort((a, b) =>
-		a.localeCompare(b),
-	)) {
-		const inFour = four.objects.get(name);
-		const inFive = five.objects.get(name);
-		// `name` comes from the union of both majors' keys, so one of these is always set.
-		const base = inFive ?? inFour;
-		if (!base) {
-			throw new Error(`No scraped object for "${name}" in either major`);
-		}
-
-		objects.set(name, {
-			...base,
-			members: [
-				...mergeItems(
-					new Map((inFour?.members ?? []).map((member) => [member.name, member])),
-					new Map((inFive?.members ?? []).map((member) => [member.name, member])),
-				).values(),
-			].sort((a, b) => a.name.localeCompare(b.name)),
-		});
-	}
+	const objects = mergeObjects(four.objects, five.objects);
 
 	return {
 		schemaVersion: 1,
@@ -1262,6 +1482,46 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 		},
 		objects: [...objects.values()],
 	} as DialectPack;
+}
+
+/**
+ * One set of objects across the two majors.
+ *
+ * Craft 5's shape wins wherever both have the name — it is the one the model is
+ * generated against — and the members are merged the same way entries are, so a
+ * class that gained a member in 5 says `sinceVersion` and one that lost it in 5
+ * says `removedVersion`. `extends` comes off the winning major with it, which is
+ * what carries Craft 5's re-parenting of a class that moved.
+ */
+function mergeObjects(
+	four: ReadonlyMap<string, CatalogObject>,
+	five: ReadonlyMap<string, CatalogObject>,
+): Map<string, CatalogObject> {
+	const objects = new Map<string, CatalogObject>();
+
+	for (const name of [...new Set([...four.keys(), ...five.keys()])].sort((a, b) =>
+		a.localeCompare(b),
+	)) {
+		const inFour = four.get(name);
+		const inFive = five.get(name);
+		// `name` comes from the union of both majors' keys, so one is always set.
+		const base = inFive ?? inFour;
+		if (!base) {
+			throw new Error(`No scraped object for "${name}" in either major`);
+		}
+
+		objects.set(name, {
+			...base,
+			members: [
+				...mergeItems(
+					new Map((inFour?.members ?? []).map((member) => [member.name, member])),
+					new Map((inFive?.members ?? []).map((member) => [member.name, member])),
+				).values(),
+			].sort((a, b) => a.name.localeCompare(b.name)),
+		});
+	}
+
+	return objects;
 }
 
 /**
@@ -1665,6 +1925,45 @@ function applyOverrides(pack: DialectPack): DialectPack {
 		const object = pack.objects?.find((candidate) => candidate.name === override.name);
 		if (object === undefined) {
 			throw new Error(`Override references unknown object "${override.name}"`);
+		}
+
+		const { members: memberOverrides, ...objectFields } = override;
+		Object.assign(object, deepMerge(object, withoutComment(objectFields)));
+
+		const byName = new Map(object.members.map((member) => [member.name, member]));
+		for (const memberOverride of memberOverrides ?? []) {
+			const existing = byName.get(memberOverride.name);
+			if (existing === undefined) {
+				throw new Error(
+					`Override references unknown member "${override.name}.${memberOverride.name}"`,
+				);
+			}
+			byName.set(memberOverride.name, deepMerge(existing, memberOverride));
+		}
+		object.members = [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	return pack;
+}
+
+/**
+ * The same override layer, over the class pack.
+ *
+ * Separate file, same rule: an override that names a class or a member the walk
+ * did not produce is an error, because the file is for correcting the scrape and
+ * a typo in it must not become a catalog entry that nothing generated.
+ */
+function applyClassOverrides(pack: ClassPack): ClassPack {
+	if (!existsSync(classOverridesPath)) {
+		return pack;
+	}
+
+	const overrides = JSON.parse(readFileSync(classOverridesPath, 'utf8')) as OverrideCatalog;
+
+	for (const override of overrides.objects ?? []) {
+		const object = pack.classes.find((candidate) => candidate.name === override.name);
+		if (object === undefined) {
+			throw new Error(`Override references unknown class "${override.name}"`);
 		}
 
 		const { members: memberOverrides, ...objectFields } = override;
