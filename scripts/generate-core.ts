@@ -17,6 +17,13 @@ import {
 	pruneUndefined,
 	type PhpParameter,
 } from './lib/php';
+import { parseTwigChangelog } from './lib/changelog';
+
+/**
+ * The only Twig this pack is about. Twig 1 and 2 are not supported, and the
+ * changelog's own 3.x releases are the whole version axis the pack gates on.
+ */
+const TWIG_MAJOR = 3;
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cacheRoot = join(repoRoot, '.cache');
@@ -65,6 +72,10 @@ ensureTwigCheckout();
 
 const sourceEntries = readSourceEntries();
 const documentationEntries = readDocumentationEntries();
+const changelogVersions = parseTwigChangelog(
+	readFileSync(join(twigCheckout, 'CHANGELOG'), 'utf8'),
+	TWIG_MAJOR,
+);
 const generatedPack = applyOverrides({
 	schemaVersion: 1,
 	name: 'twig-core',
@@ -180,7 +191,10 @@ function buildEntries(kind: DocumentedKind): CatalogEntry[] {
 			parameters,
 			description,
 			docsUrl,
-			sinceVersion: documented?.sinceVersion ?? sourced?.sinceVersion,
+			sinceVersion:
+				documented?.sinceVersion ??
+				changelogVersions[kind].get(name) ??
+				sourced?.sinceVersion,
 			deprecated: documented?.deprecated ?? sourced?.deprecated,
 			completionSnippet:
 				sourced?.completionSnippet ?? buildCompletionSnippet(kind, name, parameters),
@@ -404,9 +418,47 @@ function parseDocumentationFile(
 		docsUrl: `${docsBaseUrl}/${docsDirectories[kind]}/${slug}.html`,
 		docsPath: relativeDocsPath,
 		parameters: readDocumentedParameters(source),
-		sinceVersion: source.match(/\.\.\s+versionadded::\s+([^\n]+)/)?.[1]?.trim(),
+		sinceVersion: readAddedVersion(source, name, kind),
 		deprecated: readDocumentedDeprecation(source),
 	});
+}
+
+/**
+ * The version a page says its own subject arrived in.
+ *
+ * A page carries a `.. versionadded::` for every notable thing that ever changed
+ * on it, and only some of them are about the item itself. `macro.rst` has one for
+ * 3.28 because 3.28 allowed calling a macro by dynamic name; `escape.rst` has one
+ * for 3.24 because 3.24 added an escaping strategy. Both directives are true and
+ * neither dates the tag or the filter — reading the first one in the file, as
+ * this used to, would date `{% macro %}` to 3.28 and hide it from every project
+ * on anything older.
+ *
+ * What separates them is the sentence, not the position: Twig writes "The
+ * ``cache`` tag was added in Twig 3.2" when it means the subject, and something
+ * else when it does not. So the sentence is what this matches, and a page whose
+ * directives are all about sub-features gets no version at all.
+ */
+function readAddedVersion(source: string, name: string, kind: DocumentedKind): string | undefined {
+	const noun = { tags: 'tag', filters: 'filter', functions: 'function', tests: 'test' }[kind];
+	const claim = new RegExp(`\`\`${escapeRegExp(name)}\`\` ${noun} (?:was|has been) added`);
+
+	// The directive's own paragraph: its indented block, and nothing past the
+	// blank line that ends it.
+	for (const match of source.matchAll(
+		/\.\.\s+versionadded::\s*([^\n]+)\n\n((?:[ \t]+[^\n]*\n)+)/g,
+	)) {
+		const [, version = '', body = ''] = match;
+		if (claim.test(body.replace(/\s+/g, ' '))) {
+			return version.trim();
+		}
+	}
+
+	return undefined;
+}
+
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function readDocumentationTitle(source: string): string | undefined {

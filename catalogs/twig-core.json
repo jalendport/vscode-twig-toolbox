@@ -76,7 +76,6 @@
         "parameters": [],
         "description": "Twig generates a deprecation notice (via a call to the `trigger_error()` PHP function) where the `deprecated` tag is used in a template:",
         "docsUrl": "https://twig.symfony.com/doc/3.x/tags/deprecated.html",
-        "sinceVersion": "3.11",
         "completionSnippet": "{% deprecated '$1' %}",
         "source": {
           "extension": "CoreExtension",
@@ -221,7 +220,6 @@
         "parameters": [],
         "description": "Macros are comparable with functions in regular programming languages. They are useful to reuse template fragments to not repeat yourself.",
         "docsUrl": "https://twig.symfony.com/doc/3.x/tags/macro.html",
-        "sinceVersion": "3.28",
         "completionSnippet": "{% macro $1($2) %}\n\t$0\n{% endmacro %}",
         "source": {
           "extension": "CoreExtension",
@@ -584,7 +582,6 @@
         ],
         "description": "The `escape` filter escapes a string using strategies that depend on the context.",
         "docsUrl": "https://twig.symfony.com/doc/3.x/filters/escape.html",
-        "sinceVersion": "3.24",
         "completionSnippet": "|escape",
         "source": {
           "extension": "EscaperExtension",
@@ -763,7 +760,6 @@
         ],
         "description": "The `format_datetime` filter formats a date time:",
         "docsUrl": "https://twig.symfony.com/doc/3.x/filters/format_datetime.html",
-        "sinceVersion": "3.6",
         "completionSnippet": "|format_datetime($1, $2, $3, $4, $5, $6)",
         "source": {
           "docsPath": "doc/filters/format_datetime.rst"
@@ -2206,6 +2202,7 @@
         "parameters": [],
         "description": "`mapping` checks if a variable is a mapping:",
         "docsUrl": "https://twig.symfony.com/doc/3.x/tests/mapping.html",
+        "sinceVersion": "3.11.0",
         "completionSnippet": "is mapping",
         "source": {
           "extension": "CoreExtension",
@@ -2277,6 +2274,7 @@
         "parameters": [],
         "description": "`sequence` checks if a variable is a sequence:",
         "docsUrl": "https://twig.symfony.com/doc/3.x/tests/sequence.html",
+        "sinceVersion": "3.11.0",
         "completionSnippet": "is sequence",
         "source": {
           "extension": "CoreExtension",
