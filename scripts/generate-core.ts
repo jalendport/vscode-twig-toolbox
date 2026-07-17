@@ -121,14 +121,30 @@ function ensureTwigCheckout(): void {
 		});
 	}
 
-	execFileSync('git', ['fetch', '--depth', '1', 'origin', pinnedTwigRef], {
-		cwd: twigCheckout,
-		stdio: 'inherit',
-	});
+	// The pin is a full SHA, so a checkout that already has it has the right one
+	// and nothing needs the network — `npm run generate:core` re-runs offline.
+	if (!hasTwigCommit()) {
+		execFileSync('git', ['fetch', '--depth', '1', 'origin', pinnedTwigRef], {
+			cwd: twigCheckout,
+			stdio: 'inherit',
+		});
+	}
 	execFileSync('git', ['checkout', '--detach', pinnedTwigRef], {
 		cwd: twigCheckout,
 		stdio: 'inherit',
 	});
+}
+
+function hasTwigCommit(): boolean {
+	try {
+		execFileSync('git', ['cat-file', '-e', `${pinnedTwigRef}^{commit}`], {
+			cwd: twigCheckout,
+			stdio: 'ignore',
+		});
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function readSourceEntries(): Record<CatalogEntryKind, Map<string, SourceEntry>> {

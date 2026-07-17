@@ -23,6 +23,11 @@ export interface CheckoutOptions {
  * to read `src/web/twig` is minutes of I/O for nothing. Re-running against an
  * existing checkout is cheap and lands on the same commit, which is what makes
  * `npm run generate:craft` deterministic rather than merely repeatable-today.
+ *
+ * A ref already in `.cache/` is not fetched again. Every ref here is a full
+ * commit SHA, so "already have it" is the whole question — there is no newer
+ * version of a commit to miss, and re-running the generators on a plane or a
+ * train should not be a network operation.
  */
 export function ensureCheckout({
 	directory,
@@ -40,10 +45,25 @@ export function ensureCheckout({
 		run('git', ['sparse-checkout', 'set', '--cone', ...sparsePaths], directory);
 	}
 
-	run('git', ['fetch', '--depth', '1', 'origin', ref], directory);
+	if (!hasCommit(directory, ref)) {
+		run('git', ['fetch', '--depth', '1', 'origin', ref], directory);
+	}
 	run('git', ['checkout', '--detach', ref], directory);
 
 	return directory;
+}
+
+/** Whether the checkout already has `ref`'s commit object. */
+function hasCommit(directory: string, ref: string): boolean {
+	try {
+		execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
+			cwd: directory,
+			stdio: 'ignore',
+		});
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function run(command: string, args: readonly string[], cwd?: string): void {
