@@ -92,6 +92,7 @@ and 5 are both supported.
 ### Fixed
 
 - Fixed Craft CMS `{% switch %}` clause tags being reported as unknown when unknown-name diagnostics are enabled.
+- Fixed cross-template variable resolution through Twig `include()` function calls.
 
 ### Notes
 

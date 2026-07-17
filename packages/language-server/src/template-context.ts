@@ -2,6 +2,9 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import {
 	visit,
+	type Argument,
+	type ArrayLiteral,
+	type CallExpression,
 	type EmbedTag,
 	type Expression,
 	type HashLiteral,
@@ -71,8 +74,8 @@ interface WithKey {
 }
 
 /**
- * One `{% include %}`/`{% embed %}`, from the side that matters here: what it
- * hands the included template.
+ * One include/embed site, from the side that matters here: what it hands the
+ * included template.
  */
 interface IncludeSite {
 	readonly includerUri: string;
@@ -302,31 +305,88 @@ export class TemplateContextIndex {
 		const includerUri = parsed.uri;
 		const sites: IncludeSite[] = [];
 		visit(parsed.result.template, (node) => {
-			if (node.type !== 'IncludeTag' && node.type !== 'EmbedTag') {
-				return;
+			if (node.type === 'IncludeTag' || node.type === 'EmbedTag') {
+				sites.push(...this.tagSites(includerUri, node, parsed.result.source, settings));
 			}
-			const tag: IncludeTag | EmbedTag = node;
-			if (tag.template?.type !== 'StringLiteral' || tag.template.parts.length > 1) {
-				// A computed template name is a template we cannot name, and a
-				// guess here would be an edge in the graph that is not real.
-				return;
+			if (node.type === 'CallExpression') {
+				sites.push(
+					...this.includeFunctionSites(includerUri, node, parsed.result.source, settings),
+				);
 			}
-			const hash = tag.variables?.type === 'HashLiteral' ? tag.variables : undefined;
-			const withKeys = hash === undefined ? undefined : hashKeys(hash, parsed.result.source);
-			for (const target of this.templates.resolve(
-				includerUri,
-				tag.template.value,
-				settings,
-			)) {
+		});
+		return sites;
+	}
+
+	private tagSites(
+		includerUri: string,
+		tag: IncludeTag | EmbedTag,
+		source: string,
+		settings: TwigToolboxSettings,
+	): IncludeSite[] {
+		const withKeys =
+			tag.variables?.type === 'HashLiteral' ? hashKeys(tag.variables, source) : undefined;
+		return this.resolveSites(
+			includerUri,
+			staticTemplateNames(tag.template),
+			tag.start,
+			tag.only,
+			withKeys,
+			settings,
+		);
+	}
+
+	private includeFunctionSites(
+		includerUri: string,
+		call: CallExpression,
+		source: string,
+		settings: TwigToolboxSettings,
+	): IncludeSite[] {
+		if (call.callee.type !== 'Identifier' || call.callee.name !== 'include') {
+			return [];
+		}
+
+		const template = argumentExpression(
+			namedArgument(call.args, 'template') ?? positionalArgument(call.args, 0),
+		);
+		const variables = argumentExpression(
+			namedArgument(call.args, 'variables') ?? positionalArgument(call.args, 1),
+		);
+		const withContext = argumentExpression(
+			namedArgument(call.args, 'with_context') ?? positionalArgument(call.args, 2),
+		);
+		const withKeys =
+			variables?.type === 'HashLiteral' ? hashKeys(variables, source) : undefined;
+
+		return this.resolveSites(
+			includerUri,
+			staticTemplateNames(template),
+			call.start,
+			withContext?.type === 'BooleanLiteral' && !withContext.value,
+			withKeys,
+			settings,
+		);
+	}
+
+	private resolveSites(
+		includerUri: string,
+		templateNames: readonly string[],
+		offset: number,
+		only: boolean,
+		withKeys: readonly WithKey[] | undefined,
+		settings: TwigToolboxSettings,
+	): IncludeSite[] {
+		const sites: IncludeSite[] = [];
+		for (const templateName of templateNames) {
+			for (const target of this.templates.resolve(includerUri, templateName, settings)) {
 				sites.push({
 					includerUri,
 					targetUri: target.uri,
-					offset: tag.start,
-					only: tag.only,
+					offset,
+					only,
 					withKeys,
 				});
 			}
-		});
+		}
 		return sites;
 	}
 }
@@ -370,6 +430,48 @@ function hashKeyName(key: Expression | undefined): string | undefined {
 		return key.name;
 	}
 	return key?.type === 'StringLiteral' && key.parts.length <= 1 ? key.value : undefined;
+}
+
+function staticTemplateNames(template: Expression | undefined): string[] {
+	if (template?.type === 'StringLiteral') {
+		return template.parts.length <= 1 ? [template.value] : [];
+	}
+	if (template?.type === 'ArrayLiteral') {
+		return staticArrayTemplateNames(template);
+	}
+	return [];
+}
+
+function staticArrayTemplateNames(array: ArrayLiteral): string[] {
+	const names: string[] = [];
+	for (const element of array.elements) {
+		if (element.type === 'StringLiteral' && element.parts.length <= 1) {
+			names.push(element.value);
+		}
+	}
+	return names;
+}
+
+function namedArgument(args: readonly Argument[], name: string): Argument | undefined {
+	return args.find((argument) => argument.name?.name === name);
+}
+
+function positionalArgument(args: readonly Argument[], index: number): Argument | undefined {
+	let at = 0;
+	for (const argument of args) {
+		if (argument.name !== undefined) {
+			continue;
+		}
+		if (at === index) {
+			return argument;
+		}
+		at++;
+	}
+	return undefined;
+}
+
+function argumentExpression(argument: Argument | undefined): Expression | undefined {
+	return argument?.value?.type === 'SpreadElement' ? undefined : argument?.value;
 }
 
 function templateFiles(root: string, seen: Set<string>): string[] {

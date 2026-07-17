@@ -74,12 +74,13 @@ Go-to-definition also resolves imported macros and blocks defined in parent temp
 Variables a template never sets resolve too. When a template does `{% set heading = entry.title %}`
 and then includes a partial, Twig hands that variable to the partial — so hovering or pressing
 <kbd>F12</kbd> on `heading` inside the partial jumps to the `{% set %}` that defines it, following
-the chain through nested includes and embeds. Include sites are read the way Twig reads them: a
-`with { … }` key is itself a definition, and `only` stops the search, because the included template
-genuinely cannot see the outer context. Where several templates include the same partial with the
-same variable, every definition comes back and VS Code offers the choice. Nothing resolves to a
-guess: if the variable's origin can't be established, there's no hover card and no jump — and this
-never produces a diagnostic.
+the chain through nested includes, embeds and `include()` calls. Include sites are read the way
+Twig reads them: a `with { … }` or `include(..., variables = { … })` key is itself a definition,
+and `only` or `with_context = false` stops the ambient-context search, because the included
+template genuinely cannot see the outer context. Where several templates include the same partial
+with the same variable, every definition comes back and VS Code offers the choice. Nothing resolves
+to a guess: if the variable's origin can't be established, there's no hover card and no jump — and
+this never produces a diagnostic.
 
 <!-- MEDIA: replace with images/demo-navigation.gif — see docs/media-checklist.md #4 -->
 

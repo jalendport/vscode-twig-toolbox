@@ -374,6 +374,142 @@ describe('template navigation', () => {
 		}
 	});
 
+	it('resolves a variable through an include function call', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/index.twig',
+				'{% set heading = entry.title %}{{ include("_partials/card") }}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/_partials/card.twig', '<h1>{{ head‸ing }}</h1>');
+			const card = openMarked(server, uri);
+
+			const definition = (await server.definition(card.uri, card.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(fixture.uri('templates/index.twig'));
+			expect(definition[0]?.range.start).toEqual({ line: 0, character: 0 });
+
+			const hover = await server.hover(card.uri, card.position);
+			expect(hoverText(hover)).toContain('heading = entry.title');
+			expect(hoverText(hover)).toContain('index');
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('treats an include function variables key as the definition site', async () => {
+		const fixture = createCraftFixture();
+		try {
+			const includerUri = fixture.write(
+				'templates/index.twig',
+				'{{ include("b", variables = { heading: entry.title }) }}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			const definition = (await server.definition(b.uri, b.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(includerUri);
+
+			expect(hoverText(await server.hover(b.uri, b.position))).toContain(
+				'heading = entry.title',
+			);
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('treats include function with_context false like only', async () => {
+		const fixture = createCraftFixture();
+		try {
+			const includerUri = fixture.write(
+				'templates/index.twig',
+				'{% set heading = "hi" %}{{ include("b", { badge: "New" }, false) }}',
+			);
+			const server = createServer(fixture);
+			const headingUri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const heading = openMarked(server, headingUri);
+
+			expect(await server.definition(heading.uri, heading.position)).toEqual([]);
+			expect(await server.hover(heading.uri, heading.position)).toBeUndefined();
+
+			const badgeUri = fixture.write('templates/b.twig', '{{ bad‸ge }}');
+			const badge = openMarked(server, badgeUri);
+			const definition = (await server.definition(badge.uri, badge.position)) as Location[];
+			expect(definition).toHaveLength(1);
+			expect(definition[0]?.uri).toBe(includerUri);
+			expect(hoverText(await server.hover(badge.uri, badge.position))).toContain(
+				'badge = "New"',
+			);
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('treats named include function with_context false like only', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/index.twig',
+				'{% set heading = "hi" %}{{ include("b", with_context = false) }}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			expect(await server.definition(b.uri, b.position)).toEqual([]);
+			expect(await server.hover(b.uri, b.position)).toBeUndefined();
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('does not inherit through dynamic include function targets', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/index.twig',
+				'{% set heading = "hi" %}{{ include(templateName) }}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write('templates/b.twig', '{{ head‸ing }}');
+			const b = openMarked(server, uri);
+
+			expect(await server.definition(b.uri, b.position)).toEqual([]);
+			expect(await server.hover(b.uri, b.position)).toBeUndefined();
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('resolves include function array candidates', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/index.twig',
+				'{% set heading = "hi" %}{{ include(["b", dynamicTemplate, "c"]) }}',
+			);
+			fixture.write('templates/b.twig', '{{ head‸ing }}');
+			fixture.write('templates/c.twig', '{{ head‸ing }}');
+			const server = createServer(fixture);
+
+			for (const template of ['b', 'c']) {
+				const uri = fixture.uri(`templates/${template}.twig`);
+				const included = openMarked(server, uri);
+				const definition = (await server.definition(
+					included.uri,
+					included.position,
+				)) as Location[];
+				expect(definition).toHaveLength(1);
+				expect(definition[0]?.uri).toBe(fixture.uri('templates/index.twig'));
+			}
+		} finally {
+			fixture.dispose();
+		}
+	});
+
 	it('returns every includer that defines the name', async () => {
 		const fixture = createCraftFixture();
 		try {
