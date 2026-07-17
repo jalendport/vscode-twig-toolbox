@@ -5,6 +5,7 @@ import { craftHandleAt, type CraftProjectConfigResolver } from './craft-project-
 import type { DocumentStore, ParsedDocument } from './document-store';
 import type { TwigToolboxSettings } from './settings';
 import type { SymbolTable, TwigSymbol } from './symbols';
+import type { TemplateContextIndex } from './template-context';
 import type { TemplateResolver } from './template-resolver';
 import { collectTemplateReferences, templateReferenceAt } from './template-references';
 import type { TemplateSymbolResolver } from './template-symbols';
@@ -30,6 +31,7 @@ export function getDefinition(
 	settings: TwigToolboxSettings,
 	symbolResolver: TemplateSymbolResolver,
 	craftProjectConfig?: CraftProjectConfigResolver,
+	contextIndex?: TemplateContextIndex,
 ): Location[] {
 	const template = templateReferenceAt(parsed, offset);
 	if (template !== undefined) {
@@ -65,7 +67,24 @@ export function getDefinition(
 		return [];
 	}
 	const symbol = symbols.resolve(identifier.name, offset);
-	return symbol === undefined ? [] : locationForSymbol(parsed, documents, symbol);
+	if (symbol !== undefined) {
+		return locationForSymbol(parsed, documents, symbol);
+	}
+
+	// Nothing in this file defines the name — so ask the templates that include
+	// this one, which is where Twig's context actually came from.
+	return (
+		contextIndex
+			?.resolve(parsed.uri, identifier.name, symbolResolver, settings)
+			.flatMap((variable) => {
+				const location = locationForRange(
+					documents,
+					variable.uri,
+					variable.definitionRange,
+				);
+				return location === undefined ? [] : [location];
+			}) ?? []
+	);
 }
 
 function craftHandleDefinition(

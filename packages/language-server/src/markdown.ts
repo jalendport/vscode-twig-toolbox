@@ -2,6 +2,7 @@ import { MarkupKind, type MarkupContent } from 'vscode-languageserver/node';
 import type { CatalogEntryWithProvenance, CatalogParameter } from './catalog';
 import type { MemberCompletion } from './members';
 import type { TwigSymbol } from './symbols';
+import type { InheritedVariable } from './template-context';
 
 export interface LocalParameter {
 	readonly name: string;
@@ -101,6 +102,27 @@ export function symbolMarkdown(symbol: TwigSymbol, source: string): string {
 	const definingLine = symbol.definitionRange
 		? sourceSnippet(definitionSource, symbol.definitionRange)
 		: '';
+	if (definingLine !== '') {
+		parts.push(codeBlock(definingLine));
+	}
+	return parts.join('\n\n');
+}
+
+/**
+ * A variable this template never sets, because the template including it did.
+ *
+ * The template name carries the weight: the reader is looking at `{{ title }}`
+ * in a partial and the useful answer is which caller put it there, so the line
+ * says so and quotes the definition the way `symbolMarkdown` quotes a local one.
+ */
+export function inheritedVariableMarkdown(variable: InheritedVariable): string {
+	const parts = [
+		codeBlock(
+			variable.detail === undefined ? variable.name : `${variable.name} ${variable.detail}`,
+		),
+		`${variable.kind === 'with-key' ? 'Variable passed in' : 'Variable set'} by \`${variable.templateName}\`, which includes this template.`,
+	];
+	const definingLine = sourceSnippet(variable.source, variable.definitionRange);
 	if (definingLine !== '') {
 		parts.push(codeBlock(definingLine));
 	}

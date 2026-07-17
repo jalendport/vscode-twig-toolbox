@@ -11,6 +11,7 @@ import { craftHandleAt, type CraftProjectConfigResolver } from './craft-project-
 import type { ParsedDocument } from './document-store';
 import {
 	catalogMarkdown,
+	inheritedVariableMarkdown,
 	localMacroMarkdown,
 	localParameterMarkdown,
 	markdown,
@@ -20,7 +21,9 @@ import {
 } from './markdown';
 import { BUILTIN_MEMBER_PROVIDERS, provideMembers, type MemberProvider } from './members';
 import { findRegions, regionAt, tokenAt, type TwigRegion } from './regions';
+import type { TwigToolboxSettings } from './settings';
 import { collectSymbols, type MacroDefinition, type SymbolTable, type TwigSymbol } from './symbols';
+import type { TemplateContextIndex } from './template-context';
 import type { TemplateSymbolResolver } from './template-symbols';
 
 export interface HoverOptions {
@@ -28,6 +31,9 @@ export interface HoverOptions {
 	readonly memberProviders?: readonly MemberProvider[];
 	readonly symbolResolver?: TemplateSymbolResolver;
 	readonly craftProjectConfig?: CraftProjectConfigResolver;
+	/** Cross-template variable resolution; needs `settings` to find the roots. */
+	readonly contextIndex?: TemplateContextIndex;
+	readonly settings?: TwigToolboxSettings;
 }
 
 export function getHover(
@@ -101,7 +107,39 @@ export function getHover(
 	}
 
 	const global = entries.globals.get(identifier.name);
-	return global === undefined ? undefined : hover(catalogMarkdown(global), parsed, identifier);
+	if (global !== undefined) {
+		return hover(catalogMarkdown(global), parsed, identifier);
+	}
+
+	return inheritedVariableHover(parsed, identifier, options);
+}
+
+/**
+ * The same walk go-to-definition makes, rendered.
+ *
+ * Definition can return every includer that defines the name and let the editor
+ * peek them; a hover card has room for one, so it takes the first and says which
+ * template it came from. Nothing resolving means no card at all — a guess here
+ * would be indistinguishable from knowledge.
+ */
+function inheritedVariableHover(
+	parsed: ParsedDocument,
+	identifier: Identifier,
+	options: HoverOptions,
+): Hover | undefined {
+	const { contextIndex, symbolResolver, settings } = options;
+	if (contextIndex === undefined || symbolResolver === undefined || settings === undefined) {
+		return undefined;
+	}
+	const inherited = contextIndex.resolve(
+		parsed.uri,
+		identifier.name,
+		symbolResolver,
+		settings,
+	)[0];
+	return inherited === undefined
+		? undefined
+		: hover(inheritedVariableMarkdown(inherited), parsed, identifier);
 }
 
 function craftHandleHover(

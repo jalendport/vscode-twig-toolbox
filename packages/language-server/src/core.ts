@@ -18,6 +18,7 @@ import { getMergedCompletions, getMergedHover } from './merge';
 import type { MemberProvider } from './members';
 import type { TwigToolboxSettings } from './settings';
 import { getSignatureHelp } from './signatures';
+import { TemplateContextIndex } from './template-context';
 import { getDefinition, getTemplateDocumentLinks } from './template-navigation';
 import type { TemplateResolver } from './template-resolver';
 import { TemplateSymbolResolver } from './template-symbols';
@@ -42,6 +43,13 @@ export class TwigServerCore {
 	private readonly memberProviders: readonly MemberProvider[] | undefined;
 	private readonly templateResolver: TemplateResolver | undefined;
 	private readonly craftProjectConfig: CraftProjectConfigResolver | undefined;
+	/**
+	 * Long-lived on purpose: `TemplateSymbolResolver` is rebuilt per request
+	 * because it caches against one settings snapshot, but the inclusion graph
+	 * is workspace state, and rebuilding it per keystroke would defeat the
+	 * laziness that keeps it off the perf budget.
+	 */
+	private readonly contextIndex: TemplateContextIndex | undefined;
 
 	constructor(options: TwigServerCoreOptions) {
 		this.catalogRegistry = options.catalogRegistry;
@@ -60,6 +68,10 @@ export class TwigServerCore {
 				: { resolveWorkspaceContext: options.resolveWorkspaceContext }),
 		};
 		this.documents = new DocumentStore(storeOptions);
+		this.contextIndex =
+			this.templateResolver === undefined
+				? undefined
+				: new TemplateContextIndex(this.documents, this.templateResolver);
 	}
 
 	openDocument(document: TextDocument): void {
@@ -68,6 +80,9 @@ export class TwigServerCore {
 
 	updateDocument(document: TextDocument): void {
 		this.documents.update(document);
+		// An edit to an open template can add or remove an include, and the
+		// watcher only fires on save.
+		this.contextIndex?.invalidate(document.uri);
 	}
 
 	closeDocument(uri: string): void {
@@ -113,7 +128,9 @@ export class TwigServerCore {
 
 		return getMergedHover(parsed, parsed.document.offsetAt(position), {
 			catalogRegistry: this.catalogRegistry,
+			settings,
 			...(symbolResolver === undefined ? {} : { symbolResolver }),
+			...(this.contextIndex === undefined ? {} : { contextIndex: this.contextIndex }),
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
@@ -165,6 +182,7 @@ export class TwigServerCore {
 			settings,
 			new TemplateSymbolResolver(this.documents, this.templateResolver, settings),
 			this.craftProjectConfig,
+			this.contextIndex,
 		);
 	}
 
@@ -181,6 +199,7 @@ export class TwigServerCore {
 		this.documents.invalidate(uri);
 		this.templateResolver?.invalidate(uri);
 		this.craftProjectConfig?.invalidate(uri);
+		this.contextIndex?.invalidate(uri);
 	}
 
 	async refreshDiagnostics(uri: string): Promise<void> {
