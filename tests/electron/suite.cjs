@@ -229,6 +229,33 @@ async function testAutoClose(editor) {
 		'auto-close must not fire inside `{{ }}`',
 	);
 	await clearLine(editor, 5);
+
+	// Twig delimiters close once, keystroke by keystroke. A bare `{` pair used to
+	// stack a stray `}` under these: typing `{{ ` produced `{{  }}}`.
+	for (const [seq, expected] of [
+		['{{ ', '{{ }}'],
+		['{% ', '{% %}'],
+		['{# ', '{# #}'],
+		['{ ', '{ '],
+	]) {
+		await typeSequence(editor, 5, seq);
+		await sleep(200);
+		assert.equal(
+			editor.document.lineAt(5).text,
+			expected,
+			`typing \`${seq}\` char by char must yield \`${expected}\``,
+		);
+		await clearLine(editor, 5);
+	}
+}
+
+/** Types every character of `seq` as its own keystroke on an empty line. */
+async function typeSequence(editor, line, seq) {
+	const start = new vscode.Position(line, 0);
+	editor.selection = new vscode.Selection(start, start);
+	for (const ch of seq) {
+		await vscode.commands.executeCommand('type', { text: ch });
+	}
 }
 
 /**

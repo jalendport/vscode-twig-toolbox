@@ -46,11 +46,15 @@ describe('auto-closing pairs', () => {
 	it('closes the Twig delimiters', () => {
 		expect(pairs()).toEqual(
 			expect.arrayContaining([
-				['{# ', ' #}'],
-				['{{ ', ' }}'],
-				['{% ', ' %}'],
+				['{#', '#}'],
+				['{{', '}}'],
+				['{%', '%}'],
 			]),
 		);
+	});
+
+	it('has no bare `{` pair — it stacks closers under the delimiter pairs', () => {
+		expect(pairs()).not.toEqual(expect.arrayContaining([['{', '}']]));
 	});
 
 	it('closes string interpolation, quotes and HTML comments', () => {
