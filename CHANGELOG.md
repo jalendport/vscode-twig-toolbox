@@ -21,6 +21,12 @@ and 5 are both supported.
   `#{…}` string interpolation.
 - Language configuration: comment toggling, bracket matching, auto-closing pairs, indentation and
   folding for Twig blocks.
+- Braces and brackets close themselves inside a Twig expression: `{% set a = {` becomes
+  `{% set a = { } %}`, `[` becomes `[ ]`, and `foo[` closes tight as `foo[]`. Driven by the server,
+  which is the only half that can tell a hash from the `{` of a `{{ ` delimiter or a bracket typed
+  in prose — so nothing closes in text, comments, `verbatim` or strings. Turn off with
+  `twigToolbox.autoClosingBraces`. As a consequence `[` no longer auto-closes in raw HTML or in
+  `<script>`/`<style>` bodies, where a bracket is usually punctuation rather than a pair.
 - `.twig` and `.html.twig` are both recognised as Twig.
 
 **Language server**

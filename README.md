@@ -139,6 +139,7 @@ All settings are under `twigToolbox.*`. Those scoped **resource** can be set per
 | `twigToolbox.diagnostics.ignoredNames` | `string[]`                              | `[]`    | resource | Names that unknown-name diagnostics ignore. Use for a plugin we don't ship a catalog for.                                     |
 | `twigToolbox.autoClosingTags`          | `boolean`                               | `true`  | resource | Automatically closes HTML tags.                                                                                               |
 | `twigToolbox.autoCreateQuotes`         | `boolean`                               | `true`  | resource | Adds quotes after typing `=` in an HTML attribute.                                                                            |
+| `twigToolbox.autoClosingBraces`        | `boolean`                               | `true`  | resource | Closes `{` and `[` typed inside a Twig expression — hashes, arrays and index access. Never in text, comments or strings.      |
 | `twigToolbox.trace.server`             | `off` \| `messages` \| `verbose`        | `off`   | window   | Traces client↔server LSP messages. For bug reports.                                                                           |
 
 ### Diagnostics
