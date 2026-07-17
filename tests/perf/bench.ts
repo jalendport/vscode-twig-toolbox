@@ -7,6 +7,7 @@
 
 import {
 	measureBulkEditStalls,
+	measureCatalogLoad,
 	measureCompletions,
 	measureLargeParse,
 	measureProjectMemory,
@@ -59,6 +60,23 @@ console.log(
 );
 console.log(
 	`  (harness rss baseline ${memory.rssBaselineMb.toFixed(1)} MB — tsx's compiler, not the server)`,
+);
+
+heading('Catalog load, either side of the lazy boundary');
+const catalogs = measureCatalogLoad();
+console.log(
+	`  startup, eager packs        ${ms(catalogs.startupMs).padStart(9)}  ` +
+		`heap ${catalogs.startupHeapMb.toFixed(1).padStart(5)} MB  ` +
+		`${verdict(catalogs.startupMs, 50)} (budget: < 50 ms, < 10 MB)`,
+);
+console.log(
+	`  first member lookup         ${ms(catalogs.firstLookupMs).padStart(9)}  ` +
+		`heap ${catalogs.classModelHeapMb.toFixed(1).padStart(5)} MB  ` +
+		`${verdict(catalogs.firstLookupMs, 150)} (budget: < 150 ms, < 25 MB)`,
+);
+console.log(
+	`  later lookups (cached)      ${ms(catalogs.warmLookupMs).padStart(9)}  ` +
+		`${' '.repeat(13)}${verdict(catalogs.warmLookupMs, 5)} (budget: < 5 ms)`,
 );
 
 heading('Event-loop stalls during bulk edits (budget: no stall > 250 ms)');

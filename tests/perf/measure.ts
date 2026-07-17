@@ -10,6 +10,7 @@ import { parse } from '@twig-toolbox/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import {
 	CatalogRegistry,
+	SHIPPED_CLASS_PACK_FILES,
 	SHIPPED_PACK_FILES,
 	resolveCatalogPath,
 } from '../../packages/language-server/src/catalog';
@@ -43,7 +44,80 @@ export function loadRealRegistry(): CatalogRegistry {
 		throw new Error('Shipped catalogs not found — run `npm run build` first');
 	}
 
-	return CatalogRegistry.fromFiles(paths);
+	// The class models too, and lazily, exactly as the server wires them: they are
+	// the larger half of what a member completion touches, and a registry without
+	// them would post a flattering number for work the real one does.
+	const classPackPaths: Record<string, string> = {};
+	for (const [pack, file] of Object.entries(SHIPPED_CLASS_PACK_FILES)) {
+		const path = resolveCatalogPath(undefined, process.cwd(), file);
+		if (path === undefined) {
+			throw new Error(`Shipped class catalog "${file}" not found`);
+		}
+		classPackPaths[pack] = path;
+	}
+
+	return CatalogRegistry.fromFiles(paths, classPackPaths);
+}
+
+export interface CatalogLoadMeasurement {
+	/** Reading and parsing the eagerly-shipped packs — what startup pays. */
+	readonly startupMs: number;
+	/** The first member lookup: reads the class model, then flattens it. */
+	readonly firstLookupMs: number;
+	/** Every lookup after that, which is served from the flatten cache. */
+	readonly warmLookupMs: number;
+	/** Heap the eager packs retain. */
+	readonly startupHeapMb: number;
+	/** Heap the class model adds on top, once something needs it. */
+	readonly classModelHeapMb: number;
+}
+
+/**
+ * What the catalogs cost to load, split at the lazy boundary.
+ *
+ * Two numbers rather than one, because the split is the point. Startup pays for
+ * `twig-core.json` and `craft.json` and nothing else; the class model — the
+ * larger half — is not read until a member lookup asks for it, and a session
+ * that never dots into anything never pays it at all.
+ *
+ * Measured on a Craft context, which is the expensive case: a plain Twig project
+ * never activates the Craft pack and so never opens either Craft file.
+ */
+export function measureCatalogLoad(): CatalogLoadMeasurement {
+	globalThis.gc?.();
+	const before = process.memoryUsage();
+
+	const startedLoad = performance.now();
+	const registry = loadRealRegistry();
+	registry.getMergedEntries(CRAFT_CONTEXT);
+	const startupMs = performance.now() - startedLoad;
+
+	globalThis.gc?.();
+	const loaded = process.memoryUsage();
+
+	const startedFirst = performance.now();
+	const objects = registry.getMergedObjects(CRAFT_CONTEXT);
+	const firstLookupMs = performance.now() - startedFirst;
+
+	const startedWarm = performance.now();
+	registry.getMergedObjects(CRAFT_CONTEXT);
+	const warmLookupMs = performance.now() - startedWarm;
+
+	globalThis.gc?.();
+	const after = process.memoryUsage();
+
+	// Keep it reachable, or the heap reading is of a model already collected.
+	if (objects.size === 0) {
+		throw new Error('no objects — the Craft pack did not activate');
+	}
+
+	return {
+		startupMs,
+		firstLookupMs,
+		warmLookupMs,
+		startupHeapMb: (loaded.heapUsed - before.heapUsed) / 1024 / 1024,
+		classModelHeapMb: (after.heapUsed - loaded.heapUsed) / 1024 / 1024,
+	};
 }
 
 /** A Craft project context, so the Craft pack activates and gets measured too. */
