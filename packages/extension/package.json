@@ -4,6 +4,7 @@
 	"description": "Twig language support for VS Code: syntax highlighting and a language server, with first-class CraftCMS awareness.",
 	"version": "0.1.0",
 	"publisher": "jalendport",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.101.0"
 	},
