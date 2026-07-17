@@ -89,6 +89,10 @@ and 5 are both supported.
   `twigToolbox.diagnostics.ignoredNames`, `twigToolbox.autoClosingTags`,
   `twigToolbox.autoCreateQuotes` and `twigToolbox.trace.server`.
 
+### Fixed
+
+- Fixed Craft CMS `{% switch %}` clause tags being reported as unknown when unknown-name diagnostics are enabled.
+
 ### Notes
 
 - **Telemetry: none.** No data collection and no network requests at runtime.

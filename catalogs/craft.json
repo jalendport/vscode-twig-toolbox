@@ -41,6 +41,19 @@
         }
       },
       {
+        "name": "case",
+        "signature": "case",
+        "parameters": [],
+        "description": "A case clause of Craft's `{% switch %}` tag.",
+        "docsUrl": "https://craftcms.com/docs/5.x/reference/twig/tags.html#switch",
+        "completionSnippet": "{% case '${1:value}' %}",
+        "source": {
+          "extension": "Extension",
+          "phpClass": "craft\\web\\twig\\tokenparsers\\SwitchTokenParser",
+          "docsPath": "docs/5.x/reference/twig/tags.md"
+        }
+      },
+      {
         "name": "css",
         "signature": "css",
         "parameters": [],
@@ -63,6 +76,19 @@
         "source": {
           "extension": "Extension",
           "phpClass": "craft\\web\\twig\\tokenparsers\\DdTokenParser",
+          "docsPath": "docs/5.x/reference/twig/tags.md"
+        }
+      },
+      {
+        "name": "default",
+        "signature": "default",
+        "parameters": [],
+        "description": "A default clause of Craft's `{% switch %}` tag.",
+        "docsUrl": "https://craftcms.com/docs/5.x/reference/twig/tags.html#switch",
+        "completionSnippet": "{% default %}",
+        "source": {
+          "extension": "Extension",
+          "phpClass": "craft\\web\\twig\\tokenparsers\\SwitchTokenParser",
           "docsPath": "docs/5.x/reference/twig/tags.md"
         }
       },

@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
 	CompletionItemKind,
+	DiagnosticSeverity,
 	type CompletionItem,
 	type Diagnostic,
 } from 'vscode-languageserver/node';
@@ -114,6 +115,64 @@ describe('Craft pack activation', () => {
 			expect(await hoverAt(createServer(fixture), fixture, '{{ text|mark‸down }}')).toBe(
 				undefined,
 			);
+		});
+	});
+
+	it('accepts switch clause tags in a Craft project', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const byUri = new Map<string, Diagnostic[]>();
+			const server = createServer(fixture, {
+				publishDiagnostics: (uri, diagnostics) => byUri.set(uri, diagnostics),
+				settings: {
+					templateRoots: [],
+					diagnostics: { unknownNames: 'warning', ignoredNames: [] },
+				},
+			});
+			const source =
+				"{% switch section %}{% case 'news' %}News{% default %}Other{% endswitch %}";
+
+			const { uri } = open(server, fixture, `${source}‸`);
+			await vi.waitFor(() => expect(byUri.has(uri)).toBe(true));
+
+			expect(byUri.get(uri)).toEqual([]);
+			const hover = await hoverAt(
+				server,
+				fixture,
+				"{% switch section %}{% ca‸se 'news' %}News{% default %}Other{% endswitch %}",
+			);
+			expect(hover).toContain("A case clause of Craft's `{% switch %}` tag.");
+			expect(hover).toContain(
+				'https://craftcms.com/docs/5.x/reference/twig/tags.html#switch',
+			);
+		});
+	});
+
+	it('keeps switch clause tags Craft-only', async () => {
+		await withFixture(plainFixture(), async (fixture) => {
+			const byUri = new Map<string, Diagnostic[]>();
+			const server = createServer(fixture, {
+				publishDiagnostics: (uri, diagnostics) => byUri.set(uri, diagnostics),
+				settings: {
+					templateRoots: [],
+					diagnostics: { unknownNames: 'warning', ignoredNames: [] },
+				},
+			});
+			const source =
+				"{% switch section %}{% case 'news' %}News{% default %}Other{% endswitch %}";
+
+			const { uri } = open(server, fixture, `${source}‸`);
+			await vi.waitFor(() => expect(byUri.get(uri)).toHaveLength(3));
+
+			expect(byUri.get(uri)?.map((diagnostic) => diagnostic.message)).toEqual([
+				'Unknown Twig tag "switch".',
+				'Unknown Twig tag "case".',
+				'Unknown Twig tag "default".',
+			]);
+			expect(byUri.get(uri)?.map((diagnostic) => diagnostic.severity)).toEqual([
+				DiagnosticSeverity.Warning,
+				DiagnosticSeverity.Warning,
+				DiagnosticSeverity.Warning,
+			]);
 		});
 	});
 });
@@ -647,6 +706,8 @@ describe('Craft catalog completeness', () => {
 				'cache',
 				'nav',
 				'switch',
+				'case',
+				'default',
 				'paginate',
 				'js',
 				'css',

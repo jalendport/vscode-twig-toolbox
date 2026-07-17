@@ -1455,6 +1455,7 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 			entries[kind].set(name, merged);
 		}
 	}
+	addSwitchClauseTags(entries.tags);
 
 	const objects = mergeObjects(four.objects, five.objects);
 
@@ -1639,6 +1640,44 @@ function mergeItems<T extends CatalogEntry | CatalogMember>(
 
 function sortedEntries(entries: ReadonlyMap<string, CatalogEntry>): CatalogEntry[] {
 	return [...entries.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function addSwitchClauseTags(tags: Map<string, CatalogEntry>): void {
+	const switchTag = tags.get('switch');
+	if (switchTag === undefined) {
+		throw new Error('Cannot synthesize switch clause tags without a switch tag');
+	}
+
+	const versionFields = pruneUndefined({
+		sinceVersion: switchTag.sinceVersion,
+		removedVersion: switchTag.removedVersion,
+	});
+	for (const clause of [
+		{
+			name: 'case',
+			description: "A case clause of Craft's `{% switch %}` tag.",
+			completionSnippet: "{% case '${1:value}' %}",
+		},
+		{
+			name: 'default',
+			description: "A default clause of Craft's `{% switch %}` tag.",
+			completionSnippet: '{% default %}',
+		},
+	]) {
+		tags.set(
+			clause.name,
+			pruneUndefined({
+				name: clause.name,
+				signature: clause.name,
+				parameters: [],
+				description: clause.description,
+				docsUrl: switchTag.docsUrl,
+				completionSnippet: clause.completionSnippet,
+				...versionFields,
+				source: switchTag.source,
+			}),
+		);
+	}
 }
 
 // ---------------------------------------------------------------------------
