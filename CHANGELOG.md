@@ -47,6 +47,8 @@ and 5 are both supported.
 - Path completion, go-to-definition and clickable document links for `extends`, `include`,
   `import`, `embed`, `from` and `use`, and for `include()`, `source()` and `block(…, 'template')`.
 - Cross-file symbol resolution for imported macros and parent-template blocks.
+- Cross-template variable resolution: hover and go-to-definition for variables an including
+  template passes down, walked through nested includes and embeds, honouring `with` and `only`.
 
 **Craft CMS**
 
