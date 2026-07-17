@@ -311,12 +311,18 @@ async function testAutoClose(editor) {
 	);
 	await clearLine(editor, 5);
 
-	// Twig delimiters close once, keystroke by keystroke. A bare `{` pair used to
-	// stack a stray `}` under these: typing `{{ ` produced `{{  }}}`.
+	// Twig delimiters close once, keystroke by keystroke, and the close carries
+	// the house-style inner space so content never lands flush against `}}`.
+	// Two regressions are pinned here: a bare `{` pair used to stack a stray
+	// `}` (typing `{{ ` produced `{{  }}}`), and tight pairs used to orphan
+	// the closing space (`{{ getenv()}}`). The two rendered spaces are the
+	// typed one plus the close's own — the cursor sits between them.
 	for (const [seq, expected] of [
-		['{{ ', '{{ }}'],
-		['{% ', '{% %}'],
-		['{# ', '{# #}'],
+		['{{ ', '{{  }}'],
+		['{% ', '{%  %}'],
+		['{# ', '{#  #}'],
+		['{{ currentUser', '{{ currentUser }}'],
+		['{{', '{{'],
 		['{ ', '{ '],
 	]) {
 		await typeSequence(editor, 5, seq);

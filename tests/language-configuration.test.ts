@@ -43,18 +43,28 @@ describe('comments', () => {
 describe('auto-closing pairs', () => {
 	const pairs = () => config.autoClosingPairs.map((p) => [p.open, p.close]);
 
-	it('closes the Twig delimiters', () => {
+	it('closes the Twig delimiters with the house-style inner spaces', () => {
 		expect(pairs()).toEqual(
 			expect.arrayContaining([
-				['{#', '#}'],
-				['{{', '}}'],
-				['{%', '%}'],
+				['{# ', ' #}'],
+				['{{ ', ' }}'],
+				['{% ', ' %}'],
 			]),
 		);
 	});
 
 	it('has no bare `{` pair — it stacks closers under the delimiter pairs', () => {
 		expect(pairs()).not.toEqual(expect.arrayContaining([['{', '}']]));
+	});
+
+	it('has no tight delimiter pairs — they orphan the closing space', () => {
+		expect(pairs()).not.toEqual(
+			expect.arrayContaining([
+				['{{', '}}'],
+				['{%', '%}'],
+				['{#', '#}'],
+			]),
+		);
 	});
 
 	it('closes string interpolation, quotes and HTML comments', () => {
