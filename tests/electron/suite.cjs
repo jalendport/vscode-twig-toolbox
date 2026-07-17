@@ -244,6 +244,11 @@ async function typeTrigger(editor, line, prefix, trigger) {
 	const at = new vscode.Position(line, prefix.length);
 	editor.selection = new vscode.Selection(at, at);
 	await vscode.commands.executeCommand('type', { text: trigger });
+	if (editor.document.lineAt(line).text[prefix.length] !== trigger) {
+		await editor.edit((builder) => builder.insert(at, trigger));
+		const afterTrigger = at.translate(0, trigger.length);
+		editor.selection = new vscode.Selection(afterTrigger, afterTrigger);
+	}
 }
 
 async function clearLine(editor, line) {
@@ -379,7 +384,9 @@ async function withEdit(editor, at, insert, check) {
 	try {
 		await check(at.translate(0, insert.length));
 	} finally {
-		await vscode.commands.executeCommand('undo');
+		await editor.edit((builder) =>
+			builder.delete(new vscode.Range(at, at.translate(0, insert.length))),
+		);
 	}
 }
 
