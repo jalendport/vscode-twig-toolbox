@@ -1,0 +1,83 @@
+name: Bug report
+description: Something isn't working the way it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead? Include steps to reproduce.
+    validations:
+      required: true
+  - type: textarea
+    id: template
+    attributes:
+      label: Twig that reproduces it
+      description: The smallest template or snippet that shows the problem.
+      render: twig
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version
+    validations:
+      required: true
+  - type: dropdown
+    id: editor
+    attributes:
+      label: Editor
+      options:
+        - VS Code
+        - Cursor
+        - VSCodium
+        - Windsurf
+        - Other (say which in the description)
+    validations:
+      required: true
+  - type: input
+    id: editor-version
+    attributes:
+      label: Editor version
+      description: From the About dialog — e.g. 1.102.3.
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: dropdown
+    id: project-type
+    attributes:
+      label: Project type
+      description: Craft awareness is detected from composer.json, so this changes what the extension does.
+      options:
+        - Craft CMS project
+        - Plain Twig (no Craft)
+    validations:
+      required: true
+  - type: input
+    id: craft-version
+    attributes:
+      label: Craft CMS version
+      description: If a Craft project — the exact version from composer.lock.
+  - type: textarea
+    id: settings
+    attributes:
+      label: Changed settings
+      description: Any `twigToolbox.*` settings you've changed from their defaults.
+  - type: textarea
+    id: output
+    attributes:
+      label: Output panel logs
+      description: Anything relevant from Output → Twig Toolbox.
+      render: text
+  - type: input
+    id: other-extensions
+    attributes:
+      label: Other Twig extensions installed
+      description: Two extensions claiming `.twig` fight over it — worth ruling out.
