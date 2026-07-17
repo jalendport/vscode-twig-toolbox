@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "craft",
-  "displayName": "CraftCMS",
+  "displayName": "Craft CMS",
   "version": "4.x–5.x",
   "sources": {
     "twig": {

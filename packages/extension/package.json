@@ -1,7 +1,7 @@
 {
 	"name": "twig-toolbox",
 	"displayName": "Twig Toolbox",
-	"description": "Twig language support for VS Code: syntax highlighting and a language server, with first-class CraftCMS awareness.",
+	"description": "Twig language support for VS Code: syntax highlighting and a language server, with first-class Craft CMS awareness.",
 	"version": "0.1.0",
 	"publisher": "jalendport",
 	"license": "MIT",

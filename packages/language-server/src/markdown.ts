@@ -67,7 +67,7 @@ export function memberMarkdown(member: MemberCompletion): string {
  *
  * Hover reaches items completion filtered out, and this is the line that earns
  * that: someone reading `craft.matrixBlocks` in a Craft 5 project has a broken
- * template and a question, and "Removed in CraftCMS 5.0.0" is the answer.
+ * template and a question, and "Removed in Craft CMS 5.0.0" is the answer.
  */
 function availabilityNotes(
 	subject: string | undefined,

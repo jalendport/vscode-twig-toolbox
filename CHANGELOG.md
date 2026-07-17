@@ -8,7 +8,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/) and
 ## [Unreleased]
 
 First public release. Twig Toolbox is a ground-up Twig 3 extension: a complete TextMate grammar
-plus a real language server, with first-class CraftCMS awareness. Twig 3 semantics only; Craft 4
+plus a real language server, with first-class Craft CMS awareness. Twig 3 semantics only; Craft 4
 and 5 are both supported.
 
 ### Added
@@ -48,7 +48,7 @@ and 5 are both supported.
   `import`, `embed`, `from` and `use`, and for `include()`, `source()` and `block(…, 'template')`.
 - Cross-file symbol resolution for imported macros and parent-template blocks.
 
-**CraftCMS**
+**Craft CMS**
 
 - Automatic Craft detection from `composer.json` — no configuration, no prompt.
 - A generated catalog of Craft's Twig layer: every Craft tag, filter, function, test and global,

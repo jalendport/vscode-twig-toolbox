@@ -231,12 +231,12 @@ describe('member access', () => {
 			id: 'test.entry',
 			provideMembers: ({ object, symbol }) =>
 				object.type === 'Identifier' && object.name === 'entry' && symbol === undefined
-					? [{ name: 'myField', detail: 'PlainText', source: 'CraftCMS' }]
+					? [{ name: 'myField', detail: 'PlainText', source: 'Craft CMS' }]
 					: [],
 		};
 		expect(labelsAt('{{ entry.‸ }}')).toEqual([]);
 		expect(completionsAt('{{ entry.‸ }}', [craftish])).toMatchObject([
-			{ label: 'myField', labelDetails: { description: 'CraftCMS' } },
+			{ label: 'myField', labelDetails: { description: 'Craft CMS' } },
 		]);
 	});
 

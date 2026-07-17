@@ -95,7 +95,7 @@ export function createCraftSchemaMemberProvider(
 			return [
 				...BASE_MEMBERS[inferred.kind].map((member, index) => ({
 					...member,
-					source: 'CraftCMS',
+					source: 'Craft CMS',
 					sortText: `0:${index.toString().padStart(3, '0')}:${member.name}`,
 				})),
 				...inferred.fields.map(fieldCompletion),

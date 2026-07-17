@@ -80,7 +80,7 @@ async function testCraftPack() {
 	const tags = await completionsAt(uri, new vscode.Position(0, 3));
 	const nav = find(tags, 'nav');
 	assert.ok(nav, 'expected the Craft `nav` tag');
-	assert.equal(labelOf(nav).description, 'CraftCMS', 'Craft provenance reaches the client');
+	assert.equal(labelOf(nav).description, 'Craft CMS', 'Craft provenance reaches the client');
 
 	// `{{ craft.‸entries }}` — the member provider, over the shipped catalog.
 	const members = await completionsAt(uri, new vscode.Position(1, 10));
@@ -99,7 +99,7 @@ async function testCraftPack() {
 		.flatMap((hover) => hover.contents.map((content) => content.value ?? String(content)))
 		.join('\n');
 	assert.match(markdown, /Processes a string as Markdown/, 'expected the Craft docs on hover');
-	assert.match(markdown, /\*\*Source:\*\* CraftCMS/, 'expected Craft provenance on hover');
+	assert.match(markdown, /\*\*Source:\*\* Craft CMS/, 'expected Craft provenance on hover');
 }
 
 async function testTemplateNavigation() {

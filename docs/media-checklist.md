@@ -89,7 +89,7 @@ The beat that matters is the click landing in the right file. Make the filename 
 
 ### 5. `images/demo-craft.gif` — Craft schema awareness
 
-**Slot:** README "CraftCMS awareness" section. **This is the money shot** — milestone 10's magic,
+**Slot:** README "Craft CMS awareness" section. **This is the money shot** — milestone 10's magic,
 and the thing no other Twig extension does. Give it the most care.
 
 Record in a **real Craft project** whose `config/project/` has recognisable handles.

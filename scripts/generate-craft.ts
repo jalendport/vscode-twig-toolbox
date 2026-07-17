@@ -863,7 +863,7 @@ function mergeMajors(four: Scrape, five: Scrape): DialectPack {
 	return {
 		schemaVersion: 1,
 		name: 'craft',
-		displayName: 'CraftCMS',
+		displayName: 'Craft CMS',
 		version: '4.x–5.x',
 		sources: {
 			twig: { repository: CMS_REPOSITORY, ref: CRAFT_5_REF },

@@ -1,7 +1,7 @@
 # Twig Toolbox
 
 Twig language support for VS Code: a complete Twig 3 grammar and a real language server —
-completions, hover, go-to-template and diagnostics — with first-class CraftCMS awareness.
+completions, hover, go-to-template and diagnostics — with first-class Craft CMS awareness.
 
 > **Status:** pre-release (0.x). Nothing is published to the marketplaces yet.
 >
@@ -84,7 +84,7 @@ Everything else is **off by default**. Unknown-name checks exist, but shipping t
 false positives on every project with a plugin we don't know about, so you opt in
 ([see below](#diagnostics-1)).
 
-### CraftCMS awareness
+### Craft CMS awareness
 
 Detected automatically from `composer.json`. In a Craft project you additionally get every Craft
 tag, filter, function, test and global, version-gated to Craft 4 or 5, plus the `craft.*` API

@@ -72,7 +72,7 @@ describe('Craft pack activation', () => {
 			const hover = await hoverAt(server, fixture, '{{ text|mark‸down }}');
 
 			expect(hover).toContain('Processes a string as Markdown.');
-			expect(hover).toContain('**Source:** CraftCMS');
+			expect(hover).toContain('**Source:** Craft CMS');
 			expect(hover).toContain(
 				'https://craftcms.com/docs/5.x/reference/twig/filters.html#markdown-or-md',
 			);
@@ -111,7 +111,7 @@ describe('craft.* API completions', () => {
 			const entries = items.find((item) => item.label === 'entries');
 			expect(entries?.kind).toBe(CompletionItemKind.Property);
 			expect(entries?.detail).toBe('entries(criteria? = [])');
-			expect(entries?.labelDetails?.description).toBe('CraftCMS');
+			expect(entries?.labelDetails?.description).toBe('Craft CMS');
 		});
 	});
 
@@ -200,7 +200,7 @@ describe('craft.* API completions', () => {
 			);
 
 			expect(hover).toContain('Narrows the query results based on the sections');
-			expect(hover).toContain('**Source:** CraftCMS');
+			expect(hover).toContain('**Source:** Craft CMS');
 		});
 	});
 });
@@ -259,7 +259,7 @@ describe('Craft version gating', () => {
 				'{{ craft.matrix‸Blocks.all() }}',
 			);
 
-			expect(hover).toContain('Removed in CraftCMS 5.0.0.');
+			expect(hover).toContain('Removed in Craft CMS 5.0.0.');
 		});
 	});
 
@@ -267,7 +267,7 @@ describe('Craft version gating', () => {
 		await withFixture(craftFixture({ version: '5.0.0' }), async (fixture) => {
 			const hover = await hoverAt(createServer(fixture), fixture, '{{ primary‸Site }}');
 
-			expect(hover).toContain('Available since CraftCMS 5.6.0.');
+			expect(hover).toContain('Available since Craft CMS 5.6.0.');
 		});
 	});
 

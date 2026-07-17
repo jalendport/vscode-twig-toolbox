@@ -235,7 +235,7 @@ describe('CatalogRegistry', () => {
 	});
 
 	it('activates composer-gated packs only when matching packages are present', () => {
-		const craftPack = createPack('craft', 'CraftCMS', {
+		const craftPack = createPack('craft', 'Craft CMS', {
 			kind: 'composer',
 			composerPackages: ['craftcms/cms'],
 		});
@@ -250,14 +250,14 @@ describe('CatalogRegistry', () => {
 	});
 
 	it('merges active entries with pack provenance retained', () => {
-		const craftPack = createPack('craft', 'CraftCMS', {
+		const craftPack = createPack('craft', 'Craft CMS', {
 			kind: 'composer',
 			composerPackages: ['craftcms/cms'],
 		});
 		const registry = CatalogRegistry.fromPacks([corePack, craftPack]);
 		const entries = registry.getMergedEntries({ composerPackages: ['craftcms/cms'] });
 
-		expect(entries.functions.get('craft')?.pack.displayName).toBe('CraftCMS');
+		expect(entries.functions.get('craft')?.pack.displayName).toBe('Craft CMS');
 		expect(entries.functions.get('include')?.pack.displayName).toBe('Twig');
 	});
 
