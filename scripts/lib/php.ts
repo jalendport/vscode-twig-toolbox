@@ -114,6 +114,24 @@ export function normalizeType(type: string | undefined): string | undefined {
 		.trim();
 }
 
+/**
+ * A description down to its first sentence.
+ *
+ * The class model is the reason this exists: a docblock summary runs to a
+ * paragraph, and a paragraph times ~5,000 members is most of the pack. The first
+ * sentence is the part that answers "what is this", and everything after it is
+ * what the documentation link is for.
+ *
+ * The language server has the same rule in `markdown.ts`, for the completion
+ * detail line. The two layers cannot import each other — one is bundled into the
+ * extension, the other only ever runs under `tsx` — so the rule is written twice
+ * rather than reached across for.
+ */
+export function firstSentence(description: string): string {
+	const match = /^[\s\S]*?\.(?=\s|$)/.exec(description.trim());
+	return (match?.[0] ?? description).replace(/\s+/g, ' ').trim();
+}
+
 export function buildSignature(name: string, parameters: readonly CatalogParameter[]): string {
 	if (parameters.length === 0) {
 		return name;

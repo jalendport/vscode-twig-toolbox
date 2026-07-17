@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { apiMemberUrl, apiPageUrl, isCraftClass } from '../../scripts/lib/craft-api';
+import {
+	apiMemberUrl,
+	apiPageUrl,
+	isCraftClass,
+} from '../../packages/language-server/src/craft-api';
 
 /**
  * The link policy, as tests.
