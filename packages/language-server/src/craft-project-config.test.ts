@@ -8,7 +8,6 @@ import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
 import { createCraftMemberProvider } from './craft-members';
 import { CraftProjectConfigResolver } from './craft-project-config';
-import { createCraftSchemaMemberProvider } from './craft-schema-members';
 import { BUILTIN_MEMBER_PROVIDERS } from './members';
 import { ProjectContextResolver } from './project-context';
 import { DEFAULT_SETTINGS } from './settings';
@@ -177,8 +176,7 @@ function createServer(
 		craftProjectConfig,
 		memberProviders: [
 			...BUILTIN_MEMBER_PROVIDERS,
-			createCraftSchemaMemberProvider(craftProjectConfig, registry),
-			createCraftMemberProvider(registry),
+			createCraftMemberProvider(registry, craftProjectConfig),
 		],
 		parseDelayMs: 1,
 	});

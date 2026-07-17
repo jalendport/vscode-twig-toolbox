@@ -17,7 +17,6 @@ import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
 import { createCraftMemberProvider } from './craft-members';
 import { CraftProjectConfigResolver } from './craft-project-config';
-import { createCraftSchemaMemberProvider } from './craft-schema-members';
 import { BUILTIN_MEMBER_PROVIDERS } from './members';
 import { ProjectContextResolver } from './project-context';
 import { DEFAULT_SETTINGS, normalizeSettings, type TwigToolboxSettings } from './settings';
@@ -59,8 +58,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		craftProjectConfig,
 		memberProviders: [
 			...BUILTIN_MEMBER_PROVIDERS,
-			createCraftSchemaMemberProvider(craftProjectConfig, catalogRegistry),
-			createCraftMemberProvider(catalogRegistry),
+			createCraftMemberProvider(catalogRegistry, craftProjectConfig),
 		],
 	});
 

@@ -249,8 +249,11 @@ export function inferCraftElement(
 		}
 	}
 
-	const matrix = inferMatrixFieldExpression(expression, schema);
-	return matrix === undefined ? undefined : { kind: 'block', fields: matrix };
+	// Anything that is not a bare name is an expression that may describe its own
+	// element: `craft.entries.section('news').one()` is an entry of that section,
+	// and a Matrix field is its blocks. That is the same question a `{% for %}`
+	// sequence asks, so it is the same answer.
+	return inferCraftElementFromSequence(expression, schema);
 }
 
 export interface CraftQueryHandleSlot {
