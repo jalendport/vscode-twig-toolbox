@@ -16,6 +16,8 @@ import { TWIG_VERSION } from '@twig-toolbox/parser';
 import { CatalogRegistry } from './catalog';
 import { TwigServerCore } from './core';
 import { createCraftMemberProvider } from './craft-members';
+import { CraftProjectConfigResolver } from './craft-project-config';
+import { createCraftSchemaMemberProvider } from './craft-schema-members';
 import { BUILTIN_MEMBER_PROVIDERS } from './members';
 import { ProjectContextResolver } from './project-context';
 import { DEFAULT_SETTINGS, normalizeSettings, type TwigToolboxSettings } from './settings';
@@ -41,6 +43,9 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 	// One detector behind all three: pack activation, template roots, and the
 	// project introspection milestone 10 hangs off the same context.
 	const projects = new ProjectContextResolver(workspaceFolders);
+	const craftProjectConfig = new CraftProjectConfigResolver(projects, (message) => {
+		connection.console.info(message);
+	});
 	const workspaceContextResolver = createWorkspaceContextResolver(projects);
 	const templateResolver = new TemplateResolver(workspaceFolders, projects);
 	server = new TwigServerCore({
@@ -51,7 +56,12 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		},
 		resolveWorkspaceContext: (uri) => workspaceContextResolver.resolve(uri),
 		templateResolver,
-		memberProviders: [...BUILTIN_MEMBER_PROVIDERS, createCraftMemberProvider(catalogRegistry)],
+		craftProjectConfig,
+		memberProviders: [
+			...BUILTIN_MEMBER_PROVIDERS,
+			createCraftSchemaMemberProvider(craftProjectConfig, catalogRegistry),
+			createCraftMemberProvider(catalogRegistry),
+		],
 	});
 
 	connection.console.info(`Twig Toolbox language server starting (client: ${client})`);
@@ -98,6 +108,8 @@ connection.onInitialized(() => {
 				{ globPattern: '**/composer.json' },
 				{ globPattern: '**/composer.lock' },
 				{ globPattern: '**/.env' },
+				{ globPattern: '**/config/project/**/*.yaml' },
+				{ globPattern: '**/config/project/**/*.yml' },
 			],
 		});
 	}

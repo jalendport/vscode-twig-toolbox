@@ -30,6 +30,7 @@ export type CompletionContextKind =
 	| 'hash-key'
 	| 'named-argument'
 	| 'template-string'
+	| 'string-argument'
 	| 'block-name'
 	| 'none';
 
@@ -67,6 +68,12 @@ export type CompletionContext =
 			readonly kind: 'template-string';
 			readonly value: string;
 			readonly valueRange: SourceRange;
+	  })
+	| (Slot & {
+			readonly kind: 'string-argument';
+			readonly value: string;
+			readonly valueRange: SourceRange;
+			readonly callee: Expression;
 	  })
 	| (Slot & { readonly kind: 'block-name' });
 
@@ -438,7 +445,25 @@ function stringContext(
 	if (parent?.type === 'Argument' && owner?.kind === 'functions' && owner.name === 'block') {
 		return { kind: 'block-name', replace: inner };
 	}
+	const call = parent?.type === 'Argument' ? callParent(path, at) : undefined;
+	if (call !== undefined && literal.parts.length <= 1) {
+		return {
+			kind: 'string-argument',
+			value: literal.value,
+			valueRange: inner,
+			callee: call.callee,
+			replace: inner,
+		};
+	}
 	return { kind: 'none' };
+}
+
+function callParent(
+	path: readonly AnyNode[],
+	stringIndex: number,
+): Extract<AnyNode, { type: 'CallExpression' }> | undefined {
+	const call = path[stringIndex - 2];
+	return call?.type === 'CallExpression' ? call : undefined;
 }
 
 function isTemplateRef(path: readonly AnyNode[], at: number, literal: AnyNode): boolean {

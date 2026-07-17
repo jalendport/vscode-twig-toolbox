@@ -14,6 +14,11 @@ import type {
 	CatalogEntryMap,
 } from './catalog';
 import { classifyCompletion, type CompletionContext, type OpenTag } from './completion-context';
+import {
+	craftHandleSlot,
+	type CraftProjectConfigResolver,
+	type CraftQueryHandleSlot,
+} from './craft-project-config';
 import type { ParsedDocument } from './document-store';
 import {
 	BUILTIN_MEMBER_PROVIDERS,
@@ -43,6 +48,7 @@ export interface CompletionOptions {
 	readonly templateResolver?: TemplateResolver;
 	readonly settings?: TwigToolboxSettings;
 	readonly symbolResolver?: TemplateSymbolResolver;
+	readonly craftProjectConfig?: CraftProjectConfigResolver;
 }
 
 /** Sort buckets. Lower sorts higher; VS Code compares `sortText` as a string. */
@@ -158,6 +164,9 @@ export function getCompletions(
 			return options.templateResolver === undefined || options.settings === undefined
 				? []
 				: options.templateResolver.completions(parsed.document, context, options.settings);
+
+		case 'string-argument':
+			return craftHandleItems(context, parsed, options, range);
 	}
 }
 
@@ -303,10 +312,36 @@ function memberItem(member: MemberCompletion, range: Range): CompletionItem {
 		...(member.documentation === undefined
 			? {}
 			: { documentation: markdown(member.documentation) }),
-		sortText: `${RANK.local}:${member.name}`,
+		sortText: `${RANK.local}:${member.sortText ?? member.name}`,
 		insertTextFormat: InsertTextFormat.Snippet,
 		textEdit: { range, newText: member.insertText ?? member.name },
 	};
+}
+
+function craftHandleItems(
+	context: Extract<CompletionContext, { kind: 'string-argument' }>,
+	parsed: ParsedDocument,
+	options: CompletionOptions,
+	range: Range,
+): CompletionItem[] {
+	const schema = options.craftProjectConfig?.forUri(parsed.uri);
+	if (schema === undefined) {
+		return [];
+	}
+	const slot = craftHandleSlot(context.callee, context.value, schema);
+	return slot === undefined ? [] : handleItems(slot, range);
+}
+
+function handleItems(slot: CraftQueryHandleSlot, range: Range): CompletionItem[] {
+	return slot.handles.map((handle) => ({
+		label: handle.handle,
+		kind: CompletionItemKind.Value,
+		detail: handle.kind,
+		documentation: markdown(`${handle.name}\n\nDefined in \`${handle.sourceFile}\`.`),
+		labelDetails: { description: 'Craft project' },
+		sortText: `${RANK.local}:${handle.handle}`,
+		textEdit: { range, newText: handle.handle },
+	}));
 }
 
 /** `date(timezone=‸)` — the callee's own parameter names, ahead of everything. */

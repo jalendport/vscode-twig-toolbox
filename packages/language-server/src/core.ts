@@ -10,6 +10,7 @@ import type {
 } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogRegistry, WorkspaceCatalogContext } from './catalog';
+import type { CraftProjectConfigResolver } from './craft-project-config';
 import { getDiagnostics } from './diagnostics';
 import { DocumentStore, type DocumentStoreOptions, type ParsedDocument } from './document-store';
 import { getEmbeddedHighlights, getTagCompletion } from './embedded';
@@ -30,6 +31,7 @@ export interface TwigServerCoreOptions {
 	/** Defaults to the builtins; milestone 10 adds project-typed members here. */
 	readonly memberProviders?: readonly MemberProvider[];
 	readonly templateResolver?: TemplateResolver;
+	readonly craftProjectConfig?: CraftProjectConfigResolver;
 }
 
 export class TwigServerCore {
@@ -39,6 +41,7 @@ export class TwigServerCore {
 	private readonly documents: DocumentStore;
 	private readonly memberProviders: readonly MemberProvider[] | undefined;
 	private readonly templateResolver: TemplateResolver | undefined;
+	private readonly craftProjectConfig: CraftProjectConfigResolver | undefined;
 
 	constructor(options: TwigServerCoreOptions) {
 		this.catalogRegistry = options.catalogRegistry;
@@ -46,6 +49,7 @@ export class TwigServerCore {
 		this.publishDiagnostics = options.publishDiagnostics;
 		this.memberProviders = options.memberProviders;
 		this.templateResolver = options.templateResolver;
+		this.craftProjectConfig = options.craftProjectConfig;
 		const storeOptions: DocumentStoreOptions = {
 			onParsed: (document) => {
 				void this.publishParsedDiagnostics(document);
@@ -93,6 +97,9 @@ export class TwigServerCore {
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
+			...(this.craftProjectConfig === undefined
+				? {}
+				: { craftProjectConfig: this.craftProjectConfig }),
 		});
 	}
 
@@ -110,6 +117,9 @@ export class TwigServerCore {
 			...(this.memberProviders === undefined
 				? {}
 				: { memberProviders: this.memberProviders }),
+			...(this.craftProjectConfig === undefined
+				? {}
+				: { craftProjectConfig: this.craftProjectConfig }),
 		});
 	}
 
@@ -154,6 +164,7 @@ export class TwigServerCore {
 			this.templateResolver,
 			settings,
 			new TemplateSymbolResolver(this.documents, this.templateResolver, settings),
+			this.craftProjectConfig,
 		);
 	}
 
@@ -169,6 +180,7 @@ export class TwigServerCore {
 	invalidateFile(uri: string): void {
 		this.documents.invalidate(uri);
 		this.templateResolver?.invalidate(uri);
+		this.craftProjectConfig?.invalidate(uri);
 	}
 
 	async refreshDiagnostics(uri: string): Promise<void> {

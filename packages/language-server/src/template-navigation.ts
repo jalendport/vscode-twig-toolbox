@@ -1,6 +1,7 @@
 import { nodePathAt, type AnyNode, type Identifier, type SourceRange } from '@twig-toolbox/parser';
 import { DocumentLink, Location, type Range } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { craftHandleAt, type CraftProjectConfigResolver } from './craft-project-config';
 import type { DocumentStore, ParsedDocument } from './document-store';
 import type { TwigToolboxSettings } from './settings';
 import type { SymbolTable, TwigSymbol } from './symbols';
@@ -28,6 +29,7 @@ export function getDefinition(
 	templates: TemplateResolver,
 	settings: TwigToolboxSettings,
 	symbolResolver: TemplateSymbolResolver,
+	craftProjectConfig?: CraftProjectConfigResolver,
 ): Location[] {
 	const template = templateReferenceAt(parsed, offset);
 	if (template !== undefined) {
@@ -37,6 +39,11 @@ export function getDefinition(
 	}
 
 	const path = nodePathAt(parsed.result.template, offset);
+	const craftHandle = craftHandleDefinition(parsed, offset, path, craftProjectConfig);
+	if (craftHandle !== undefined) {
+		return [craftHandle];
+	}
+
 	const fromImport = fromImportDefinition(parsed, offset, path, documents, symbolResolver);
 	if (fromImport !== undefined) {
 		return [fromImport];
@@ -59,6 +66,31 @@ export function getDefinition(
 	}
 	const symbol = symbols.resolve(identifier.name, offset);
 	return symbol === undefined ? [] : locationForSymbol(parsed, documents, symbol);
+}
+
+function craftHandleDefinition(
+	parsed: ParsedDocument,
+	offset: number,
+	path: readonly AnyNode[],
+	craftProjectConfig: CraftProjectConfigResolver | undefined,
+): Location | undefined {
+	const schema = craftProjectConfig?.forUri(parsed.uri);
+	const literal = nearest(path, 'StringLiteral');
+	const argument = literal === undefined ? undefined : parentOf(path, literal);
+	const call = argument === undefined ? undefined : parentOf(path, argument);
+	if (
+		schema === undefined ||
+		literal === undefined ||
+		argument?.type !== 'Argument' ||
+		call?.type !== 'CallExpression' ||
+		!inside(literal, offset) ||
+		literal.parts.length > 1
+	) {
+		return undefined;
+	}
+
+	const handle = craftHandleAt(call.callee, literal.value, schema);
+	return handle === undefined ? undefined : schema.sourceLocation(handle.sourceFile);
 }
 
 function fromImportDefinition(

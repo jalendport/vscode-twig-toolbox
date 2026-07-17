@@ -7,6 +7,7 @@ import {
 } from '@twig-toolbox/parser';
 import type { Hover, Range } from 'vscode-languageserver/node';
 import type { CatalogRegistry } from './catalog';
+import { craftHandleAt, type CraftProjectConfigResolver } from './craft-project-config';
 import type { ParsedDocument } from './document-store';
 import {
 	catalogMarkdown,
@@ -26,6 +27,7 @@ export interface HoverOptions {
 	readonly catalogRegistry: CatalogRegistry;
 	readonly memberProviders?: readonly MemberProvider[];
 	readonly symbolResolver?: TemplateSymbolResolver;
+	readonly craftProjectConfig?: CraftProjectConfigResolver;
 }
 
 export function getHover(
@@ -73,6 +75,11 @@ export function getHover(
 		return member;
 	}
 
+	const handle = craftHandleHover(path, offset, parsed, options);
+	if (handle !== undefined) {
+		return handle;
+	}
+
 	const parent = parentFunctionHover(path, offset, parsed, options.symbolResolver);
 	if (parent !== undefined) {
 		return parent;
@@ -95,6 +102,44 @@ export function getHover(
 
 	const global = entries.globals.get(identifier.name);
 	return global === undefined ? undefined : hover(catalogMarkdown(global), parsed, identifier);
+}
+
+function craftHandleHover(
+	path: readonly AnyNode[],
+	offset: number,
+	parsed: ParsedDocument,
+	options: HoverOptions,
+): Hover | undefined {
+	const schema = options.craftProjectConfig?.forUri(parsed.uri);
+	const literal = nearest(path, 'StringLiteral');
+	const argument = literal === undefined ? undefined : parentOf(path, literal);
+	const call = argument === undefined ? undefined : parentOf(path, argument);
+	if (
+		schema === undefined ||
+		literal === undefined ||
+		argument?.type !== 'Argument' ||
+		call?.type !== 'CallExpression' ||
+		!inside(literal, offset) ||
+		literal.parts.length > 1
+	) {
+		return undefined;
+	}
+
+	const handle = craftHandleAt(call.callee, literal.value, schema);
+	if (handle === undefined) {
+		return undefined;
+	}
+	return hover(
+		[
+			'```twig',
+			`${handle.kind} ${handle.handle}`,
+			'```',
+			handle.name,
+			`Defined in \`${handle.sourceFile}\`.`,
+		].join('\n\n'),
+		parsed,
+		{ start: literal.start + 1, end: literal.end - 1 },
+	);
 }
 
 function localDefinitionHover(

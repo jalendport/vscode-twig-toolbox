@@ -27,6 +27,8 @@ export interface MemberCompletion {
 	readonly source?: string;
 	/** Snippet body; defaults to the plain name. */
 	readonly insertText?: string;
+	/** Sort key within member completions; defaults to the member name. */
+	readonly sortText?: string;
 	readonly macro?: MacroDefinition;
 	/**
 	 * False for a member the project's version does not have. Providers flag
