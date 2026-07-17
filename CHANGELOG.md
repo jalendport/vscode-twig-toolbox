@@ -32,6 +32,10 @@ and 5 are both supported.
 - Hover documentation for tags, filters, functions, tests and globals — signature, parameter docs,
   deprecation notices and a link to the upstream documentation.
 - Signature help while typing filter and function arguments.
+- Twig version gating: the `twig/twig` version in `composer.lock` decides which of Twig's own
+  tags, filters, functions and tests are offered, so a Craft 4 project (Twig 3.19) isn't shown
+  what Twig 3.24 added. No lockfile, or no Twig in it, and nothing is gated. Hover still explains
+  a name that was gated out, and says which version has it.
 
 **HTML, CSS and Emmet**
 
@@ -54,7 +58,9 @@ and 5 are both supported.
 
 - Automatic Craft detection from `composer.json` — no configuration, no prompt.
 - A generated catalog of Craft's Twig layer: every Craft tag, filter, function, test and global,
-  version-gated across Craft 4 and 5, offered only in Craft projects.
+  version-gated across Craft 4 and 5, offered only in Craft projects. Gating is release-accurate
+  where Craft's docs or its changelog say so — `randomString()` is known to have arrived in 5.9.0,
+  not merely "some time in 5".
 - Completions, hover and signature help for the `craft.*` API surface, including element query
   chains.
 - Deep `craft.app.*` awareness: the application, its front-end services and what they return are

@@ -157,6 +157,15 @@ Not a Craft project? Template roots fall back to Symfony's `templates/` if
 `symfony/framework-bundle` is in your composer packages, then to `templates/` if it exists, then to
 the workspace folder itself.
 
+## Twig's own version
+
+Twig gets the same treatment, in every project rather than just Craft ones. The version comes from
+`composer.lock`'s `twig/twig` — nothing else, since a project rarely requires Twig directly and a
+constraint is a floor rather than what Composer resolved — and it gates the same way: `|html_attr`
+and friends arrived in Twig 3.24, so a Craft 4 project (which pins Twig 3.19) isn't offered them.
+No lockfile, or no Twig in it, and nothing is gated at all. Hovering a name that was gated out
+still works, and tells you which version has it.
+
 ## Settings
 
 All settings are under `twigToolbox.*`. Those scoped **resource** can be set per workspace folder.
