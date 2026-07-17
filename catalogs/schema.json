@@ -239,7 +239,7 @@
 		"object": {
 			"type": "object",
 			"additionalProperties": false,
-			"required": ["name", "description", "docsUrl", "members"],
+			"required": ["name", "description", "members"],
 			"properties": {
 				"name": {
 					"type": "string",
@@ -255,6 +255,7 @@
 					"minLength": 8
 				},
 				"docsUrl": {
+					"description": "Absent for a class, whose reference page is derived from its name.",
 					"type": "string",
 					"format": "uri"
 				},
@@ -269,15 +270,7 @@
 		"member": {
 			"type": "object",
 			"additionalProperties": false,
-			"required": [
-				"name",
-				"kind",
-				"signature",
-				"parameters",
-				"description",
-				"docsUrl",
-				"completionSnippet"
-			],
+			"required": ["name", "kind", "signature", "parameters", "description", "completionSnippet"],
 			"properties": {
 				"name": {
 					"type": "string",

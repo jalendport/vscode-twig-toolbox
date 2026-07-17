@@ -1,0 +1,26 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://twig-toolbox.dev/schemas/class-pack.schema.json",
+	"title": "Twig Toolbox class pack",
+	"description": "A dialect pack's deep class model, shipped as its own file and loaded on the first member lookup. Objects are the same shape as a pack's own, and are stored inheritance-factored: each carries only what its class declares, and names its parent in `extends`. Members carry no `docsUrl` — the class reference's URL is derived at runtime from the declaring class, the kind and the name.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["schemaVersion", "pack", "classes"],
+	"properties": {
+		"schemaVersion": {
+			"type": "integer",
+			"const": 1
+		},
+		"pack": {
+			"description": "Name of the dialect pack that owns these classes. Their activation and version gating are that pack's.",
+			"type": "string",
+			"minLength": 1
+		},
+		"classes": {
+			"type": "array",
+			"items": {
+				"$ref": "https://twig-toolbox.dev/schemas/dialect-pack.schema.json#/$defs/object"
+			}
+		}
+	}
+}
