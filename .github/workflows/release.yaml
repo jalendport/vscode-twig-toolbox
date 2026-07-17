@@ -1,0 +1,152 @@
+name: Release
+
+# Tag-driven: `v1.0.0` publishes to both marketplaces, `v1.1.0-beta.1` (any tag
+# with a hyphen) goes out on the pre-release channel instead. Nothing here runs
+# on a push to a branch — a release is a deliberate act.
+# A manual run is always a dry run: it builds, lints, tests and packages, and
+# uploads the .vsix as an artifact, but resolves no version and so publishes
+# nothing. That is the "dry-run green in CI" the milestone asks for, runnable
+# before any token exists.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, package, publish
+    runs-on: ubuntu-latest
+    # Job level, not step level: a step's `if:` reads the `env` context, and the
+    # `secrets` context is not available there at all. This is what lets each
+    # publish skip cleanly when its token has not been created yet.
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The same gates CI runs. A tag does not get to skip them: the artifact
+      # this job uploads is the one users install.
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Resolve release channel
+        id: channel
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=" >> "$GITHUB_OUTPUT"
+            echo "pre-release=false" >> "$GITHUB_OUTPUT"
+            echo "Manual run: packaging only."
+            exit 0
+          fi
+
+          version="${REF_NAME#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          # A prerelease tag carries a hyphen (`1.1.0-beta.1`), per semver.
+          if [ "${version#*-}" != "$version" ]; then
+            echo "pre-release=true" >> "$GITHUB_OUTPUT"
+            echo "Channel: pre-release ($version)"
+          else
+            echo "pre-release=false" >> "$GITHUB_OUTPUT"
+            echo "Channel: stable ($version)"
+          fi
+
+      # The tag is the source of truth for the version. If package.json
+      # disagrees, the listing would claim a version nobody tagged — stop rather
+      # than publish a lie.
+      - name: Verify the tag matches the manifest version
+        if: steps.channel.outputs.version != ''
+        env:
+          TAG_VERSION: ${{ steps.channel.outputs.version }}
+        run: |
+          set -euo pipefail
+          manifest_version="$(node -p "require('./packages/extension/package.json').version")"
+          if [ "$manifest_version" != "$TAG_VERSION" ]; then
+            echo "::error::Tag v$TAG_VERSION does not match packages/extension/package.json version $manifest_version"
+            exit 1
+          fi
+          echo "Tag and manifest agree on $TAG_VERSION."
+
+      - name: Package extension
+        run: npm run package
+
+      - name: Resolve the .vsix path
+        id: vsix
+        run: |
+          set -euo pipefail
+          path="$(find . -maxdepth 1 -name '*.vsix' -print | head -n 1)"
+          if [ -z "$path" ]; then
+            echo "::error::npm run package produced no .vsix"
+            exit 1
+          fi
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+          echo "Packaged $path ($(du -h "$path" | cut -f1))"
+
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: twig-toolbox-${{ github.ref_name }}
+          path: '*.vsix'
+          if-no-files-found: error
+
+      # Every publish step is gated on its secret being present, so a fork — or
+      # this repo before Jalen creates the accounts — runs the whole workflow
+      # green up to the publish and simply skips it. That is the dry run.
+      - name: Publish to the VS Code Marketplace
+        if: steps.channel.outputs.version != '' && env.VSCE_PAT != ''
+        run: |
+          set -euo pipefail
+          npx --no-install vsce publish \
+            --no-dependencies \
+            --packagePath "${{ steps.vsix.outputs.path }}" \
+            ${{ steps.channel.outputs.pre-release == 'true' && '--pre-release' || '' }}
+
+      - name: Publish to Open VSX
+        if: steps.channel.outputs.version != '' && env.OVSX_PAT != ''
+        run: |
+          set -euo pipefail
+          npx --no-install ovsx publish \
+            --packagePath "${{ steps.vsix.outputs.path }}" \
+            ${{ steps.channel.outputs.pre-release == 'true' && '--pre-release' || '' }}
+
+      - name: Report skipped publishes
+        if: steps.channel.outputs.version != ''
+        run: |
+          if [ -z "${VSCE_PAT}" ]; then
+            echo "::warning::VSCE_PAT is not set — skipped the VS Code Marketplace publish."
+          fi
+          if [ -z "${OVSX_PAT}" ]; then
+            echo "::warning::OVSX_PAT is not set — skipped the Open VSX publish."
+          fi
+
+      - name: Create the GitHub release
+        if: steps.channel.outputs.version != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.vsix.outputs.path }}
+          generate_release_notes: true
+          prerelease: ${{ steps.channel.outputs.pre-release == 'true' }}
