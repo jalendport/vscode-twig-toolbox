@@ -1,12 +1,20 @@
 name: Release
 
-# Tag-driven: `v1.0.0` publishes to both marketplaces, `v1.1.0-beta.1` (any tag
-# with a hyphen) goes out on the pre-release channel instead. Nothing here runs
-# on a push to a branch — a release is a deliberate act.
-# A manual run is always a dry run: it builds, lints, tests and packages, and
-# uploads the .vsix as an artifact, but resolves no version and so publishes
-# nothing. That is the "dry-run green in CI" the milestone asks for, runnable
-# before any token exists.
+# Tag-driven, two channels:
+#   v1.2.0        → GitHub release + VS Code Marketplace + Open VSX
+#   v1.2.0-beta.1 → GitHub *pre-release* only — the stores never see a
+#                   prerelease. Manual download + install is the beta channel
+#                   (the marketplace's odd/even pre-release scheme is
+#                   deliberately not used).
+#
+# Ordering is artifact-first: the GitHub release is created before any store
+# publish, so a store outage can never block the downloadable .vsix. Each
+# publish step checks whether the version is already live, so a re-run after a
+# partial failure retries only what is missing.
+#
+# A manual run (workflow_dispatch) is always a dry run: build, lint, test,
+# package, upload the .vsix as an artifact — no version resolution, no release,
+# no publish. Runnable before any token exists.
 on:
   push:
     tags:
@@ -18,11 +26,11 @@ permissions:
 
 jobs:
   release:
-    name: Build, package, publish
+    name: Build, package, release, publish
     runs-on: ubuntu-latest
-    # Job level, not step level: a step's `if:` reads the `env` context, and the
-    # `secrets` context is not available there at all. This is what lets each
-    # publish skip cleanly when its token has not been created yet.
+    # Job level, not step level: a step's `if:` cannot read the `secrets`
+    # context. This is what lets each publish skip cleanly before its token
+    # has been created.
     env:
       VSCE_PAT: ${{ secrets.VSCE_PAT }}
       OVSX_PAT: ${{ secrets.OVSX_PAT }}
@@ -50,6 +58,9 @@ jobs:
       - name: Test
         run: npm test
 
+      # The tag must be strict semver: vMAJOR.MINOR.PATCH with an optional
+      # prerelease suffix. Anything else — v1.2, v1.2.0final — fails here,
+      # before anything is built or published off the back of a typo.
       - name: Resolve release channel
         id: channel
         env:
@@ -58,38 +69,74 @@ jobs:
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "version=" >> "$GITHUB_OUTPUT"
-            echo "pre-release=false" >> "$GITHUB_OUTPUT"
-            echo "Manual run: packaging only."
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "Manual run: dry run, packaging only."
             exit 0
           fi
 
-          version="${REF_NAME#v}"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-          # A prerelease tag carries a hyphen (`1.1.0-beta.1`), per semver.
-          if [ "${version#*-}" != "$version" ]; then
-            echo "pre-release=true" >> "$GITHUB_OUTPUT"
-            echo "Channel: pre-release ($version)"
-          else
-            echo "pre-release=false" >> "$GITHUB_OUTPUT"
-            echo "Channel: stable ($version)"
+          semver='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?$'
+          if ! echo "$REF_NAME" | grep -Eq "$semver"; then
+            echo "::error::Tag '$REF_NAME' is not vMAJOR.MINOR.PATCH[-prerelease] — refusing to release from a malformed tag."
+            exit 1
           fi
 
-      # The tag is the source of truth for the version. If package.json
-      # disagrees, the listing would claim a version nobody tagged — stop rather
-      # than publish a lie.
+          version="${REF_NAME#v}"
+          base="${version%%-*}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+
+          if [ "$base" != "$version" ]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "Channel: GitHub pre-release only ($version) — stores are skipped for prereleases."
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "Channel: stable ($version) — GitHub release + both stores."
+          fi
+
+      # The committed manifest never carries a prerelease suffix (the stores
+      # would reject it). A stable tag must match the manifest exactly; a
+      # prerelease tag must match on its MAJOR.MINOR.PATCH base, and the full
+      # prerelease version is injected at build time only.
       - name: Verify the tag matches the manifest version
         if: steps.channel.outputs.version != ''
         env:
           TAG_VERSION: ${{ steps.channel.outputs.version }}
+          TAG_BASE: ${{ steps.channel.outputs.base }}
+          PRERELEASE: ${{ steps.channel.outputs.prerelease }}
         run: |
           set -euo pipefail
           manifest_version="$(node -p "require('./packages/extension/package.json').version")"
-          if [ "$manifest_version" != "$TAG_VERSION" ]; then
-            echo "::error::Tag v$TAG_VERSION does not match packages/extension/package.json version $manifest_version"
-            exit 1
+          if [ "$PRERELEASE" = "true" ]; then
+            if [ "$manifest_version" != "$TAG_BASE" ]; then
+              echo "::error::Prerelease tag v$TAG_VERSION has base $TAG_BASE but the manifest says $manifest_version — bump the manifest to the version this is a prerelease of."
+              exit 1
+            fi
+            echo "Tag base $TAG_BASE matches the manifest; the full version is injected at build time."
+          else
+            if [ "$manifest_version" != "$TAG_VERSION" ]; then
+              echo "::error::Tag v$TAG_VERSION does not match packages/extension/package.json version $manifest_version"
+              exit 1
+            fi
+            echo "Tag and manifest agree on $TAG_VERSION."
           fi
-          echo "Tag and manifest agree on $TAG_VERSION."
+
+      # Build-time only — nothing is committed. vsce packages prerelease semver
+      # and VS Code installs it, so betas are distinguishable artifacts and a
+      # later stable (1.2.0 > 1.2.0-beta.N) updates over any installed beta.
+      - name: Inject the prerelease version into the manifest
+        if: steps.channel.outputs.prerelease == 'true'
+        env:
+          TAG_VERSION: ${{ steps.channel.outputs.version }}
+        run: |
+          set -euo pipefail
+          node -e "
+            const fs = require('fs');
+            const path = 'packages/extension/package.json';
+            const manifest = JSON.parse(fs.readFileSync(path, 'utf8'));
+            manifest.version = process.env.TAG_VERSION;
+            fs.writeFileSync(path, JSON.stringify(manifest, null, '\t') + '\n');
+          "
+          echo "Manifest version set to $TAG_VERSION for this build only."
 
       - name: Package extension
         run: npm run package
@@ -113,40 +160,88 @@ jobs:
           path: '*.vsix'
           if-no-files-found: error
 
-      # Every publish step is gated on its secret being present, so a fork — or
-      # this repo before Jalen creates the accounts — runs the whole workflow
-      # green up to the publish and simply skips it. That is the dry run.
-      - name: Publish to the VS Code Marketplace
-        if: steps.channel.outputs.version != '' && env.VSCE_PAT != ''
+      # Stable releases carry the hand-written CHANGELOG section as their body.
+      # A missing section fails the release — the changelog stays honest.
+      - name: Extract the CHANGELOG section
+        if: steps.channel.outputs.version != '' && steps.channel.outputs.prerelease == 'false'
+        env:
+          TAG_VERSION: ${{ steps.channel.outputs.version }}
         run: |
           set -euo pipefail
+          awk -v version="$TAG_VERSION" '
+            /^## / {
+              if (found) exit
+              if (index($0, "[" version "]") > 0 || $2 == version) { found = 1; next }
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::CHANGELOG.md has no section for $TAG_VERSION — write the release notes before tagging."
+            exit 1
+          fi
+          echo "Release notes extracted ($(wc -l < release-notes.md) lines)."
+
+      # Artifact-first: the GitHub release exists before any store is asked to
+      # publish, so a store outage never blocks the manual-install channel.
+      - name: Create the GitHub release (stable)
+        if: steps.channel.outputs.version != '' && steps.channel.outputs.prerelease == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.vsix.outputs.path }}
+          body_path: release-notes.md
+          prerelease: false
+
+      - name: Create the GitHub pre-release
+        if: steps.channel.outputs.prerelease == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.vsix.outputs.path }}
+          generate_release_notes: true
+          prerelease: true
+
+      # Prereleases stop here: the stores only ever see stable versions.
+      # Each publish first checks whether this exact version is already live,
+      # so a re-run after a partial failure skips what succeeded.
+      - name: Publish to the VS Code Marketplace
+        if: steps.channel.outputs.version != '' && steps.channel.outputs.prerelease == 'false' && env.VSCE_PAT != ''
+        env:
+          TAG_VERSION: ${{ steps.channel.outputs.version }}
+        run: |
+          set -euo pipefail
+          live="$(npx --no-install vsce show jalendport.twig-toolbox --json 2>/dev/null \
+            | node -p "try { JSON.parse(require('fs').readFileSync(0, 'utf8')).versions[0].version } catch { '' }" || true)"
+          if [ "$live" = "$TAG_VERSION" ]; then
+            echo "Marketplace already has $TAG_VERSION — skipping."
+            exit 0
+          fi
           npx --no-install vsce publish \
             --no-dependencies \
-            --packagePath "${{ steps.vsix.outputs.path }}" \
-            ${{ steps.channel.outputs.pre-release == 'true' && '--pre-release' || '' }}
+            --packagePath "${{ steps.vsix.outputs.path }}"
 
       - name: Publish to Open VSX
-        if: steps.channel.outputs.version != '' && env.OVSX_PAT != ''
+        if: steps.channel.outputs.version != '' && steps.channel.outputs.prerelease == 'false' && env.OVSX_PAT != ''
+        env:
+          TAG_VERSION: ${{ steps.channel.outputs.version }}
         run: |
           set -euo pipefail
-          npx --no-install ovsx publish \
-            --packagePath "${{ steps.vsix.outputs.path }}" \
-            ${{ steps.channel.outputs.pre-release == 'true' && '--pre-release' || '' }}
+          live="$(curl -sf https://open-vsx.org/api/jalendport/twig-toolbox 2>/dev/null \
+            | node -p "try { JSON.parse(require('fs').readFileSync(0, 'utf8')).version } catch { '' }" || true)"
+          if [ "$live" = "$TAG_VERSION" ]; then
+            echo "Open VSX already has $TAG_VERSION — skipping."
+            exit 0
+          fi
+          npx --no-install ovsx publish --packagePath "${{ steps.vsix.outputs.path }}"
 
       - name: Report skipped publishes
         if: steps.channel.outputs.version != ''
         run: |
+          if [ "${{ steps.channel.outputs.prerelease }}" = "true" ]; then
+            echo "Prerelease: both store publishes skipped by design — the GitHub pre-release is the artifact."
+            exit 0
+          fi
           if [ -z "${VSCE_PAT}" ]; then
             echo "::warning::VSCE_PAT is not set — skipped the VS Code Marketplace publish."
           fi
           if [ -z "${OVSX_PAT}" ]; then
             echo "::warning::OVSX_PAT is not set — skipped the Open VSX publish."
           fi
-
-      - name: Create the GitHub release
-        if: steps.channel.outputs.version != ''
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ steps.vsix.outputs.path }}
-          generate_release_notes: true
-          prerelease: ${{ steps.channel.outputs.pre-release == 'true' }}
