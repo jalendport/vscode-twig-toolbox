@@ -163,6 +163,19 @@ connection.onRequest(
 		server?.tagCompletion(params.textDocument.uri, params.position, params.trigger) ?? null,
 );
 
+/**
+ * `twig/autoCloseBrace` — the same shape as `html/tag`, for Twig's own brackets.
+ *
+ * `{` and `[` cannot be closed by the language config: whether they owe a closer
+ * depends on the region the cursor is in, which only a parse knows. See
+ * `getBraceCompletion` for the rules and for the stacking bug they prevent.
+ */
+connection.onRequest(
+	'twig/autoCloseBrace',
+	(params: { textDocument: TextDocumentIdentifier; position: Position; trigger: string }) =>
+		server?.braceCompletion(params.textDocument.uri, params.position, params.trigger) ?? null,
+);
+
 connection.onSignatureHelp(({ textDocument, position }) =>
 	server?.signatureHelp(textDocument.uri, position),
 );

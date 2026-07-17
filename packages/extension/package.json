@@ -117,6 +117,12 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Automatically adds quotes after typing '=' in an HTML attribute in Twig files."
+				},
+				"twigToolbox.autoClosingBraces": {
+					"scope": "resource",
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically closes braces and brackets typed inside a Twig expression, such as the hash in '{% set a = { %}' and the array in '{% set a = [ %}'."
 				}
 			}
 		},

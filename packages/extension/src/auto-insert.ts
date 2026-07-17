@@ -2,13 +2,14 @@ import * as vscode from 'vscode';
 import type { LanguageClient } from 'vscode-languageclient/node';
 
 /**
- * Auto-closing HTML tags and attribute quotes, on type.
+ * Auto-closing HTML tags, attribute quotes and Twig brackets, on type.
  *
  * A port of what `html-language-features` does for `.html`, because a Twig file
  * is an HTML file and users notice the moment `</div` stops finishing itself.
  * The language config's auto-closing pairs cover brackets and quotes typed in
  * isolation; only the server knows that the `>` just typed closed a `<div` and
- * therefore owes a `</div>`.
+ * therefore owes a `</div>`, or that the `{` just typed opened a hash rather
+ * than a `{{ ` delimiter.
  *
  * The work is deliberately deferred to a microtask-after-selection-change: the
  * document has to settle and the cursor has to be where the change left it,
@@ -16,13 +17,27 @@ import type { LanguageClient } from 'vscode-languageclient/node';
  * edit before the server answers cancels the insertion.
  */
 
-/** `>` and `/` finish a tag; `=` opens a pair of quotes. */
-const TRIGGERS = new Set(['>', '/', '=']);
-
 interface Settings {
 	readonly closeTags: boolean;
 	readonly createQuotes: boolean;
+	readonly closeBraces: boolean;
 }
+
+/**
+ * What each trigger character owes, and the setting that can excuse it.
+ *
+ * `>` and `/` finish a tag, `=` opens a pair of quotes, and `{` and `[` may owe
+ * a Twig closer. The settings are read per keystroke — which is also what makes
+ * them live — but only once a character has matched here, so ordinary typing
+ * costs one map lookup and nothing else.
+ */
+const TRIGGERS: Record<string, { readonly request: string; readonly setting: keyof Settings }> = {
+	'>': { request: 'html/tag', setting: 'closeTags' },
+	'/': { request: 'html/tag', setting: 'closeTags' },
+	'=': { request: 'html/tag', setting: 'createQuotes' },
+	'{': { request: 'twig/autoCloseBrace', setting: 'closeBraces' },
+	'[': { request: 'twig/autoCloseBrace', setting: 'closeBraces' },
+};
 
 export function registerAutoInsert(client: LanguageClient): vscode.Disposable {
 	let pending = 0;
@@ -39,12 +54,12 @@ export function registerAutoInsert(client: LanguageClient): vscode.Disposable {
 		}
 
 		const change = event.contentChanges[0];
-		if (change === undefined || !TRIGGERS.has(change.text)) {
+		const trigger = change === undefined ? undefined : TRIGGERS[change.text];
+		if (change === undefined || trigger === undefined) {
 			return;
 		}
 
-		const settings = readSettings(event.document.uri);
-		if (change.text === '=' ? !settings.createQuotes : !settings.closeTags) {
+		if (!readSettings(event.document.uri)[trigger.setting]) {
 			return;
 		}
 
@@ -59,6 +74,7 @@ export function registerAutoInsert(client: LanguageClient): vscode.Disposable {
 			event.document,
 			position,
 			change.text,
+			trigger.request,
 			++pending,
 			() => pending,
 		);
@@ -73,11 +89,12 @@ async function insert(
 	document: vscode.TextDocument,
 	position: vscode.Position,
 	trigger: string,
+	request: string,
 	token: number,
 	current: () => number,
 ): Promise<void> {
 	const version = document.version;
-	const snippet = await client.sendRequest<string | null>('html/tag', {
+	const snippet = await client.sendRequest<string | null>(request, {
 		textDocument: client.code2ProtocolConverter.asTextDocumentIdentifier(document),
 		position: client.code2ProtocolConverter.asPosition(position),
 		trigger,
@@ -105,5 +122,6 @@ function readSettings(uri: vscode.Uri): Settings {
 	return {
 		closeTags: config.get<boolean>('autoClosingTags', true),
 		createQuotes: config.get<boolean>('autoCreateQuotes', true),
+		closeBraces: config.get<boolean>('autoClosingBraces', true),
 	};
 }

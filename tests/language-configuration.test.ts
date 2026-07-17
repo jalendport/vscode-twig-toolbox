@@ -57,6 +57,17 @@ describe('auto-closing pairs', () => {
 		expect(pairs()).not.toEqual(expect.arrayContaining([['{', '}']]));
 	});
 
+	/**
+	 * Same disease as the bare `{` pair, caught one step later. `[` is closed by
+	 * the server, which knows an array literal from a bracket typed in prose; a
+	 * pair here would close it a second time and leave `[ ]]`. The cost is that
+	 * `[` no longer closes itself in raw HTML or in a `<script>` body, which is
+	 * the right trade — a bracket in prose has no business closing.
+	 */
+	it('has no `[` pair — the server closes brackets where they mean something', () => {
+		expect(pairs()).not.toEqual(expect.arrayContaining([['[', ']']]));
+	});
+
 	it('has no tight delimiter pairs — they orphan the closing space', () => {
 		expect(pairs()).not.toEqual(
 			expect.arrayContaining([

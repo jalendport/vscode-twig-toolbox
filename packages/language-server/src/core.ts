@@ -10,6 +10,7 @@ import type {
 } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogRegistry, WorkspaceCatalogContext } from './catalog';
+import { getBraceCompletion } from './auto-close-brace';
 import type { CraftProjectConfigResolver } from './craft-project-config';
 import { getDiagnostics } from './diagnostics';
 import { DocumentStore, type DocumentStoreOptions, type ParsedDocument } from './document-store';
@@ -166,6 +167,12 @@ export class TwigServerCore {
 	tagCompletion(uri: string, position: Position, trigger: string): string | undefined {
 		const parsed = this.documents.getParsed(uri);
 		return parsed === undefined ? undefined : getTagCompletion(parsed, position, trigger);
+	}
+
+	/** Answers the client's `twig/autoCloseBrace` request. See `getBraceCompletion`. */
+	braceCompletion(uri: string, position: Position, trigger: string): string | undefined {
+		const parsed = this.documents.getParsed(uri);
+		return parsed === undefined ? undefined : getBraceCompletion(parsed, position, trigger);
 	}
 
 	async signatureHelp(uri: string, position: Position): Promise<SignatureHelp | undefined> {

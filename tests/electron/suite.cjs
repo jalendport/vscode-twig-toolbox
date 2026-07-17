@@ -334,6 +334,81 @@ async function testAutoClose(editor) {
 		);
 		await clearLine(editor, 5);
 	}
+
+	await testAutoCloseBraces(editor);
+}
+
+/**
+ * Braces and brackets inside a Twig expression, closed by the server.
+ *
+ * The matrix above pins what the language config does; this pins what it cannot
+ * do. `{` and `[` mean different things in different regions of the same file,
+ * and a pair in the language config is a text match that cannot see the
+ * difference — the bare `{` pair that once tried is the `{{  }}}` regression
+ * pinned above. So the client asks over `twig/autoCloseBrace`, and the server
+ * answers only where the parse proves an expression.
+ */
+async function testAutoCloseBraces(editor) {
+	for (const [seq, expected] of [
+		// A hash and an array literal: spaced, like the delimiters.
+		['{% set a = {', '{% set a = { } %}'],
+		['{% set a = [', '{% set a = [ ] %}'],
+		// Subscripting an existing value closes tight — `foo[ ]` is not a thing.
+		['{{ foo[', '{{ foo[] }}'],
+		// A brace in a string is a brace. Twig closes nothing there, and the
+		// quote pair has already made this line `{{ '' }}` before the `{` lands.
+		["{{ 'a{", "{{ 'a{' }}"],
+		// Raw HTML: no region, no closer. `[` used to close here via a global
+		// pair in the language config; removing it is what lets the server own
+		// the character, and a bracket in prose should not close anyway.
+		['[', '['],
+		['{', '{'],
+	]) {
+		await typeSequence(editor, 5, seq);
+		await sleep(500);
+		assert.equal(
+			editor.document.lineAt(5).text,
+			expected,
+			`typing \`${seq}\` char by char must yield \`${expected}\``,
+		);
+		await clearLine(editor, 5);
+	}
+
+	await testAutoCloseBracesSetting(editor);
+}
+
+/**
+ * `twigToolbox.autoClosingBraces`, off and back on.
+ *
+ * The client reads the setting on each keystroke rather than caching it, so this
+ * also shows the toggle taking effect without a reload — which is the only claim
+ * the settings table makes that a user would notice being false.
+ */
+async function testAutoCloseBracesSetting(editor) {
+	const config = () => vscode.workspace.getConfiguration('twigToolbox');
+	await config().update('autoClosingBraces', false, vscode.ConfigurationTarget.Global);
+	try {
+		await typeSequence(editor, 5, '{% set a = {');
+		await sleep(500);
+		assert.equal(
+			editor.document.lineAt(5).text,
+			'{% set a = { %}',
+			'autoClosingBraces off must leave the brace unclosed',
+		);
+		await clearLine(editor, 5);
+	} finally {
+		await config().update('autoClosingBraces', undefined, vscode.ConfigurationTarget.Global);
+	}
+
+	// Back on with no reload in between.
+	await typeSequence(editor, 5, '{% set a = {');
+	await sleep(500);
+	assert.equal(
+		editor.document.lineAt(5).text,
+		'{% set a = { } %}',
+		'autoClosingBraces must start closing again the moment it is turned back on',
+	);
+	await clearLine(editor, 5);
 }
 
 /** Types every character of `seq` as its own keystroke on an empty line. */
