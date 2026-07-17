@@ -9,7 +9,7 @@ import {
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { describe, expect, it, vi } from 'vitest';
-import { CatalogRegistry, type DialectPack } from './catalog';
+import { CatalogRegistry, type ClassPack, type DialectPack } from './catalog';
 import { TwigServerCore } from './core';
 import { createCraftMemberProvider } from './craft-members';
 import { BUILTIN_MEMBER_PROVIDERS } from './members';
@@ -32,6 +32,11 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '.
 const craftPack = JSON.parse(
 	readFileSync(resolve(repoRoot, 'catalogs', 'craft.json'), 'utf8'),
 ) as DialectPack;
+const classPack = JSON.parse(
+	readFileSync(resolve(repoRoot, 'catalogs', 'craft-classes.json'), 'utf8'),
+) as ClassPack;
+/** Both halves of the model — what a chain resolver actually sees. */
+const allObjects = [...(craftPack.objects ?? []), ...classPack.classes];
 
 interface Fixture {
 	readonly root: string;
@@ -670,18 +675,43 @@ describe('Craft catalog completeness', () => {
 	});
 
 	/**
-	 * A `type` is the pack promising the chain continues. Every one of them has
-	 * to name an object the pack actually ships, or the promise is broken at the
-	 * one moment it matters — someone typing the next dot.
+	 * A `type` is the model promising the chain continues. Every one of them has
+	 * to name an object that actually ships, or the promise is broken at the one
+	 * moment it matters — someone typing the next dot.
+	 *
+	 * The union of both files is the bar, because the two reference each other
+	 * across the split: `craft.entries` is an `EntryQuery` in the pack, and
+	 * `EntryQuery.one()` is a `craft\elements\Entry` in the class model. Checking
+	 * either alone would call the other's names broken.
 	 */
 	it('points every member type at an object it ships', () => {
-		const names = new Set((craftPack.objects ?? []).map((object) => object.name));
+		const names = new Set(allObjects.map((object) => object.name));
 
-		for (const object of craftPack.objects ?? []) {
+		for (const object of allObjects) {
 			for (const member of object.members) {
 				if (member.type !== undefined) {
 					expect(names, `${object.name}.${member.name}`).toContain(member.type);
 				}
+			}
+		}
+	});
+
+	it('resolves every `extends` to an object it ships', () => {
+		const names = new Set(allObjects.map((object) => object.name));
+
+		for (const object of allObjects) {
+			if (object.extends !== undefined) {
+				expect(names, `${object.name} extends`).toContain(object.extends);
+			}
+		}
+	});
+
+	it('types every global it claims an object for', () => {
+		const names = new Set(allObjects.map((object) => object.name));
+
+		for (const entry of craftPack.entries.globals) {
+			if (entry.objectType !== undefined) {
+				expect(names, `global ${entry.name}`).toContain(entry.objectType);
 			}
 		}
 	});
@@ -695,6 +725,48 @@ describe('Craft catalog completeness', () => {
 				expect(member.docsUrl, `${object.name}.${member.name}`).toMatch(/^https:\/\//);
 			}
 		}
+	});
+
+	/**
+	 * The class model carries no links at all — that is the point of it. A URL
+	 * that crept back in would be one major's answer baked in for both, which is
+	 * the bug the derivation exists to prevent, and it would be invisible.
+	 */
+	it('stores no docs URL anywhere in the class model', () => {
+		for (const object of classPack.classes) {
+			expect(object.docsUrl, object.name).toBeUndefined();
+			for (const member of object.members) {
+				expect(member.docsUrl, `${object.name}.${member.name}`).toBeUndefined();
+				expect(member.description.length, `${object.name}.${member.name}`).toBeGreaterThan(
+					7,
+				);
+			}
+		}
+	});
+
+	/**
+	 * Inheritance factoring, measured at the place it pays off.
+	 *
+	 * Every element type inherits the bulk of its surface from `craft\base\Element`.
+	 * If any of them ever stores those members itself, the file has quietly gone
+	 * back to being a flatten — which is what made this model too expensive to
+	 * ship the first time.
+	 */
+	it('stores inherited element members once, on the class that declares them', () => {
+		const element = classPack.classes.find((object) => object.name === 'craft\\base\\Element');
+		const entry = classPack.classes.find((object) => object.name === 'craft\\elements\\Entry');
+
+		expect(element).toBeDefined();
+		expect(entry?.extends).toBe('craft\\base\\Element');
+
+		const elementOwn = new Set((element?.members ?? []).map((member) => member.name));
+		const entryOwn = (entry?.members ?? []).map((member) => member.name);
+		const restated = entryOwn.filter((name) => elementOwn.has(name));
+
+		// Entry may narrow a member of Element's — that is a real declaration and
+		// it keeps its own. What it must not do is restate the whole surface.
+		expect(restated.length).toBeLessThan(elementOwn.size / 4);
+		expect(entryOwn).not.toContain('hasErrors');
 	});
 });
 
