@@ -90,6 +90,13 @@
 				"name": "dump",
 				"completionSnippet": "{% dump ${1:value} %}"
 			}
+		],
+		"globals": [
+			{
+				"name": "primarySite",
+				"$comment": "Backported to Craft 4.14 (v4 changelog: 'Added the primarySite global Twig variable.') but the docs <Since> badge says 5.6.0, which outranks mining and would hide it on Craft 4.14–4.18. A single sinceVersion cannot express '4.14 within 4.x, 5.6 within 5.x'; 4.14.0 only over-offers on Craft 5.0–5.5.",
+				"sinceVersion": "4.14.0"
+			}
 		]
 	},
 	"objects": [

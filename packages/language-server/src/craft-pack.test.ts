@@ -473,9 +473,9 @@ describe('Craft version gating', () => {
 
 	it('says which version a too-new entry arrived in', async () => {
 		await withFixture(craftFixture({ version: '5.0.0' }), async (fixture) => {
-			const hover = await hoverAt(createServer(fixture), fixture, '{{ primary‸Site }}');
+			const hover = await hoverAt(createServer(fixture), fixture, '{{ random‸String(10) }}');
 
-			expect(hover).toContain('Available since Craft CMS 5.6.0.');
+			expect(hover).toContain('Available since Craft CMS 5.9.0.');
 		});
 	});
 
@@ -715,12 +715,14 @@ describe('Craft catalog version metadata', () => {
 
 	/**
 	 * `primarySite` is in Craft 4.14's changelog and Craft 5's docs carry
-	 * `<Since ver="5.6.0" />`. Both are true — it landed in 5.6.0 and was
-	 * backported — and the docs are the version Craft chose to publish, so the
-	 * mined one does not get to overwrite it.
+	 * `<Since ver="5.6.0" />`. Both are true — 5.6.0 added it, 4.14.0 backported
+	 * it — but a single sinceVersion of 5.6.0 hides it from the Craft 4.14–4.18
+	 * projects that have it, so a hand override pins the backport version. This
+	 * asserts the override outranks the badge, which the unit suite shows
+	 * outranks the mining.
 	 */
-	it('lets a docs Since badge outrank the changelog', () => {
-		expect(entry('globals', 'primarySite')?.sinceVersion).toBe('5.6.0');
+	it('lets a hand override outrank the docs Since badge', () => {
+		expect(entry('globals', 'primarySite')?.sinceVersion).toBe('4.14.0');
 	});
 
 	/**

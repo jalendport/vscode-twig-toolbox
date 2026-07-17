@@ -3334,12 +3334,13 @@
         "parameters": [],
         "description": "In multi-site projects, the “primary” site.",
         "docsUrl": "https://craftcms.com/docs/5.x/reference/twig/global-variables.html#primarysite",
-        "sinceVersion": "5.6.0",
+        "sinceVersion": "4.14.0",
         "completionSnippet": "primarySite",
         "source": {
           "extension": "Extension",
           "docsPath": "docs/5.x/reference/twig/global-variables.md"
-        }
+        },
+        "$comment": "Backported to Craft 4.14 (v4 changelog: 'Added the primarySite global Twig variable.') but the docs <Since> badge says 5.6.0, which outranks mining and would hide it on Craft 4.14–4.18. A single sinceVersion cannot express '4.14 within 4.x, 5.6 within 5.x'; 4.14.0 only over-offers on Craft 5.0–5.5."
       },
       {
         "name": "setPasswordUrl",
