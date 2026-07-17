@@ -57,6 +57,115 @@ describe('template navigation', () => {
 		}
 	});
 
+	it('honors a CRAFT_TEMPLATES_PATH define in the bootstrap', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'web/index.php',
+				"<?php\ndefine('CRAFT_BASE_PATH', dirname(__DIR__));\ndefine('CRAFT_TEMPLATES_PATH', CRAFT_BASE_PATH . '/src/templates');\nrequire CRAFT_BASE_PATH . '/vendor/autoload.php';\n",
+			);
+			fixture.write('src/templates/_partials/card.twig', '<article></article>');
+			const server = createServer(fixture);
+
+			const links = await linksFor(
+				server,
+				fixture.write('src/templates/page.twig', '{% include "_partials/card.twig" %}'),
+			);
+			expect(links).toHaveLength(1);
+			expect(links[0]?.target).toBe(fixture.uri('src/templates/_partials/card.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('finds the define through a required bootstrap in a custom location', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'craft',
+				"#!/usr/bin/env php\n<?php\nrequire __DIR__ . '/config/craft/bootstrap.php';\n",
+			);
+			fixture.write(
+				'config/craft/bootstrap.php',
+				"<?php\ndefine('CRAFT_BASE_PATH', dirname(__DIR__, 2));\ndefine('CRAFT_TEMPLATES_PATH', CRAFT_BASE_PATH . '/src/templates');\n",
+			);
+			fixture.write('src/templates/card.twig', '<article></article>');
+			const server = createServer(fixture);
+
+			const links = await linksFor(
+				server,
+				fixture.write('src/templates/page.twig', '{% include "card.twig" %}'),
+			);
+			expect(links).toHaveLength(1);
+			expect(links[0]?.target).toBe(fixture.uri('src/templates/card.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('reads the define from index.php under a public web root', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'public/index.php',
+				"<?php\ndefine('CRAFT_TEMPLATES_PATH', dirname(__DIR__) . '/src/templates');\n",
+			);
+			fixture.write('src/templates/card.twig', '<article></article>');
+			const server = createServer(fixture);
+
+			const links = await linksFor(
+				server,
+				fixture.write('src/templates/page.twig', '{% include "card.twig" %}'),
+			);
+			expect(links).toHaveLength(1);
+			expect(links[0]?.target).toBe(fixture.uri('src/templates/card.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('honors dirname(__DIR__) and literal define forms', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'web/index.php',
+				"<?php\ndefine('CRAFT_TEMPLATES_PATH', dirname(__DIR__) . '/resources/views');\n",
+			);
+			fixture.write('resources/views/card.twig', '<article></article>');
+			const server = createServer(fixture);
+
+			const links = await linksFor(
+				server,
+				fixture.write('resources/views/page.twig', '{% include "card.twig" %}'),
+			);
+			expect(links).toHaveLength(1);
+			expect(links[0]?.target).toBe(fixture.uri('resources/views/card.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('falls back to templates/ when the define names a missing directory', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'bootstrap.php',
+				"<?php\ndefine('CRAFT_TEMPLATES_PATH', CRAFT_BASE_PATH . '/nowhere');\n",
+			);
+			fixture.write('templates/card.twig', '<article></article>');
+			const server = createServer(fixture);
+
+			const links = await linksFor(
+				server,
+				fixture.write('templates/page.twig', '{% include "card.twig" %}'),
+			);
+			expect(links).toHaveLength(1);
+			expect(links[0]?.target).toBe(fixture.uri('templates/card.twig'));
+		} finally {
+			fixture.dispose();
+		}
+	});
+
 	it('resolves extensionless extends and jumps from child blocks to parent blocks', async () => {
 		const fixture = createCraftFixture();
 		try {

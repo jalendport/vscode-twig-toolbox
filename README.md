@@ -122,10 +122,15 @@ No prompt, no setting — the extension works it out, per workspace folder:
    everything is offered — showing you slightly too much beats hiding what you need.
 4. **Your schema.** `config/project/**/*.yaml` is read for real handles. No directory, or
    unparseable YAML, and this part quietly does nothing — the rest still works.
-5. **Template roots.** `CRAFT_TEMPLATES_PATH` from `.env` if set, otherwise `templates/`.
+5. **Template roots.** A `define('CRAFT_TEMPLATES_PATH', …)` reachable from your project's
+   entry points — the `craft` executable, a root `bootstrap.php`, or `index.php` under `web/`,
+   `public/`, `public_html/` or `www/` — following `require`s a couple of hops, so a bootstrap
+   in a custom location is found too. Literal paths and `CRAFT_BASE_PATH` / `dirname(__DIR__[, n])`
+   / `__DIR__` expressions are understood, and a guess is only trusted when the directory
+   exists; otherwise `templates/`. The `twigToolbox.templateRoots` setting overrides all of this.
 
-Re-detected automatically when `composer.json`, `composer.lock`, `.env` or anything under
-`config/project/` changes.
+Re-detected automatically when `composer.json`, `composer.lock`, a bootstrap file or anything
+under `config/project/` changes.
 
 Not a Craft project? Template roots fall back to Symfony's `templates/` if
 `symfony/framework-bundle` is in your composer packages, then to `templates/` if it exists, then to
