@@ -47,6 +47,102 @@ describe('Craft project config introspection', () => {
 		});
 	});
 
+	/**
+	 * The two halves of the model on one object.
+	 *
+	 * The class model knows what an entry is; the project config knows what this
+	 * project's entries have. Neither is the answer on its own — a completion list
+	 * with `title` but not `summary` describes a Craft that nobody installed, and
+	 * one with `summary` but not `title` describes a project with no Craft in it.
+	 */
+	it('merges this project’s field handles with the native element members', async () => {
+		await withFixture(craft5Fixture(), async (fixture) => {
+			const items = await itemsAt(
+				createServer(fixture),
+				fixture,
+				"{% for entry in craft.entries.section('news').all() %}{{ entry.‸ }}{% endfor %}",
+			);
+			const labels = items.map((item) => item.label);
+
+			// This project's, from the YAML...
+			expect(labels).toContain('summary');
+			// ...and Craft's own, from the class model.
+			expect(labels).toContain('postDate');
+			expect(labels).toContain('author');
+			expect(items.find((item) => item.label === 'postDate')?.labelDetails?.description).toBe(
+				'Craft CMS',
+			);
+			expect(items.find((item) => item.label === 'summary')?.labelDetails?.description).toBe(
+				'Craft CMS project',
+			);
+		});
+	});
+
+	/**
+	 * A field handle that collides with a member Craft already has.
+	 *
+	 * `title` is both: `craft\base\ElementTrait` declares it, and this fixture has
+	 * a field called `title` too. There is one `entry.title` in the template, and
+	 * in this project it is the field — so the field wins the detail line. What it
+	 * does not win is the documentation: the handle has no link of its own, and
+	 * Craft's is still the right one for a name that is, underneath, still Craft's.
+	 */
+	it('lets a field handle win a collision without losing the native docs link', async () => {
+		await withFixture(craft5Fixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const items = await itemsAt(
+				server,
+				fixture,
+				"{% for entry in craft.entries.section('news').all() %}{{ entry.‸ }}{% endfor %}",
+			);
+
+			const title = items.filter((item) => item.label === 'title');
+			// One member, not two: the collision is merged rather than duplicated.
+			expect(title).toHaveLength(1);
+			expect(title[0]?.labelDetails?.description).toBe('Craft CMS project');
+			expect(contents(title[0]?.documentation)).toContain('Marketing Title (PlainText)');
+
+			const hover = await hoverAt(
+				server,
+				fixture,
+				"{% for entry in craft.entries.section('news').all() %}{{ entry.ti‸tle }}{% endfor %}",
+			);
+			expect(hover).toContain('Marketing Title (PlainText)');
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v5/craft-base-elementtrait.html#property-title',
+			);
+		});
+	});
+
+	/**
+	 * The chain the two halves exist to make work.
+	 *
+	 * `heroImage` is a field only this project has; `AssetQuery` is what an Assets
+	 * field yields; `one()` is an `Asset`; `dataUrl` is Craft's. Four segments,
+	 * and no single source of truth can answer more than two of them.
+	 */
+	it('chains a project field into the class model and back out', async () => {
+		await withFixture(craft5Fixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const probe =
+				"{% for entry in craft.entries.section('landingPages').all() %}{{ entry.heroImage.one().‸ }}{% endfor %}";
+
+			const labels = await labelsAt(server, fixture, probe);
+			expect(labels).toContain('dataUrl');
+			expect(labels).toContain('getDataUrl');
+			expect(labels).toContain('filename');
+
+			const hover = await hoverAt(
+				server,
+				fixture,
+				"{% for entry in craft.entries.section('landingPages').all() %}{{ entry.heroImage.one().data‸Url }}{% endfor %}",
+			);
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v5/craft-elements-asset.html#property-dataurl',
+			);
+		});
+	});
+
 	it('completes matrix sub-fields inside matrix block iteration', async () => {
 		await withFixture(craft5Fixture(), async (fixture) => {
 			const labels = await labelsAt(
@@ -212,9 +308,19 @@ function craft5Fixture(): Fixture {
 		'config/project/fields/field-image-asset.yaml',
 		fieldYaml('imageAsset', 'Image Asset', 'craft\\fields\\Assets'),
 	);
+	// A handle that collides with a member Craft's own `Entry` already has. Real
+	// projects do this, and it is the case the merge has to get right.
+	fixture.write(
+		'config/project/fields/field-title.yaml',
+		fieldYaml('title', 'Marketing Title', 'craft\\fields\\PlainText'),
+	);
 	fixture.write(
 		'config/project/entryTypes/entry-article.yaml',
-		entryTypeYaml('article', 'Article', ['field-summary', 'field-content-blocks']),
+		entryTypeYaml('article', 'Article', [
+			'field-summary',
+			'field-content-blocks',
+			'field-title',
+		]),
 	);
 	fixture.write(
 		'config/project/entryTypes/entry-page.yaml',

@@ -9,6 +9,8 @@ import { describe, expect, it } from 'vitest';
 import {
 	CatalogRegistry,
 	resolveCatalogPath,
+	type CatalogMember,
+	type ClassPackLoader,
 	type DialectPack,
 	type WorkspaceCatalogContext,
 } from './catalog';
@@ -276,6 +278,165 @@ describe('CatalogRegistry', () => {
 		expect(entries.filters.get('e')?.pack.displayName).toBe('Twig');
 	});
 });
+
+/**
+ * The class model is the larger half of the Craft pack and answers nothing until
+ * someone types a `.`, so when it is read is a feature rather than an accident.
+ *
+ * The loader is counted rather than the bytes: "how many times was the file
+ * opened" is the whole claim, and it is the one thing a mock can say honestly.
+ */
+describe('class pack loading', () => {
+	const craftDetect: DialectPack['detect'] = {
+		kind: 'composer',
+		composerPackages: ['craftcms/cms'],
+		versionFrom: 'craftcms/cms',
+	};
+
+	function countingLoader(): { loaders: Map<string, ClassPackLoader>; loads: () => number } {
+		let loads = 0;
+		const loaders = new Map<string, ClassPackLoader>([
+			[
+				'craft',
+				() => {
+					loads++;
+					return {
+						schemaVersion: 1,
+						pack: 'craft',
+						classes: [
+							{
+								name: 'craft\\elements\\Entry',
+								description: 'An entry.',
+								members: [
+									{
+										name: 'title',
+										kind: 'property',
+										signature: 'title: string',
+										parameters: [],
+										description: 'The entry title.',
+										completionSnippet: 'title',
+									},
+								],
+							},
+						],
+					};
+				},
+			],
+		]);
+		return { loaders, loads: () => loads };
+	}
+
+	it('does not read the class model until the first member lookup', () => {
+		const { loaders, loads } = countingLoader();
+		const registry = CatalogRegistry.fromPacks(
+			[corePack, createPack('craft', 'Craft CMS', craftDetect)],
+			loaders,
+		);
+		const context = { composerPackages: ['craftcms/cms'] };
+
+		// Everything a session does before anyone dots into anything: activation,
+		// and every tag, filter and function completion in the file.
+		registry.getActivePacks(context);
+		registry.getMergedEntries(context);
+		expect(loads()).toBe(0);
+
+		expect(registry.getMergedObjects(context).get('craft\\elements\\Entry')).toBeDefined();
+		expect(loads()).toBe(1);
+	});
+
+	it('reads it once, however many members are looked up', () => {
+		const { loaders, loads } = countingLoader();
+		const registry = CatalogRegistry.fromPacks(
+			[corePack, createPack('craft', 'Craft CMS', craftDetect)],
+			loaders,
+		);
+		const context = { composerPackages: ['craftcms/cms'] };
+
+		registry.getMergedObjects(context);
+		registry.getMergedObjects(context);
+		registry.getMergedObjects({ ...context, packageVersions: { 'craftcms/cms': '5.10.11' } });
+
+		expect(loads()).toBe(1);
+	});
+
+	/**
+	 * The other half of the claim. A plain Twig project never activates the Craft
+	 * pack, so it must never open the Craft class model — not on startup, and not
+	 * on a `{{ foo.‸ }}` that turns out to be nobody's.
+	 */
+	it('never reads a pack the project did not activate', () => {
+		const { loaders, loads } = countingLoader();
+		const registry = CatalogRegistry.fromPacks(
+			[corePack, createPack('craft', 'Craft CMS', craftDetect)],
+			loaders,
+		);
+
+		expect(registry.getMergedObjects().size).toBe(0);
+		expect(loads()).toBe(0);
+	});
+
+	it('flattens an inherited member onto the class that names the parent', () => {
+		const loaders = new Map<string, ClassPackLoader>([
+			[
+				'craft',
+				() => ({
+					schemaVersion: 1,
+					pack: 'craft',
+					classes: [
+						{
+							name: 'craft\\base\\Element',
+							description: 'The base element.',
+							members: [member('id'), member('title')],
+						},
+						{
+							name: 'craft\\elements\\Entry',
+							extends: 'craft\\base\\Element',
+							description: 'An entry.',
+							members: [member('postDate')],
+						},
+					],
+				}),
+			],
+		]);
+		const registry = CatalogRegistry.fromPacks(
+			[corePack, createPack('craft', 'Craft CMS', craftDetect)],
+			loaders,
+		);
+
+		const entry = registry
+			.getMergedObjects({ composerPackages: ['craftcms/cms'] })
+			.get('craft\\elements\\Entry');
+
+		expect(entry?.members.map((candidate) => candidate.name)).toEqual([
+			'id',
+			'postDate',
+			'title',
+		]);
+		// Which class each member came from survives the flatten, because it is
+		// what decides where the member is documented.
+		expect(entry?.members.find((candidate) => candidate.name === 'title')?.declaredOn).toBe(
+			'craft\\base\\Element',
+		);
+		expect(entry?.members.find((candidate) => candidate.name === 'postDate')?.declaredOn).toBe(
+			'craft\\elements\\Entry',
+		);
+		// And every one of them knows it was reached through an Entry.
+		for (const candidate of entry?.members ?? []) {
+			expect(candidate.owner).toBe('craft\\elements\\Entry');
+		}
+	});
+});
+
+function member(name: string): CatalogMember {
+	return {
+		name,
+		kind: 'property',
+		signature: `${name}: string`,
+		parameters: [],
+		description: `The ${name} of it.`,
+		completionSnippet: name,
+	};
+}
 
 /**
  * The core pack gates on the Twig the project locked.

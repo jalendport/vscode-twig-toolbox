@@ -7,6 +7,7 @@ import {
 	type CompletionItem,
 	type Diagnostic,
 } from 'vscode-languageserver/node';
+import Ajv2020 from 'ajv/dist/2020';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { describe, expect, it, vi } from 'vitest';
 import { CatalogRegistry, type ClassPack, type DialectPack } from './catalog';
@@ -35,6 +36,15 @@ const craftPack = JSON.parse(
 const classPack = JSON.parse(
 	readFileSync(resolve(repoRoot, 'catalogs', 'craft-classes.json'), 'utf8'),
 ) as ClassPack;
+const dialectSchema = JSON.parse(
+	readFileSync(resolve(repoRoot, 'catalogs', 'schema.json'), 'utf8'),
+) as object;
+// The class-pack schema `$ref`s the dialect pack's object definition rather than
+// restating it: the two ship the same shape, and a second copy of it would be a
+// second thing to keep in step.
+const classSchema = JSON.parse(
+	readFileSync(resolve(repoRoot, 'catalogs', 'class-pack.schema.json'), 'utf8'),
+) as object;
 /** Both halves of the model — what a chain resolver actually sees. */
 const allObjects = [...(craftPack.objects ?? []), ...classPack.classes];
 
@@ -727,6 +737,14 @@ describe('Craft catalog completeness', () => {
 		}
 	});
 
+	it('matches the class-pack schema', () => {
+		const ajv = new Ajv2020({ allErrors: true, validateFormats: false });
+		ajv.addSchema(dialectSchema);
+		const validate = ajv.compile(classSchema);
+
+		expect(validate(classPack), JSON.stringify(validate.errors, null, 2)).toBe(true);
+	});
+
 	/**
 	 * The class model carries no links at all — that is the point of it. A URL
 	 * that crept back in would be one major's answer baked in for both, which is
@@ -767,6 +785,208 @@ describe('Craft catalog completeness', () => {
 		// it keeps its own. What it must not do is restate the whole surface.
 		expect(restated.length).toBeLessThan(elementOwn.size / 4);
 		expect(entryOwn).not.toContain('hasErrors');
+	});
+});
+
+/**
+ * The content half: the elements, and the chains that run through them.
+ *
+ * This is the surface the model used to stop short of — `currentUser.photo` was
+ * a dead end, because `craft\elements\*` was excluded on the grounds that a
+ * naive flatten of it cost 1.6 MB. It is here now, factored rather than
+ * flattened, and these are the chains that prove it: each one crosses at least
+ * one boundary the old model could not — a global into an element, an element
+ * into another element, a query into its result.
+ */
+describe('Craft element API awareness', () => {
+	/**
+	 * Jalen's chain, and the reason this feature exists.
+	 *
+	 * Three segments, three different mechanisms: `currentUser` is a global the
+	 * pack types, `photo` is an `@property Asset|null` on `craft\elements\User`,
+	 * and `getDataUrl` is a method on `craft\elements\Asset`. Every one of them
+	 * has to answer, and each has to link to the page that documents it.
+	 */
+	it('resolves currentUser.photo.getDataUrl on every segment', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const chain = '{{ currentUser.photo.getDataUrl }}';
+
+			for (const cursor of ['current‸User', 'ph‸oto', 'getData‸Url']) {
+				const source = chain.replace(cursor.replace('‸', ''), cursor);
+				const hover = await hoverAt(server, fixture, source);
+
+				expect(hover, `no hover for ${cursor}`).toBeDefined();
+				expect(hover, `no docs link for ${cursor}`).toContain('[Documentation ↗](https://');
+			}
+
+			expect(await hoverAt(server, fixture, '{{ currentUser.ph‸oto }}')).toContain(
+				'https://docs.craftcms.com/api/v5/craft-elements-user.html#property-photo',
+			);
+			expect(await hoverAt(server, fixture, '{{ currentUser.photo.getData‸Url }}')).toContain(
+				'https://docs.craftcms.com/api/v5/craft-elements-asset.html#method-getdataurl',
+			);
+		});
+	});
+
+	/**
+	 * The same member, spelled the way Twig also accepts.
+	 *
+	 * `asset.dataUrl` and `asset.getDataUrl` both call `getDataUrl()`. Both are
+	 * written in real templates, so both resolve — the getter is ranked below the
+	 * property rather than dropped.
+	 */
+	it('offers a read accessor and its property alike', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const items = await itemsAt(server, fixture, '{{ currentUser.photo.‸ }}');
+			const labels = items.map((item) => item.label);
+
+			expect(labels).toContain('dataUrl');
+			expect(labels).toContain('getDataUrl');
+
+			const property = items.find((item) => item.label === 'dataUrl');
+			const accessor = items.find((item) => item.label === 'getDataUrl');
+			expect(property?.sortText?.localeCompare(accessor?.sortText ?? '')).toBeLessThan(0);
+		});
+	});
+
+	it('types a query result into the element it returns', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const labels = await labelsAt(server, fixture, '{{ craft.entries.one().‸ }}');
+
+			expect(labels).toContain('postDate');
+			expect(labels).toContain('author');
+			expect(labels).toContain('title');
+		});
+	});
+
+	/**
+	 * `.all()` is a list, and the schema has no way to say "many of these". So it
+	 * names no type and the chain ends — which is correct, because what a template
+	 * writes next is Twig's array access, not a member of ours.
+	 */
+	it('ends the chain at a result the schema cannot type', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			expect(
+				await labelsAt(createServer(fixture), fixture, '{{ craft.entries.all().‸ }}'),
+			).toEqual([]);
+		});
+	});
+
+	it('chains from one element into another', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+
+			// entry.author is a User, whose photo is an Asset.
+			expect(await labelsAt(server, fixture, '{{ craft.entries.one().author.‸ }}')).toContain(
+				'photo',
+			);
+			expect(
+				await labelsAt(server, fixture, '{{ craft.entries.one().author.photo.‸ }}'),
+			).toContain('dataUrl');
+		});
+	});
+
+	it('completes the content services it used to leave out', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const labels = await labelsAt(createServer(fixture), fixture, '{{ craft.app.‸ }}');
+
+			expect(labels).toEqual(
+				expect.arrayContaining(['elements', 'fields', 'entries', 'assets', 'users']),
+			);
+		});
+	});
+
+	/**
+	 * Version gating reaches the class model too, on the same `versionFrom`.
+	 *
+	 * `authors` is Craft 5's — entries gained multiple authors — and `hasContent`
+	 * is Craft 4's, gone once content moved. Each project gets its own, which is
+	 * the claim in both directions: an extra completion is cheap, a missing one is
+	 * not.
+	 */
+	it('gates a class member on the Craft the project locked', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const labels = await labelsAt(
+				createServer(fixture),
+				fixture,
+				'{{ craft.entries.one().‸ }}',
+			);
+
+			expect(labels).toContain('authors');
+			expect(labels).not.toContain('hasContent');
+		});
+
+		await withFixture(
+			craftFixture({ version: '4.18.5', constraint: '^4.0' }),
+			async (fixture) => {
+				const labels = await labelsAt(
+					createServer(fixture),
+					fixture,
+					'{{ craft.entries.one().‸ }}',
+				);
+
+				expect(labels).toContain('hasContent');
+				expect(labels).not.toContain('authors');
+			},
+		);
+	});
+
+	/**
+	 * Hover reaches what completion filtered out, and says why.
+	 *
+	 * Someone reading `entry.hasContent` in a Craft 5 template has a broken
+	 * template and a question; "Removed in Craft CMS 5.0.0" is the answer, and it
+	 * is only there because gating flags members rather than dropping them.
+	 */
+	it('still explains a class member this Craft no longer has', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			expect(
+				await hoverAt(
+					createServer(fixture),
+					fixture,
+					'{{ craft.entries.one().has‸Content }}',
+				),
+			).toContain('Removed in Craft CMS 5.0.0.');
+		});
+	});
+
+	/** A Craft 4 project reads Craft 4's reference, not the one this was built from. */
+	it('links a Craft 4 project at the Craft 4 reference', async () => {
+		await withFixture(
+			craftFixture({ version: '4.18.5', constraint: '^4.0' }),
+			async (fixture) => {
+				expect(
+					await hoverAt(createServer(fixture), fixture, '{{ currentUser.ph‸oto }}'),
+				).toContain(
+					'https://docs.craftcms.com/api/v4/craft-elements-user.html#property-photo',
+				);
+			},
+		);
+	});
+
+	it('declines an element chain outside a Craft project', async () => {
+		await withFixture(plainFixture(), async (fixture) => {
+			const server = createServer(fixture);
+
+			expect(await labelsAt(server, fixture, '{{ currentUser.‸ }}')).toEqual([]);
+			expect(await hoverAt(server, fixture, '{{ currentUser.ph‸oto }}')).toBe(undefined);
+		});
+	});
+
+	// A template that binds the name owns it, whatever Craft calls it.
+	it('declines a global the template rebound', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			expect(
+				await labelsAt(
+					createServer(fixture),
+					fixture,
+					'{% set currentUser = 5 %}{{ currentUser.‸ }}',
+				),
+			).toEqual([]);
+		});
 	});
 });
 
