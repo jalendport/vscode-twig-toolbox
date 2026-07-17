@@ -17,6 +17,11 @@ import { isInside, uriToFilePath } from './workspace';
  * The `composer.json` constraint is the fallback: a checkout with no lockfile
  * still deserves an answer, and `^5.0` narrows to a major even when it cannot
  * name a patch.
+ *
+ * `twigVersion` gates the core pack the same way, and has no such fallback:
+ * nothing requires twig/twig directly — Craft pulls it in — so a project's own
+ * constraint is usually absent, and where it exists it is a floor rather than
+ * what Composer resolved. The lockfile knows or nothing does.
  */
 
 export interface ProjectContext {
@@ -27,9 +32,12 @@ export interface ProjectContext {
 	readonly craftVersion?: string;
 	/** True when the version came from a constraint rather than the lockfile. */
 	readonly craftVersionApproximate?: boolean;
+	/** Installed twig/twig, from the lockfile only. */
+	readonly twigVersion?: string;
 }
 
 const CRAFT_PACKAGE = 'craftcms/cms';
+const TWIG_PACKAGE = 'twig/twig';
 
 /** Files whose contents decide the answer, and so invalidate it when they change. */
 const WATCHED_FILES = ['composer.json', 'composer.lock', '.env'];
@@ -80,13 +88,18 @@ export class ProjectContextResolver {
 
 export function detectProject(root: string): ProjectContext {
 	const { packages, constraints } = readComposerJson(root);
+	const locked = readLockedVersions(root);
+	// A project need not be Craft to have a Twig, so this is read before the
+	// kind is decided rather than inside the Craft branch.
+	const twig = locked[TWIG_PACKAGE] === undefined ? {} : { twigVersion: locked[TWIG_PACKAGE] };
+
 	if (!packages.includes(CRAFT_PACKAGE)) {
-		return { kind: 'unknown', root, composerPackages: packages };
+		return { kind: 'unknown', root, composerPackages: packages, ...twig };
 	}
 
-	const locked = readLockedVersion(root, CRAFT_PACKAGE);
-	if (locked !== undefined) {
-		return { kind: 'craft', root, composerPackages: packages, craftVersion: locked };
+	const craftVersion = locked[CRAFT_PACKAGE];
+	if (craftVersion !== undefined) {
+		return { kind: 'craft', root, composerPackages: packages, craftVersion, ...twig };
 	}
 
 	const fromConstraint = versionFromConstraint(constraints[CRAFT_PACKAGE]);
@@ -97,6 +110,7 @@ export function detectProject(root: string): ProjectContext {
 		...(fromConstraint === undefined
 			? {}
 			: { craftVersion: fromConstraint, craftVersionApproximate: true }),
+		...twig,
 	};
 }
 
@@ -105,11 +119,18 @@ export function toCatalogContext(context: ProjectContext | undefined): Workspace
 	if (context === undefined) {
 		return {};
 	}
+
+	const packageVersions: Record<string, string> = {};
+	if (context.craftVersion !== undefined) {
+		packageVersions[CRAFT_PACKAGE] = context.craftVersion;
+	}
+	if (context.twigVersion !== undefined) {
+		packageVersions[TWIG_PACKAGE] = context.twigVersion;
+	}
+
 	return {
 		composerPackages: [...context.composerPackages],
-		...(context.craftVersion === undefined
-			? {}
-			: { packageVersions: { [CRAFT_PACKAGE]: context.craftVersion } }),
+		...(Object.keys(packageVersions).length === 0 ? {} : { packageVersions }),
 	};
 }
 
@@ -142,22 +163,24 @@ function readComposerJson(root: string): {
 	}
 }
 
-function readLockedVersion(root: string, packageName: string): string | undefined {
+/** Every version `composer.lock` pins, by package name. No lockfile means none. */
+function readLockedVersions(root: string): Record<string, string> {
 	try {
 		const lock = JSON.parse(readFileSync(resolve(root, 'composer.lock'), 'utf8')) as {
 			packages?: { name?: unknown; version?: unknown }[];
 			'packages-dev'?: { name?: unknown; version?: unknown }[];
 		};
+		const versions: Record<string, string> = {};
 		for (const section of [lock.packages, lock['packages-dev']]) {
 			for (const entry of section ?? []) {
-				if (entry.name === packageName && typeof entry.version === 'string') {
-					return normalizeVersion(entry.version);
+				if (typeof entry.name === 'string' && typeof entry.version === 'string') {
+					versions[entry.name] = normalizeVersion(entry.version);
 				}
 			}
 		}
-		return undefined;
+		return versions;
 	} catch {
-		return undefined;
+		return {};
 	}
 }
 

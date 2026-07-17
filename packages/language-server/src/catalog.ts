@@ -9,16 +9,20 @@ export interface CatalogSourceRef {
 	path?: string;
 }
 
+/**
+ * `versionFrom` names the package whose installed version gates a pack's
+ * entries. Without it — or without a version for it — nothing is gated: an
+ * unknown version must not silently hide half the catalog.
+ *
+ * It is orthogonal to activation, which is why `always` carries it too. Twig
+ * core is always the right pack for a `.twig` file; which of its filters exist
+ * still depends on the twig/twig the project locked.
+ */
 export type CatalogDetection =
-	| { kind: 'always' }
+	| { kind: 'always'; versionFrom?: string }
 	| {
 			kind: 'composer';
 			composerPackages: string[];
-			/**
-			 * Package whose installed version gates this pack's entries. Without
-			 * it — or without a version for it — nothing is gated: an unknown
-			 * version must not silently hide half the catalog.
-			 */
 			versionFrom?: string;
 	  };
 
@@ -290,7 +294,7 @@ function provenance(pack: DialectPack): PackProvenance {
 }
 
 function detectedVersion(pack: DialectPack, context: WorkspaceCatalogContext): string | undefined {
-	if (pack.detect.kind !== 'composer' || pack.detect.versionFrom === undefined) {
+	if (pack.detect.versionFrom === undefined) {
 		return undefined;
 	}
 	return context.packageVersions?.[pack.detect.versionFrom];

@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,7 +6,14 @@ import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020';
 import { describe, expect, it } from 'vitest';
 
-import { CatalogRegistry, resolveCatalogPath, type DialectPack } from './catalog';
+import {
+	CatalogRegistry,
+	resolveCatalogPath,
+	type DialectPack,
+	type WorkspaceCatalogContext,
+} from './catalog';
+import { catalogMarkdown } from './markdown';
+import { detectProject, toCatalogContext } from './project-context';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const schema = JSON.parse(
@@ -269,6 +276,122 @@ describe('CatalogRegistry', () => {
 		expect(entries.filters.get('e')?.pack.displayName).toBe('Twig');
 	});
 });
+
+/**
+ * The core pack gates on the Twig the project locked.
+ *
+ * Craft 4 pins `twig/twig ~3.19.0` and Craft 5 pins `~3.27.0`, so a Craft 4
+ * project offered the filters Twig added in 3.24 is offering three names that
+ * cannot work — which is what the pack did until it had a version to gate on.
+ *
+ * Everything here goes through a real `composer.lock` on disk, because the
+ * lockfile is the whole mechanism: a context built by hand would test that
+ * `isAvailable` can compare two strings, which `compareVersions` already covers.
+ */
+describe('Twig core pack version gating', () => {
+	const registry = CatalogRegistry.fromPacks([corePack]);
+
+	/** `html_attr_merge` arrived in Twig 3.24; `invoke` in 3.19 exactly. */
+	function filtersFor(context: WorkspaceCatalogContext): string[] {
+		return [...registry.getMergedEntries(context, { availableOnly: true }).filters.keys()];
+	}
+
+	it('hides an entry the locked Twig is too old for', () => {
+		const filters = filtersFor(projectWith(lockPinning('3.19.0')));
+
+		expect(filters).not.toContain('html_attr_merge');
+		expect(filters).not.toContain('html_attr_type');
+		// The version an entry arrived in is a version that has it.
+		expect(filters).toContain('invoke');
+		// The pack is still the pack: gating trims a handful, not the language.
+		expect(filters).toContain('escape');
+		expect(filters).toContain('date');
+	});
+
+	it('offers it once the locked Twig is new enough', () => {
+		const filters = filtersFor(projectWith(lockPinning('3.27.0')));
+
+		expect(filters).toContain('html_attr_merge');
+		expect(filters).toContain('html_attr_type');
+		expect(filters).toContain('invoke');
+	});
+
+	/**
+	 * The graceful default, and the one that must not be got wrong: an unknown
+	 * Twig gates nothing at all. A project with no lockfile is a checkout someone
+	 * has not run `composer install` in yet, and it gets the whole catalog rather
+	 * than a version this guessed.
+	 */
+	it('gates nothing without a lockfile', () => {
+		const filters = filtersFor(projectWith(undefined));
+
+		expect(filters).toContain('html_attr_merge');
+		expect(filters).toContain('format_list');
+	});
+
+	it('gates nothing when the lockfile does not pin Twig at all', () => {
+		const filters = filtersFor(
+			projectWith({ packages: [{ name: 'craftcms/cms', version: '5.10.11' }] }),
+		);
+
+		expect(filters).toContain('html_attr_merge');
+		expect(filters).toContain('format_list');
+	});
+
+	// Version detection must not become activation by the back door: the core
+	// pack describes the language, and a `.twig` file has no Twig in composer.
+	it('stays active whatever the lockfile says', () => {
+		expect(registry.getActivePacks(projectWith(undefined)).map((pack) => pack.name)).toEqual([
+			'twig-core',
+		]);
+		expect(
+			registry.getActivePacks(projectWith(lockPinning('3.19.0'))).map((pack) => pack.name),
+		).toEqual(['twig-core']);
+	});
+
+	/**
+	 * A completion that never appears cannot explain itself. Someone who typed
+	 * `|html_attr_merge` in a Craft 4 project is reading a template that does not
+	 * work, and the hover is where they find out why.
+	 */
+	it('still hovers an entry it gated out, and says which Twig has it', () => {
+		const entry = registry
+			.getMergedEntries(projectWith(lockPinning('3.19.0')))
+			.filters.get('html_attr_merge');
+
+		expect(entry?.available).toBe(false);
+		expect(catalogMarkdown(entry as NonNullable<typeof entry>)).toContain(
+			'Available since Twig 3.24.',
+		);
+	});
+});
+
+/** What `detectProject` makes of a project whose lockfile is `lock`. */
+function projectWith(lock: object | undefined): WorkspaceCatalogContext {
+	const root = mkdtempSync(join(tmpdir(), 'twig-toolbox-lock-'));
+	try {
+		writeFileSync(
+			join(root, 'composer.json'),
+			JSON.stringify({ require: { 'twig/twig': '^3.0' } }),
+		);
+		if (lock !== undefined) {
+			writeFileSync(join(root, 'composer.lock'), JSON.stringify(lock));
+		}
+		return toCatalogContext(detectProject(root));
+	} finally {
+		rmSync(root, { recursive: true, force: true });
+	}
+}
+
+function lockPinning(version: string): object {
+	return {
+		packages: [
+			{ name: 'symfony/polyfill-ctype', version: 'v1.31.0' },
+			{ name: 'twig/twig', version: `v${version}` },
+		],
+		'packages-dev': [],
+	};
+}
 
 function createPack(name: string, displayName: string, detect: DialectPack['detect']): DialectPack {
 	return {

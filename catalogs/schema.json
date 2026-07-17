@@ -47,6 +47,11 @@
 					"properties": {
 						"kind": {
 							"const": "always"
+						},
+						"versionFrom": {
+							"description": "Package whose installed version gates this pack's sinceVersion/removedVersion. Activation is still unconditional.",
+							"type": "string",
+							"minLength": 1
 						}
 					}
 				},

@@ -15,7 +15,8 @@
     }
   },
   "detect": {
-    "kind": "always"
+    "kind": "always",
+    "versionFrom": "twig/twig"
   },
   "entries": {
     "tags": [

@@ -1,13 +1,18 @@
 {
 	"_readme": [
-		"Not a real lockfile — the fields the Craft detector reads, and nothing else.",
-		"`craftcms/cms`'s version here is what pins this fixture to Craft 5 semantics."
+		"Not a real lockfile — the fields the detector reads, and nothing else.",
+		"`craftcms/cms`'s version here is what pins this fixture to Craft 5 semantics.",
+		"`twig/twig` is the version Craft 5.10 resolves, and gates the Twig core pack."
 	],
 	"content-hash": "0000000000000000000000000000000000000000",
 	"packages": [
 		{
 			"name": "craftcms/cms",
 			"version": "5.10.11"
+		},
+		{
+			"name": "twig/twig",
+			"version": "v3.27.0"
 		},
 		{
 			"name": "yiisoft/yii2",

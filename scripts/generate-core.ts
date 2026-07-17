@@ -93,7 +93,13 @@ const generatedPack = applyOverrides({
 		},
 	},
 	detect: {
+		// Twig is the language, so the pack is always on — there is no such thing
+		// as a `.twig` file it does not describe. `versionFrom` gates rather than
+		// activates: a project whose lockfile pins twig/twig 3.19 is not offered
+		// the filters 3.24 added, and a project with no lockfile is offered
+		// everything, exactly as it is today.
 		kind: 'always',
+		versionFrom: 'twig/twig',
 	},
 	entries: {
 		tags: buildEntries('tags'),
