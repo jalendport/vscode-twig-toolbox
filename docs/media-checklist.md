@@ -18,7 +18,7 @@ Use the same setup for all five, so the tour looks like one product rather than 
 | Font    | Editor default, size **16** — readable when the listing scales images down   |
 | Window  | ~900×560, editor only: no sidebar, no panel, no minimap, no breadcrumbs      |
 | Zen-ish | Hide the activity bar and status bar if they're not part of the point        |
-| Format  | GIF, ≤ 15 fps, ≤ **2 MB** each (they land in the `.vsix`; see below)         |
+| Format  | GIF, ≤ 15 fps, ≤ **2 MB** each (kept out of the `.vsix`; see below)          |
 | Length  | 4–8 seconds, looping cleanly, no dead frames at either end                   |
 | Typing  | Deliberate, human pace. Real code from a real Craft project — no `foo`/`bar` |
 | Cursor  | Make sure the completion popup is fully visible and not clipped              |
