@@ -2,15 +2,19 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CompletionItemKind, type CompletionItem } from 'vscode-languageserver/node';
+import {
+	CompletionItemKind,
+	type CompletionItem,
+	type Diagnostic,
+} from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CatalogRegistry, type DialectPack } from './catalog';
 import { TwigServerCore } from './core';
 import { createCraftMemberProvider } from './craft-members';
 import { BUILTIN_MEMBER_PROVIDERS } from './members';
 import { ProjectContextResolver } from './project-context';
-import { DEFAULT_SETTINGS } from './settings';
+import { DEFAULT_SETTINGS, type TwigToolboxSettings } from './settings';
 import { TemplateResolver } from './template-resolver';
 import { createWorkspaceContextResolver, filePathToUri } from './workspace';
 
@@ -205,6 +209,210 @@ describe('craft.* API completions', () => {
 	});
 });
 
+/**
+ * `craft.app.*`, which is a chain rather than a list.
+ *
+ * The claim being tested is that every segment of `craft.app.request.queryString`
+ * is a thing the server knows — not just the last one — and that each links to
+ * the reference page that actually documents it. The chain is the feature; a
+ * test that only checked the leaf would pass on a model that resolved by luck.
+ */
+describe('craft.app.* API awareness', () => {
+	it('completes the application services on craft.app.', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const items = await itemsAt(createServer(fixture), fixture, '{{ craft.app.‸ }}');
+			const labels = items.map((item) => item.label);
+
+			expect(labels).toEqual(
+				expect.arrayContaining([
+					'request',
+					'config',
+					'sites',
+					'security',
+					'session',
+					'user',
+					'view',
+					'urlManager',
+				]),
+			);
+			expect(items.find((item) => item.label === 'request')?.labelDetails?.description).toBe(
+				'Craft CMS',
+			);
+			// Craft's own console-side services are not a template's vocabulary.
+			expect(labels).not.toContain('mutex');
+			expect(labels).not.toContain('migrator');
+		});
+	});
+
+	it('completes a service’s members, Craft’s own and Yii’s alike', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const labels = await labelsAt(
+				createServer(fixture),
+				fixture,
+				'{{ craft.app.request.‸ }}',
+			);
+
+			// Craft declares this one...
+			expect(labels).toContain('queryStringWithoutPath');
+			expect(labels).toContain('isSiteRequest');
+			// ...and inherits this one from yii\web\Request, which a template
+			// reaches through Craft's class and cannot tell apart.
+			expect(labels).toContain('queryString');
+			expect(labels).toContain('isSecureConnection');
+		});
+	});
+
+	/**
+	 * The whole feature in one line of Twig.
+	 *
+	 * `queryString` is declared by `yii\web\Request`, so it takes the section
+	 * anchor: there is no `#property-querystring` on Craft's page, and no
+	 * `yii-web-request.html` to send anyone to.
+	 */
+	it('resolves craft.app.request.queryString end to end', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const hover = await hoverAt(
+				createServer(fixture),
+				fixture,
+				'{{ craft.app.request.query‸String }}',
+			);
+
+			expect(hover).toContain('Part of the request URL that is after the question mark.');
+			expect(hover).toContain('**Source:** Craft CMS');
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v5/craft-web-request.html#public-properties',
+			);
+		});
+	});
+
+	it('anchors a Craft-declared member at the member itself', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const hover = await hoverAt(
+				createServer(fixture),
+				fixture,
+				'{{ craft.app.request.queryString‸WithoutPath }}',
+			);
+
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v5/craft-web-request.html#property-querystringwithoutpath',
+			);
+		});
+	});
+
+	// A member declared on `ApplicationTrait` is anchored on the trait's page,
+	// because that is the page the reference put the anchor on.
+	it('follows a trait-declared service to the trait’s page', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const hover = await hoverAt(createServer(fixture), fixture, '{{ craft.app.si‸tes }}');
+
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v5/craft-base-applicationtrait.html#property-sites',
+			);
+		});
+	});
+
+	it('hovers every segment of the chain, not just the last', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+			const chain = '{{ craft.app.request.queryString }}';
+
+			for (const cursor of ['cr‸aft', 'a‸pp', 'requ‸est', 'query‸String']) {
+				const source = chain.replace(cursor.replace('‸', ''), cursor);
+				const hover = await hoverAt(server, fixture, source);
+
+				expect(hover, `no hover for ${cursor}`).toBeDefined();
+				expect(hover, `no docs link for ${cursor}`).toContain('[Documentation ↗](https://');
+			}
+		});
+	});
+
+	it('keeps chaining through a service into what it returns', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+
+			expect(await labelsAt(server, fixture, '{{ craft.app.config.‸ }}')).toContain(
+				'general',
+			);
+			// craft.app.config.general.devMode — three classes deep, and the one
+			// chain every Craft template has typed at least once.
+			const labels = await labelsAt(server, fixture, '{{ craft.app.config.general.‸ }}');
+			expect(labels).toContain('devMode');
+			expect(labels).toContain('siteToken');
+		});
+	});
+
+	// The depth cap is a promise the pack keeps: past it, members name no type,
+	// and a receiver with no type gets no completions rather than a guess.
+	it('stops chaining at the modelled depth', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			expect(
+				await labelsAt(
+					createServer(fixture),
+					fixture,
+					'{{ craft.app.config.general.devMode.‸ }}',
+				),
+			).toEqual([]);
+		});
+	});
+
+	it('offers nothing for a class it does not model', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+
+			// `db` is a real service; it is not one this pack models, so the chain
+			// ends at `craft.app` rather than guessing.
+			expect(await labelsAt(server, fixture, '{{ craft.app.db.‸ }}')).toEqual([]);
+			expect(await hoverAt(server, fixture, '{{ craft.app.d‸b }}')).toBe(undefined);
+			expect(await labelsAt(server, fixture, '{{ craft.app.request.nonsense.‸ }}')).toEqual(
+				[],
+			);
+			expect(await hoverAt(server, fixture, '{{ craft.app.request.non‸sense }}')).toBe(
+				undefined,
+			);
+		});
+	});
+
+	/**
+	 * The pack must not turn "I don't model this" into "this is wrong".
+	 *
+	 * Diagnostics are checked with unknown-name reporting turned all the way up,
+	 * because the setting that would expose a false positive is the one nobody
+	 * has on by default.
+	 */
+	it('never diagnoses a chain, modelled or not', async () => {
+		await withFixture(craftFixture(), async (fixture) => {
+			const byUri = new Map<string, Diagnostic[]>();
+			const server = createServer(fixture, {
+				publishDiagnostics: (uri, diagnostics) => byUri.set(uri, diagnostics),
+				settings: {
+					templateRoots: [],
+					diagnostics: { unknownNames: 'warning', ignoredNames: [] },
+				},
+			});
+
+			const { uri } = open(
+				server,
+				fixture,
+				'{{ craft.app.request.queryString }}{{ craft.app.db.tablePrefix }}{{ craft.app.nope.at.all }}‸',
+			);
+
+			await vi.waitFor(() => expect(byUri.has(uri)).toBe(true));
+			expect(byUri.get(uri)).toEqual([]);
+		});
+	});
+
+	it('declines the whole chain outside a Craft project', async () => {
+		await withFixture(plainFixture(), async (fixture) => {
+			const server = createServer(fixture);
+
+			expect(await labelsAt(server, fixture, '{{ craft.app.‸ }}')).toEqual([]);
+			expect(await hoverAt(server, fixture, '{{ craft.app.request.query‸String }}')).toBe(
+				undefined,
+			);
+		});
+	});
+});
+
 describe('Craft version gating', () => {
 	it('offers a Craft 5 member in a Craft 5 project and a Craft 4 member in a Craft 4 project', async () => {
 		await withFixture(craftFixture(), async (fixture) => {
@@ -268,6 +476,47 @@ describe('Craft version gating', () => {
 			const hover = await hoverAt(createServer(fixture), fixture, '{{ primary‸Site }}');
 
 			expect(hover).toContain('Available since Craft CMS 5.6.0.');
+		});
+	});
+
+	/**
+	 * `startElevatedSession()` is Craft 4's; Craft 5 renamed it. The class walk
+	 * runs over both majors and diffs them, so an application member carries the
+	 * same version metadata as a filter does — and gates the same way.
+	 */
+	it('gates an application member by the detected version', async () => {
+		await withFixture(craftFixture({ version: '4.18.5' }), async (fixture) => {
+			expect(
+				await labelsAt(createServer(fixture), fixture, '{{ craft.app.user.‸ }}'),
+			).toContain('startElevatedSession');
+		});
+
+		await withFixture(craftFixture(), async (fixture) => {
+			const server = createServer(fixture);
+			expect(await labelsAt(server, fixture, '{{ craft.app.user.‸ }}')).not.toContain(
+				'startElevatedSession',
+			);
+			// Still explains itself to whoever is reading the broken template.
+			expect(
+				await hoverAt(server, fixture, '{{ craft.app.user.startElevated‸Session() }}'),
+			).toContain('Removed in Craft CMS 5.0.0.');
+		});
+	});
+
+	// Craft publishes a reference per major, and a Craft 4 project reading Craft
+	// 5's page is being shown a class it does not have.
+	it('links a Craft 4 project at the Craft 4 reference', async () => {
+		await withFixture(craftFixture({ version: '4.18.5' }), async (fixture) => {
+			const hover = await hoverAt(
+				createServer(fixture),
+				fixture,
+				'{{ craft.app.request.query‸String }}',
+			);
+
+			expect(hover).toContain(
+				'https://docs.craftcms.com/api/v4/craft-web-request.html#public-properties',
+			);
+			expect(hover).not.toContain('/api/v5/');
 		});
 	});
 
@@ -419,9 +668,42 @@ describe('Craft catalog completeness', () => {
 			}
 		}
 	});
+
+	/**
+	 * A `type` is the pack promising the chain continues. Every one of them has
+	 * to name an object the pack actually ships, or the promise is broken at the
+	 * one moment it matters — someone typing the next dot.
+	 */
+	it('points every member type at an object it ships', () => {
+		const names = new Set((craftPack.objects ?? []).map((object) => object.name));
+
+		for (const object of craftPack.objects ?? []) {
+			for (const member of object.members) {
+				if (member.type !== undefined) {
+					expect(names, `${object.name}.${member.name}`).toContain(member.type);
+				}
+			}
+		}
+	});
+
+	it('describes and links every member it ships', () => {
+		for (const object of craftPack.objects ?? []) {
+			for (const member of object.members) {
+				expect(member.description.length, `${object.name}.${member.name}`).toBeGreaterThan(
+					7,
+				);
+				expect(member.docsUrl, `${object.name}.${member.name}`).toMatch(/^https:\/\//);
+			}
+		}
+	});
 });
 
-function createServer(fixture: Fixture): TwigServerCore {
+interface ServerOptions {
+	readonly publishDiagnostics?: (uri: string, diagnostics: Diagnostic[]) => void;
+	readonly settings?: TwigToolboxSettings;
+}
+
+function createServer(fixture: Fixture, options: ServerOptions = {}): TwigServerCore {
 	// The shipped catalogs, loaded the way the real server loads them.
 	const registry = CatalogRegistry.loadDefault();
 	const projects = new ProjectContextResolver(folders(fixture));
@@ -429,8 +711,8 @@ function createServer(fixture: Fixture): TwigServerCore {
 
 	return new TwigServerCore({
 		catalogRegistry: registry,
-		getSettings: () => Promise.resolve(DEFAULT_SETTINGS),
-		publishDiagnostics: () => {},
+		getSettings: () => Promise.resolve(options.settings ?? DEFAULT_SETTINGS),
+		publishDiagnostics: options.publishDiagnostics ?? (() => {}),
 		resolveWorkspaceContext: (uri) => workspaceContext.resolve(uri),
 		templateResolver: new TemplateResolver(folders(fixture), projects),
 		memberProviders: [...BUILTIN_MEMBER_PROVIDERS, createCraftMemberProvider(registry)],

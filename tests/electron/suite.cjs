@@ -100,6 +100,28 @@ async function testCraftPack() {
 		.join('\n');
 	assert.match(markdown, /Processes a string as Markdown/, 'expected the Craft docs on hover');
 	assert.match(markdown, /\*\*Source:\*\* Craft CMS/, 'expected Craft provenance on hover');
+
+	// `{{ craft.app.‸request.queryString }}` — the class walk, three segments
+	// past the point the catalog used to stop.
+	const services = await completionsAt(uri, new vscode.Position(4, 13));
+	assert.ok(find(services, 'request'), 'expected the `request` application component');
+	assert.ok(!find(services, 'mutex'), 'console-only services stay out of a template');
+
+	// `{{ craft.app.request.query‸String }}` — a property Yii declares on Craft's
+	// class, linked to the section of Craft's page that lists it.
+	const requestHovers = await vscode.commands.executeCommand(
+		'vscode.executeHoverProvider',
+		uri,
+		new vscode.Position(4, 25),
+	);
+	const requestMarkdown = requestHovers
+		.flatMap((hover) => hover.contents.map((content) => content.value ?? String(content)))
+		.join('\n');
+	assert.match(
+		requestMarkdown,
+		/api\/v5\/craft-web-request\.html#public-properties/,
+		'expected the Craft class reference on hover',
+	);
 }
 
 async function testTemplateNavigation() {
