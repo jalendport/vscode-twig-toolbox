@@ -93,7 +93,7 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 		},
 		serverInfo: {
 			name: 'Twig Toolbox Language Server',
-			version: '0.1.0',
+			version: '1.0.0',
 		},
 	};
 });
