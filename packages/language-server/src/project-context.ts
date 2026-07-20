@@ -40,7 +40,7 @@ const CRAFT_PACKAGE = 'craftcms/cms';
 const TWIG_PACKAGE = 'twig/twig';
 
 /** Files whose contents decide the answer, and so invalidate it when they change. */
-const WATCHED_FILES = ['composer.json', 'composer.lock', '.env'];
+const WATCHED_FILES = ['composer.json', 'composer.lock'];
 
 export class ProjectContextResolver {
 	private readonly roots: readonly string[];
