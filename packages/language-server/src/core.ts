@@ -240,11 +240,19 @@ export class TwigServerCore {
 	}
 
 	private async publishParsedDiagnostics(parsed: ParsedDocument): Promise<void> {
-		const settings = await this.getSettings(parsed.uri);
-		this.publishDiagnostics(
-			parsed.uri,
-			getDiagnostics(parsed, settings, this.catalogRegistry, this.templateResolver),
-		);
+		// Never rejects: callers fire-and-forget this from parse callbacks and
+		// notification handlers, where an unhandled rejection is fatal to the
+		// server process under Node's default rejection mode.
+		try {
+			const settings = await this.getSettings(parsed.uri);
+			this.publishDiagnostics(
+				parsed.uri,
+				getDiagnostics(parsed, settings, this.catalogRegistry, this.templateResolver),
+			);
+		} catch {
+			// Settings lookup can fail during shutdown or a client hiccup; stale
+			// squiggles until the next parse beat a dead server.
+		}
 	}
 
 	private symbolResolver(settings: TwigToolboxSettings): TemplateSymbolResolver | undefined {

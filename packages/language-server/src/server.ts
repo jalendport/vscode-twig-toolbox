@@ -24,6 +24,19 @@ import { createWorkspaceContextResolver } from './workspace';
 import { TemplateResolver } from './template-resolver';
 
 const connection = createConnection(ProposedFeatures.all);
+
+// Last line of defense: without these handlers, one escaped throw on a timer
+// or one rejected fire-and-forget promise terminates the server process and
+// takes Twig support down window-wide. Logging and carrying on is the same
+// posture the built-in HTML and TypeScript servers take.
+process.on('uncaughtException', (error) => {
+	connection.console.error(`Uncaught exception: ${error.stack ?? String(error)}`);
+});
+process.on('unhandledRejection', (reason) => {
+	const detail = reason instanceof Error ? (reason.stack ?? reason.message) : String(reason);
+	connection.console.error(`Unhandled rejection: ${detail}`);
+});
+
 const documents = new TextDocuments(TextDocument);
 let catalogRegistry = CatalogRegistry.fromPacks([]);
 let workspaceFolders: WorkspaceFolder[] = [];

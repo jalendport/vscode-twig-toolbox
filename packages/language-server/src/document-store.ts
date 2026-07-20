@@ -1,5 +1,5 @@
 import { readFileSync, statSync } from 'node:fs';
-import { parse, type ParseResult } from '@twig-toolbox/parser';
+import { createError, parse, type ParseResult } from '@twig-toolbox/parser';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import type { WorkspaceCatalogContext } from './catalog';
 import { createEmbeddedDocuments, type EmbeddedDocuments } from './embedded-documents';
@@ -31,7 +31,27 @@ export function createParsedDocument(
 	workspaceContext: WorkspaceCatalogContext = {},
 ): ParsedDocument {
 	const source = document.getText();
-	const result = parse(source);
+	let result: ParseResult;
+	try {
+		result = parse(source);
+	} catch (error) {
+		// `parse` promises never to throw. If that promise is ever broken, an
+		// empty tree with one whole-document diagnostic keeps this document —
+		// and the server process a throw here would otherwise kill — alive.
+		result = {
+			template: { type: 'Template', body: [], start: 0, end: source.length },
+			errors: [
+				createError(
+					'unexpected-token',
+					`Internal parser error: ${error instanceof Error ? error.message : String(error)}`,
+					0,
+					source.length,
+				),
+			],
+			tokens: [],
+			source,
+		};
+	}
 	let embedded: EmbeddedDocuments | undefined;
 
 	return {
