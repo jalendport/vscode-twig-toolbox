@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, type Dirent } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import {
 	type AnyNode,
@@ -318,7 +318,7 @@ function readProjectConfig(
 	}
 
 	try {
-		const raw = readRawProjectConfig(projectConfigDir);
+		const raw = readRawProjectConfig(projectConfigDir, log);
 		return createSchema(normalizeRaw(raw, majorVersion(context.craftVersion)));
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
@@ -327,7 +327,16 @@ function readProjectConfig(
 	}
 }
 
-function readRawProjectConfig(projectConfigDir: string): RawProjectConfig {
+/**
+ * One malformed file among hundreds of valid ones is the common case, not the
+ * exception — a project mid-merge-conflict, an editor's partial save. Each
+ * file gets its own try/catch so that file, and only that file, is dropped;
+ * the schema the rest of the project's YAML describes still comes back.
+ */
+function readRawProjectConfig(
+	projectConfigDir: string,
+	log: (message: string) => void,
+): RawProjectConfig {
 	const raw: RawProjectConfig = {
 		fields: [],
 		entryTypes: [],
@@ -340,7 +349,14 @@ function readRawProjectConfig(projectConfigDir: string): RawProjectConfig {
 	};
 
 	for (const sourceFile of yamlFiles(projectConfigDir)) {
-		const parsed = YAML.parse(readFileSync(sourceFile, 'utf8')) as unknown;
+		let parsed: unknown;
+		try {
+			parsed = YAML.parse(readFileSync(sourceFile, 'utf8'));
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			log(`Craft project config file ignored: ${sourceFile}: ${message}`);
+			continue;
+		}
 		if (!isRecord(parsed)) {
 			continue;
 		}
@@ -912,21 +928,38 @@ function bucketFromKey(key: string): keyof RawProjectConfig | undefined {
 	}
 }
 
+/** However large a real project's config gets, it does not get this large. */
+const MAX_YAML_FILES = 5000;
+
 function yamlFiles(root: string): string[] {
 	const out: string[] = [];
 	const walk = (dir: string): void => {
-		for (const entry of readdirSync(dir)) {
-			const path = join(dir, entry);
-			const stat = statSync(path);
-			if (stat.isDirectory()) {
+		for (const entry of safeReadDirectory(dir)) {
+			if (out.length >= MAX_YAML_FILES) {
+				return;
+			}
+			const path = join(dir, entry.name);
+			// `Dirent#isDirectory()` answers about the entry itself, not what it
+			// resolves to — a symlinked directory reports `false` here, so a
+			// symlink cycle under `config/project/` (real projects have one
+			// pointing `storage/` back at itself) cannot recurse forever.
+			if (entry.isDirectory()) {
 				walk(path);
-			} else if (isProjectConfigYaml(path)) {
+			} else if (entry.isFile() && isProjectConfigYaml(path)) {
 				out.push(path);
 			}
 		}
 	};
 	walk(root);
 	return out;
+}
+
+function safeReadDirectory(dir: string): Dirent[] {
+	try {
+		return readdirSync(dir, { withFileTypes: true });
+	} catch {
+		return [];
+	}
 }
 
 function isProjectConfigYaml(path: string): boolean {

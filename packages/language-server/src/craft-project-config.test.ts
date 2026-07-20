@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { CompletionItem, Diagnostic } from 'vscode-languageserver/node';
@@ -173,7 +173,7 @@ describe('Craft project config introspection', () => {
 		});
 	});
 
-	it('degrades to level-1 Craft behavior when YAML is malformed', async () => {
+	it('drops only the malformed file, keeping the rest of the schema working', async () => {
 		await withFixture(craft5Fixture(), async (fixture) => {
 			const diagnostics = new Map<string, Diagnostic[]>();
 			const server = createServer(fixture, diagnostics);
@@ -187,11 +187,34 @@ describe('Craft project config introspection', () => {
 			);
 			server.invalidateFile(brokenUri);
 
-			expect(await labelsAt(server, fixture, "{{ craft.entries.section('‸') }}")).toEqual([]);
-			expect(await labelsAt(server, fixture, '{{ craft.entries.‸ }}')).toContain('section');
+			// `field-summary.yaml` broke, but `section-news.yaml` did not — the
+			// section itself, and every other field, still answer correctly.
+			expect(await labelsAt(server, fixture, "{{ craft.entries.section('‸') }}")).toContain(
+				'news',
+			);
+			const entryLabels = await labelsAt(
+				server,
+				fixture,
+				"{% for entry in craft.entries.section('news').all() %}{{ entry.‸ }}{% endfor %}",
+			);
+			expect(entryLabels).toContain('title');
+			expect(entryLabels).not.toContain('summary');
+
 			const { uri } = open(server, fixture, '{{ craft.entries.section("news").all() }}‸');
 			await server.refreshDiagnostics(uri);
 			expect(diagnostics.get(uri)).toEqual([]);
+		});
+	});
+
+	it('does not recurse forever through a symlink cycle under config/project', async () => {
+		await withFixture(craft5Fixture(), async (fixture) => {
+			const projectConfigDir = join(fixture.root, 'config', 'project');
+			symlinkSync(projectConfigDir, join(projectConfigDir, 'loop'), 'dir');
+
+			const server = createServer(fixture);
+			expect(await labelsAt(server, fixture, "{{ craft.entries.section('‸') }}")).toContain(
+				'news',
+			);
 		});
 	});
 
