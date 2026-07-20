@@ -41,6 +41,15 @@ const OPENERS: Partial<Record<Token['kind'], { kind: RegionKind; close: Token['k
 };
 
 /**
+ * One document's tokens, parsed once per edit, drive several independent
+ * region lookups per request (completions, hover, diagnostics, brace
+ * completion) and several requests per keystroke. Keyed on the token array
+ * itself — stable for the life of a `ParsedDocument` — rather than threading a
+ * cache through every caller.
+ */
+const regionsCache = new WeakMap<readonly Token[], TwigRegion[]>();
+
+/**
  * Every region of the document, in source order, covering every offset.
  *
  * Gaps between tokens — the insignificant whitespace inside Twig regions — fall
@@ -48,6 +57,11 @@ const OPENERS: Partial<Record<Token['kind'], { kind: RegionKind; close: Token['k
  * even though no token sits under the cursor.
  */
 export function findRegions(tokens: readonly Token[], sourceLength: number): TwigRegion[] {
+	const cached = regionsCache.get(tokens);
+	if (cached !== undefined) {
+		return cached;
+	}
+
 	const regions: TwigRegion[] = [];
 	let at = 0;
 
@@ -91,7 +105,9 @@ export function findRegions(tokens: readonly Token[], sourceLength: number): Twi
 		at = close === undefined ? scan : scan + 1;
 	}
 
-	return withTextGaps(regions, sourceLength);
+	const result = withTextGaps(regions, sourceLength);
+	regionsCache.set(tokens, result);
+	return result;
 }
 
 /** Fills the gaps between Twig regions with `text` regions. */

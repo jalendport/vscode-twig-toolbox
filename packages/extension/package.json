@@ -32,9 +32,6 @@
 	},
 	"homepage": "https://github.com/jalendport/vscode-twig-toolbox#readme",
 	"main": "./dist/extension.js",
-	"activationEvents": [
-		"onLanguage:twig"
-	],
 	"contributes": {
 		"languages": [
 			{

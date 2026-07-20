@@ -36,16 +36,25 @@ export function getDiagnostics(
 	const entries = catalogRegistry.getMergedEntries(parsed.workspaceContext, {
 		availableOnly: true,
 	});
+	// Built once per parse rather than once per error: a file with many unclosed
+	// tags used to re-walk the whole AST for each one.
+	const tagsByEnd = parsed.result.errors.some((error) => error.code === 'missing-end-tag')
+		? indexTagsByEnd(parsed.result.template)
+		: undefined;
 	return [
-		...parsed.result.errors.map((error) => parseErrorToDiagnostic(error, parsed)),
+		...parsed.result.errors.map((error) => parseErrorToDiagnostic(error, parsed, tagsByEnd)),
 		...getUnknownNameDiagnostics(parsed, settings, entries),
 		...getMissingTemplateDiagnostics(parsed, settings, templateResolver),
 	];
 }
 
-function parseErrorToDiagnostic(error: ParseError, parsed: ParsedDocument): Diagnostic {
+function parseErrorToDiagnostic(
+	error: ParseError,
+	parsed: ParsedDocument,
+	tagsByEnd: ReadonlyMap<number, AnyNode> | undefined,
+): Diagnostic {
 	return {
-		range: rangeForParseError(error, parsed),
+		range: rangeForParseError(error, parsed, tagsByEnd),
 		severity:
 			error.severity === 'warning' ? DiagnosticSeverity.Warning : DiagnosticSeverity.Error,
 		code: error.code,
@@ -54,9 +63,13 @@ function parseErrorToDiagnostic(error: ParseError, parsed: ParsedDocument): Diag
 	};
 }
 
-function rangeForParseError(error: ParseError, parsed: ParsedDocument): Range {
-	if (error.code === 'missing-end-tag') {
-		const tagRange = findUnclosedTagOpeningRange(error, parsed);
+function rangeForParseError(
+	error: ParseError,
+	parsed: ParsedDocument,
+	tagsByEnd: ReadonlyMap<number, AnyNode> | undefined,
+): Range {
+	if (error.code === 'missing-end-tag' && tagsByEnd !== undefined) {
+		const tagRange = findUnclosedTagOpeningRange(error, parsed, tagsByEnd);
 		if (tagRange !== undefined) {
 			return offsetRange(parsed.document, tagRange.start, tagRange.end);
 		}
@@ -68,17 +81,9 @@ function rangeForParseError(error: ParseError, parsed: ParsedDocument): Range {
 function findUnclosedTagOpeningRange(
 	error: ParseError,
 	parsed: ParsedDocument,
+	tagsByEnd: ReadonlyMap<number, AnyNode>,
 ): SourceRange | undefined {
-	let candidate: AnyNode | undefined;
-	visit(parsed.result.template, (node) => {
-		if (!isTagNode(node) || node.end !== error.start) {
-			return;
-		}
-		if (candidate === undefined || node.start >= candidate.start) {
-			candidate = node;
-		}
-	});
-
+	const candidate = tagsByEnd.get(error.start);
 	if (!isTagNode(candidate)) {
 		return undefined;
 	}
@@ -88,6 +93,21 @@ function findUnclosedTagOpeningRange(
 		start: candidate.start,
 		end: tagEnd === -1 ? candidate.nameRange.end : tagEnd + 2,
 	};
+}
+
+/** Every tag node keyed by its end offset — where a `missing-end-tag` error points. */
+function indexTagsByEnd(root: AnyNode): Map<number, AnyNode> {
+	const index = new Map<number, AnyNode>();
+	visit(root, (node) => {
+		if (!isTagNode(node)) {
+			return;
+		}
+		const existing = index.get(node.end);
+		if (existing === undefined || node.start >= existing.start) {
+			index.set(node.end, node);
+		}
+	});
+	return index;
 }
 
 function getUnknownNameDiagnostics(

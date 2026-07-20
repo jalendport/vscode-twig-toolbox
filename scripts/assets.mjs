@@ -1,4 +1,4 @@
-import { cp, rm, stat } from 'node:fs/promises';
+import { cp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,6 +31,28 @@ async function exists(path) {
 	}
 }
 
+/**
+ * Re-serializes every `.json` file under `dir` without indentation.
+ *
+ * The source stays pretty-printed for contributors; only the copy that ships
+ * in the `.vsix` pays for it, and it never needs to — nothing reads this JSON
+ * by eye once it's packaged.
+ */
+async function minifyJsonFiles(dir) {
+	const entries = await readdir(dir, { withFileTypes: true });
+	await Promise.all(
+		entries.map(async (entry) => {
+			const path = join(dir, entry.name);
+			if (entry.isDirectory()) {
+				await minifyJsonFiles(path);
+			} else if (entry.name.endsWith('.json')) {
+				const contents = JSON.parse(await readFile(path, 'utf8'));
+				await writeFile(path, JSON.stringify(contents));
+			}
+		}),
+	);
+}
+
 /** Copies the root assets into packages/extension, replacing any previous copies. */
 export async function copyAssets() {
 	for (const [from, to] of COPIED_ASSETS) {
@@ -40,6 +62,9 @@ export async function copyAssets() {
 		await rm(destination, { recursive: true, force: true });
 		if (await exists(source)) {
 			await cp(source, destination, { recursive: true });
+			if (to === 'catalogs') {
+				await minifyJsonFiles(destination);
+			}
 		}
 	}
 }

@@ -93,7 +93,7 @@ and 5 are both supported.
 
 - `twigToolbox.templateRoots`, `twigToolbox.diagnostics.unknownNames`,
   `twigToolbox.diagnostics.ignoredNames`, `twigToolbox.autoClosingTags`,
-  `twigToolbox.autoCreateQuotes` and `twigToolbox.trace.server`.
+  `twigToolbox.autoClosingBraces`, `twigToolbox.autoCreateQuotes` and `twigToolbox.trace.server`.
 
 ### Fixed
 

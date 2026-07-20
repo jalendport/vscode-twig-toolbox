@@ -158,8 +158,8 @@ it _is_ the HTML and CSS feature. Dropping it means dropping milestone 07; there
 
 **Verdict: acceptable.** What the size actually costs:
 
-- **Download.** The `.vsix` is **754 KB** — the bundle and the catalogs both compress well, and this
-  is small by marketplace standards.
+- **Download.** The `.vsix` is **739 KB**, measured from a real `npm run package` run — the bundle
+  and the catalogs both compress well, and this is small by marketplace standards.
 - **Startup.** The full bundle parses and evaluates in **65 ms**, once, when the server starts —
   which happens on first Twig file, not on VS Code launch (activation is `onLanguage:twig`).
 - **Memory.** +34 MB, counted in the total above.
@@ -184,6 +184,10 @@ being built **unminified**, shipping a 3.17 MB `server.js`. `package` now runs `
 | `.vsix`             | 776 KB  | **634 KB** (−18%) |
 
 Sourcemaps were already excluded by `.vscodeignore`, so they were never shipped.
+
+The 634 KB figure is this fix in isolation, from before the class model and later catalog work
+changed the `.vsix`'s composition — see the measured **739 KB** current total above, not this table,
+for what actually ships today.
 
 ### Noted, not acted on
 
