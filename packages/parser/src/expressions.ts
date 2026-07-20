@@ -189,7 +189,11 @@ export class ExpressionParser {
 		if (this.expressionDepth >= MAX_EXPRESSION_DEPTH) {
 			// Refusing without consuming is safe: every caller treats an undefined
 			// expression as "stop collecting" and unwinds to a token-consuming loop.
-			this.missing('nesting-too-deep', 'Expression is nested too deeply.', this.current.start);
+			this.missing(
+				'nesting-too-deep',
+				'Expression is nested too deeply.',
+				this.current.start,
+			);
 			return undefined;
 		}
 		this.expressionDepth++;
@@ -200,7 +204,10 @@ export class ExpressionParser {
 		}
 	}
 
-	private parseExpressionAtDepth(precedence: number, allowArrow: boolean): Expression | undefined {
+	private parseExpressionAtDepth(
+		precedence: number,
+		allowArrow: boolean,
+	): Expression | undefined {
 		if (allowArrow) {
 			const arrow = this.tryParseArrow();
 			if (arrow !== undefined) {

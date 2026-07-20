@@ -57,9 +57,7 @@ describe('unknown-function diagnostics and macros', () => {
 	});
 
 	it('does not flag a macro imported under an alias', () => {
-		expect(
-			unknownCodesFor('{% from "macros" import button as btn %}{{ btn() }}'),
-		).toEqual([]);
+		expect(unknownCodesFor('{% from "macros" import button as btn %}{{ btn() }}')).toEqual([]);
 	});
 
 	it('does not flag a macro imported from _self', () => {

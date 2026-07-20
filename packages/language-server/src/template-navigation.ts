@@ -54,7 +54,14 @@ export function getDefinition(
 
 	const symbols = symbolResolver.collect(parsed);
 
-	const fromImport = fromImportDefinition(parsed, offset, path, documents, symbolResolver, symbols);
+	const fromImport = fromImportDefinition(
+		parsed,
+		offset,
+		path,
+		documents,
+		symbolResolver,
+		symbols,
+	);
 	if (fromImport !== undefined) {
 		return [fromImport];
 	}
@@ -146,7 +153,9 @@ function fromImportDefinition(
 
 	if (isSelfTemplate(tag.template)) {
 		const macro = symbols.macros.find((candidate) => candidate.name === macroName);
-		return macro === undefined ? undefined : locationForRange(documents, parsed.uri, macro.range);
+		return macro === undefined
+			? undefined
+			: locationForRange(documents, parsed.uri, macro.range);
 	}
 
 	if (tag.template?.type !== 'StringLiteral') {

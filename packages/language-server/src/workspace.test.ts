@@ -32,7 +32,9 @@ describe('isInside', () => {
 	});
 
 	it('rejects Windows paths outside the root, including a shared-prefix sibling', () => {
-		expect(isInside('C:\\Users\\dev\\other\\index.twig', 'C:\\Users\\dev\\project')).toBe(false);
+		expect(isInside('C:\\Users\\dev\\other\\index.twig', 'C:\\Users\\dev\\project')).toBe(
+			false,
+		);
 		expect(
 			isInside('C:\\Users\\dev\\project-legacy\\index.twig', 'C:\\Users\\dev\\project'),
 		).toBe(false);

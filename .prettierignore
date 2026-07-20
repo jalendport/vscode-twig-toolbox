@@ -3,6 +3,11 @@ dist
 *.vsix
 .plan
 
+# Local agent-workflow artifacts (counselors reports, Solo/Claude config); never shipped.
+agents
+solo.yml
+.claude
+
 # Pinned upstream checkouts the generators read (scripts/lib/checkout.ts).
 .cache
 
