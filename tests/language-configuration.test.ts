@@ -68,6 +68,16 @@ describe('auto-closing pairs', () => {
 		expect(pairs()).not.toEqual(expect.arrayContaining([['[', ']']]));
 	});
 
+	/**
+	 * `#{` only opens interpolation inside a double-quoted Twig string; a plain
+	 * text pair here has no way to know that and closes every `#{` typed in HTML
+	 * prose too. The server closes it instead, from the same tokens the parser
+	 * used to tell interpolation from two unrelated characters.
+	 */
+	it('has no `#{` pair — the server closes interpolation where it means something', () => {
+		expect(pairs()).not.toEqual(expect.arrayContaining([['#{', '}']]));
+	});
+
 	it('has no tight delimiter pairs — they orphan the closing space', () => {
 		expect(pairs()).not.toEqual(
 			expect.arrayContaining([
@@ -78,10 +88,9 @@ describe('auto-closing pairs', () => {
 		);
 	});
 
-	it('closes string interpolation, quotes and HTML comments', () => {
+	it('closes quotes and HTML comments', () => {
 		expect(pairs()).toEqual(
 			expect.arrayContaining([
-				['#{', '}'],
 				['"', '"'],
 				["'", "'"],
 				['<!--', ' -->'],

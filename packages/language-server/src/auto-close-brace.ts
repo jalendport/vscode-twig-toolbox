@@ -34,11 +34,6 @@ export function getBraceCompletion(
 	position: Position,
 	trigger: string,
 ): string | undefined {
-	const close = CLOSERS[trigger];
-	if (close === undefined) {
-		return undefined;
-	}
-
 	const source = parsed.document.getText();
 	const offset = parsed.document.offsetAt(position);
 	// The caret must sit immediately after the character the client saw typed.
@@ -48,10 +43,22 @@ export function getBraceCompletion(
 	}
 
 	const before = source[offset - 2];
-	// `{{` is a delimiter and `#{` is interpolation; the language config closes
-	// both already. Closing them again is precisely the stacking bug, so this
-	// gate stands ahead of — and independently of — what the regions say.
-	if (trigger === '{' && (before === '{' || before === '#')) {
+	// `#{` only opens Twig string interpolation inside a double-quoted string —
+	// the language config can't tell that from a stray `#{` in HTML prose, so
+	// this is the server's call alone, made from the same tokens the parser
+	// used to decide whether it lexed one.
+	if (trigger === '{' && before === '#') {
+		return interpolationCloser(parsed, offset);
+	}
+
+	const close = CLOSERS[trigger];
+	if (close === undefined) {
+		return undefined;
+	}
+
+	// `{{` is a delimiter the language config already closes; closing it again
+	// is the stacking bug that pair exists to avoid.
+	if (trigger === '{' && before === '{') {
 		return undefined;
 	}
 
@@ -65,6 +72,25 @@ export function getBraceCompletion(
 	// with.
 	const tight = trigger === '[' && before !== undefined && INDEX_ACCESS_BEFORE.test(before);
 	return tight ? `$0${close}` : `$0 ${close}`;
+}
+
+/**
+ * The closer for a `#{` just typed, if it opened real interpolation.
+ *
+ * The lexer only recognizes `#{` as `interpolation-start` inside a
+ * double-quoted string — everywhere else (HTML prose, a single-quoted string)
+ * it lexes as two unrelated characters. So the check is just: did that token
+ * land right where the caret is now.
+ */
+function interpolationCloser(parsed: ParsedDocument, offset: number): string | undefined {
+	const region = regionAt(
+		findRegions(parsed.result.tokens, parsed.document.getText().length),
+		offset,
+	);
+	const opened = region?.tokens.some(
+		(token) => token.kind === 'interpolation-start' && token.end === offset,
+	);
+	return opened ? '$0}' : undefined;
 }
 
 /** True only inside the expression of a `{{ … }}` or `{% … %}`, strings aside. */

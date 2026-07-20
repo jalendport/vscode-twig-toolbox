@@ -76,6 +76,23 @@ describe('brackets in an expression', () => {
 	});
 });
 
+describe('string interpolation', () => {
+	it('closes `#{` tight inside a double-quoted string', () => {
+		expect(completionAt('{{ "a#{‸" }}', '{')).toBe('$0}');
+		expect(completionAt('{% set a = "#{‸" %}', '{')).toBe('$0}');
+	});
+
+	/** Single-quoted strings have no interpolation — `#{` there is two literal characters. */
+	it('declines `#{` inside a single-quoted string', () => {
+		expect(completionAt("{{ 'a#{‸' }}", '{')).toBeUndefined();
+	});
+
+	/** The same stray `#{` the language config used to close in every prose file. */
+	it('declines `#{` outside a Twig region', () => {
+		expect(completionAt('<p>a#{‸</p>', '{')).toBeUndefined();
+	});
+});
+
 describe('declines', () => {
 	/** A `{` in markup is someone reaching for `{{`, and a `[` there is prose. */
 	it('declines in raw HTML', () => {
@@ -86,13 +103,12 @@ describe('declines', () => {
 	});
 
 	/**
-	 * The stacking gate. `{{` is the delimiter pair's job and `#{` is
-	 * interpolation's; answering here is what produced `{{  }}}`.
+	 * The stacking gate. `{{` is the delimiter pair's job; answering here is
+	 * what produced `{{  }}}`.
 	 */
-	it('declines after `{` and after `#`', () => {
+	it('declines after `{`', () => {
 		expect(completionAt('{{‸ }}', '{')).toBeUndefined();
 		expect(completionAt('{% set a = {{‸ %}', '{')).toBeUndefined();
-		expect(completionAt('{{ "#{‸" }}', '{')).toBeUndefined();
 	});
 
 	/** The `{` of a half-typed delimiter is not yet inside anything. */
