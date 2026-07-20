@@ -1,4 +1,10 @@
-import { nodePathAt, type AnyNode, type Identifier, type SourceRange } from '@twig-toolbox/parser';
+import {
+	nodePathAt,
+	type AnyNode,
+	type Expression,
+	type Identifier,
+	type SourceRange,
+} from '@twig-toolbox/parser';
 import { DocumentLink, Location, type Range } from 'vscode-languageserver/node';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { craftHandleAt, type CraftProjectConfigResolver } from './craft-project-config';
@@ -46,7 +52,9 @@ export function getDefinition(
 		return [craftHandle];
 	}
 
-	const fromImport = fromImportDefinition(parsed, offset, path, documents, symbolResolver);
+	const symbols = symbolResolver.collect(parsed);
+
+	const fromImport = fromImportDefinition(parsed, offset, path, documents, symbolResolver, symbols);
 	if (fromImport !== undefined) {
 		return [fromImport];
 	}
@@ -56,7 +64,6 @@ export function getDefinition(
 		return [block];
 	}
 
-	const symbols = symbolResolver.collect(parsed);
 	const member = memberMacroDefinition(offset, path, symbols, documents);
 	if (member !== undefined) {
 		return [member];
@@ -118,21 +125,42 @@ function fromImportDefinition(
 	path: readonly AnyNode[],
 	documents: DocumentStore,
 	symbolResolver: TemplateSymbolResolver,
+	symbols: SymbolTable,
 ): Location | undefined {
 	const child = identifierAt(path, offset);
 	const parent = child === undefined ? undefined : parentOf(path, child);
-	if (child === undefined || parent?.type !== 'FromImport' || parent.macroName !== child) {
+	// The alias resolves to the same macro as the original name — `as btn`
+	// doesn't rename what's being pointed at, only what it's called here.
+	if (
+		child === undefined ||
+		parent?.type !== 'FromImport' ||
+		(parent.macroName !== child && parent.alias !== child)
+	) {
 		return undefined;
 	}
 	const tag = parentOf(path, parent);
-	if (tag?.type !== 'FromTag' || tag.template?.type !== 'StringLiteral') {
+	const macroName = parent.macroName?.name;
+	if (tag?.type !== 'FromTag' || macroName === undefined) {
+		return undefined;
+	}
+
+	if (isSelfTemplate(tag.template)) {
+		const macro = symbols.macros.find((candidate) => candidate.name === macroName);
+		return macro === undefined ? undefined : locationForRange(documents, parsed.uri, macro.range);
+	}
+
+	if (tag.template?.type !== 'StringLiteral') {
 		return undefined;
 	}
 	const external = symbolResolver.symbolsForTemplate(parsed.uri, tag.template.value);
-	const macro = external?.macros.find((candidate) => candidate.name === child.name);
+	const macro = external?.macros.find((candidate) => candidate.name === macroName);
 	return external === undefined || macro === undefined
 		? undefined
 		: locationForRange(documents, external.uri, macro.range);
+}
+
+function isSelfTemplate(template: Expression | undefined): boolean {
+	return template?.type === 'Identifier' && template.name === '_self';
 }
 
 function blockDefinition(

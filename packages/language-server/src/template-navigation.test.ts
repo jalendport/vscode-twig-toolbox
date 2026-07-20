@@ -230,6 +230,53 @@ describe('template navigation', () => {
 		}
 	});
 
+	it('resolves the alias in a {% from %} import to the original macro', async () => {
+		const fixture = createCraftFixture();
+		try {
+			fixture.write(
+				'templates/macros.twig',
+				'{% macro button(label) %}<a>{{ label }}</a>{% endmacro %}',
+			);
+			const server = createServer(fixture);
+			const uri = fixture.write(
+				'templates/index.twig',
+				'{% from "macros" import button as b‸tn %}',
+			);
+			const document = openMarked(server, uri);
+
+			const definition = (await server.definition(
+				document.uri,
+				document.position,
+			)) as Location[];
+			expect(definition[0]?.uri).toBe(fixture.uri('templates/macros.twig'));
+			expect(definition[0]?.range.start).toEqual({ line: 0, character: 0 });
+		} finally {
+			fixture.dispose();
+		}
+	});
+
+	it('resolves a {% from _self import %} to the macro in the same document', async () => {
+		const fixture = createCraftFixture();
+		try {
+			const server = createServer(fixture);
+			const uri = fixture.write(
+				'templates/index.twig',
+				'{% macro button(label) %}<a>{{ label }}</a>{% endmacro %}' +
+					'{% from _self import bu‸tton %}',
+			);
+			const document = openMarked(server, uri);
+
+			const definition = (await server.definition(
+				document.uri,
+				document.position,
+			)) as Location[];
+			expect(definition[0]?.uri).toBe(uri);
+			expect(definition[0]?.range.start).toEqual({ line: 0, character: 0 });
+		} finally {
+			fixture.dispose();
+		}
+	});
+
 	it('updates parent block completions after the parent template changes', async () => {
 		const fixture = createCraftFixture();
 		try {
