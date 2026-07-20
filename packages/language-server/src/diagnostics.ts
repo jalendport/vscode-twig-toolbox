@@ -9,7 +9,9 @@ import { DiagnosticSeverity, type Diagnostic, type Range } from 'vscode-language
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { CatalogEntryKind, CatalogEntryMap, CatalogRegistry } from './catalog';
 import type { ParsedDocument } from './document-store';
+import { findRegions } from './regions';
 import type { TwigToolboxSettings, UnknownNamesSetting } from './settings';
+import { collectSymbols, type SymbolTable } from './symbols';
 import type { TemplateResolver } from './template-resolver';
 import { collectTemplateReferences } from './template-references';
 
@@ -98,10 +100,23 @@ function getUnknownNameDiagnostics(
 		return [];
 	}
 
+	// Built locally rather than threaded through from the caller: existence of an
+	// imported/defined macro doesn't depend on cross-file resolution, only on
+	// what `{% from %}`/`{% import %}` bound in this document.
+	const symbols = collectSymbols(
+		parsed.result.template,
+		parsed.result.source,
+		findRegions(parsed.result.tokens, parsed.result.source.length),
+	);
+
 	const ignoredNames = new Set(settings.diagnostics.ignoredNames);
 	const diagnostics: Diagnostic[] = [];
 	for (const reference of collectNameReferences(parsed.result.template)) {
-		if (ignoredNames.has(reference.name) || entries[reference.kind].has(reference.name)) {
+		if (
+			ignoredNames.has(reference.name) ||
+			entries[reference.kind].has(reference.name) ||
+			isImportedMacroReference(reference, symbols)
+		) {
 			continue;
 		}
 
@@ -115,6 +130,16 @@ function getUnknownNameDiagnostics(
 	}
 
 	return diagnostics;
+}
+
+// `{% from "macros" import button %}{{ button() }}` calls a macro, not a
+// function — the callee looks identical to `collectNameReferences`, so we
+// have to ask the symbol table what `button` actually is at the call site.
+function isImportedMacroReference(reference: NameReference, symbols: SymbolTable): boolean {
+	return (
+		reference.kind === 'functions' &&
+		symbols.resolve(reference.name, reference.range.start)?.kind === 'macro'
+	);
 }
 
 function getMissingTemplateDiagnostics(
