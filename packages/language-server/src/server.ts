@@ -63,8 +63,12 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 	server = new TwigServerCore({
 		catalogRegistry,
 		getSettings,
-		publishDiagnostics: (uri, diagnostics) => {
-			void connection.sendDiagnostics({ uri, diagnostics });
+		publishDiagnostics: (uri, diagnostics, version) => {
+			void connection.sendDiagnostics({
+				uri,
+				diagnostics,
+				...(version === undefined ? {} : { version }),
+			});
 		},
 		resolveWorkspaceContext: (uri) => workspaceContextResolver.resolve(uri),
 		templateResolver,

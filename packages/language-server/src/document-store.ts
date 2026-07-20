@@ -155,6 +155,16 @@ export class DocumentStore {
 		return [...this.entries.values()].map((entry) => entry.document);
 	}
 
+	/**
+	 * The document's current version, without forcing a reparse. Cheap enough
+	 * to call after an `await` to check whether a newer edit landed while
+	 * something else — settings, in the diagnostics-publish path — was in
+	 * flight.
+	 */
+	peekVersion(uri: string): number | undefined {
+		return this.entries.get(uri)?.document.version;
+	}
+
 	getParsed(uri: string): ParsedDocument | undefined {
 		const entry = this.entries.get(uri);
 		if (entry === undefined) {

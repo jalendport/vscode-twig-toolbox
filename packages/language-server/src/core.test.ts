@@ -109,6 +109,58 @@ describe('TwigServerCore diagnostics', () => {
 		await vi.advanceTimersByTimeAsync(1);
 		await vi.waitFor(() => expect(published.current()).toEqual([]));
 	});
+
+	it('drops a stale parse’s diagnostics once a newer edit already published its own', async () => {
+		const uri = 'file:///project/templates/index.twig';
+		const byUri = new Map<string, Diagnostic[]>();
+		let publishCount = 0;
+		const published = {
+			publish: (publishUri: string, diagnostics: Diagnostic[]) => {
+				publishCount += 1;
+				byUri.set(publishUri, diagnostics);
+			},
+			current: () => byUri.get(uri) ?? [],
+		};
+
+		let resolveSettings: (() => void) | undefined;
+		const settingsGate = new Promise<void>((resolve) => {
+			resolveSettings = resolve;
+		});
+		let settingsCalls = 0;
+		const server = createServer(published, {
+			parseDelayMs: 5,
+			getSettings: async () => {
+				settingsCalls += 1;
+				if (settingsCalls === 1) {
+					await settingsGate;
+				}
+				return DEFAULT_SETTINGS;
+			},
+		});
+
+		// Version 1's diagnostics publish is now stuck awaiting settings.
+		server.openDocument(createDocument('{% if foo %}', 1, uri));
+		expect(published.current()).toEqual([]);
+
+		// A second, newer edit lands. Its own debounced parse does not share
+		// version 1's stuck settings lookup, so it publishes first.
+		server.updateDocument(createDocument('{{ user. }}', 2, uri));
+		await vi.waitFor(() =>
+			expect(published.current().map((diagnostic) => diagnostic.code)).toEqual([
+				'missing-property',
+			]),
+		);
+		expect(publishCount).toBe(1);
+
+		// Version 1's settings lookup finally resolves. Its diagnostics describe
+		// a document nobody can see anymore, so this must not clobber version 2's.
+		resolveSettings?.();
+		await new Promise((resolve) => setTimeout(resolve, 20));
+		expect(publishCount).toBe(1);
+		expect(published.current().map((diagnostic) => diagnostic.code)).toEqual([
+			'missing-property',
+		]);
+	});
 });
 
 describe('space-triggered completions', () => {

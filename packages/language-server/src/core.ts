@@ -27,7 +27,7 @@ import { TemplateSymbolResolver } from './template-symbols';
 export interface TwigServerCoreOptions {
 	readonly catalogRegistry: CatalogRegistry;
 	readonly getSettings: (uri: string) => Promise<TwigToolboxSettings>;
-	readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[]) => void;
+	readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[], version?: number) => void;
 	readonly parseDelayMs?: number;
 	readonly resolveWorkspaceContext?: (uri: string) => WorkspaceCatalogContext;
 	/** Defaults to the builtins; milestone 10 adds project-typed members here. */
@@ -39,7 +39,11 @@ export interface TwigServerCoreOptions {
 export class TwigServerCore {
 	private readonly catalogRegistry: CatalogRegistry;
 	private readonly getSettings: (uri: string) => Promise<TwigToolboxSettings>;
-	private readonly publishDiagnostics: (uri: string, diagnostics: Diagnostic[]) => void;
+	private readonly publishDiagnostics: (
+		uri: string,
+		diagnostics: Diagnostic[],
+		version?: number,
+	) => void;
 	private readonly documents: DocumentStore;
 	private readonly memberProviders: readonly MemberProvider[] | undefined;
 	private readonly templateResolver: TemplateResolver | undefined;
@@ -245,9 +249,18 @@ export class TwigServerCore {
 		// server process under Node's default rejection mode.
 		try {
 			const settings = await this.getSettings(parsed.uri);
+			const currentVersion = this.documents.peekVersion(parsed.uri);
+			if (currentVersion !== undefined && currentVersion > parsed.version) {
+				// A newer edit landed while settings were in flight. That edit's
+				// own parse publishes its own diagnostics, so publishing this
+				// stale batch now would either flicker or — if it resolves after
+				// the newer one — clobber correct diagnostics with outdated ones.
+				return;
+			}
 			this.publishDiagnostics(
 				parsed.uri,
 				getDiagnostics(parsed, settings, this.catalogRegistry, this.templateResolver),
+				parsed.version,
 			);
 		} catch {
 			// Settings lookup can fail during shutdown or a client hiccup; stale
