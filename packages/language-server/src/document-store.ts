@@ -92,6 +92,13 @@ interface ExternalEntry {
 }
 
 const DEFAULT_PARSE_DELAY_MS = 200;
+/**
+ * Navigating into included templates and `{% extends %}` chains touches
+ * external files that are never opened as documents, and nothing ever closes
+ * them the way a client closes an editor tab — a long session that browses
+ * around a large project would otherwise grow this cache without bound.
+ */
+const EXTERNAL_ENTRY_LIMIT = 256;
 
 export class DocumentStore {
 	private readonly entries = new Map<string, DocumentEntry>();
@@ -180,13 +187,14 @@ export class DocumentStore {
 				cached.mtimeMs === stat.mtimeMs &&
 				cached.size === stat.size
 			) {
+				this.touchExternalEntry(uri, cached);
 				return cached.parsed;
 			}
 
 			const text = readFileSync(filePath, 'utf8');
 			const document = TextDocument.create(uri, 'twig', Math.floor(stat.mtimeMs), text);
 			const parsed = createParsedDocument(document, this.resolveWorkspaceContext(uri));
-			this.externalEntries.set(uri, { parsed, mtimeMs: stat.mtimeMs, size: stat.size });
+			this.setExternalEntry(uri, { parsed, mtimeMs: stat.mtimeMs, size: stat.size });
 			return parsed;
 		} catch {
 			this.externalEntries.delete(uri);
@@ -214,6 +222,28 @@ export class DocumentStore {
 		entry.stale = false;
 		this.onParsed?.(parsed);
 		return parsed;
+	}
+
+	/**
+	 * Marks `uri` as the most recently used entry. A `Map` keeps insertion
+	 * order, so re-inserting on every touch keeps the least recently used
+	 * entry first — `setExternalEntry` can then evict it with no separate
+	 * bookkeeping structure.
+	 */
+	private touchExternalEntry(uri: string, entry: ExternalEntry): void {
+		this.externalEntries.delete(uri);
+		this.externalEntries.set(uri, entry);
+	}
+
+	private setExternalEntry(uri: string, entry: ExternalEntry): void {
+		this.externalEntries.delete(uri);
+		this.externalEntries.set(uri, entry);
+		if (this.externalEntries.size > EXTERNAL_ENTRY_LIMIT) {
+			const oldest = this.externalEntries.keys().next().value;
+			if (oldest !== undefined) {
+				this.externalEntries.delete(oldest);
+			}
+		}
 	}
 
 	private schedule(uri: string): void {
