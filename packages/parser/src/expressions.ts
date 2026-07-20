@@ -79,6 +79,15 @@ const TWO_WORD_TESTS: ReadonlyMap<string, string> = new Map([
 	['same', 'as'],
 ]);
 
+/**
+ * Deepest expression nesting parsed before recovery gives up on the subtree.
+ * Every nesting construct re-enters `parseExpression`, so bounding it there
+ * bounds the call stack — without a cap, a few thousand pasted `[[[[…` or
+ * `((((…` characters overflow it and break the "parse never throws" contract.
+ * Real templates stay in single digits; the cap only exists for garbage input.
+ */
+const MAX_EXPRESSION_DEPTH = 250;
+
 /** Token kinds that end a Twig region; expression parsing never consumes them. */
 const BOUNDARY_KINDS = new Set([
 	'eof',
@@ -100,6 +109,7 @@ const BOUNDARY_KINDS = new Set([
  */
 export class ExpressionParser {
 	protected index = 0;
+	private expressionDepth = 0;
 	readonly errors: ParseError[] = [];
 
 	constructor(
@@ -176,6 +186,21 @@ export class ExpressionParser {
 	 * climb over binary operators, then the conditional operator at the top.
 	 */
 	parseExpression(precedence = 0, allowArrow = false): Expression | undefined {
+		if (this.expressionDepth >= MAX_EXPRESSION_DEPTH) {
+			// Refusing without consuming is safe: every caller treats an undefined
+			// expression as "stop collecting" and unwinds to a token-consuming loop.
+			this.missing('nesting-too-deep', 'Expression is nested too deeply.', this.current.start);
+			return undefined;
+		}
+		this.expressionDepth++;
+		try {
+			return this.parseExpressionAtDepth(precedence, allowArrow);
+		} finally {
+			this.expressionDepth--;
+		}
+	}
+
+	private parseExpressionAtDepth(precedence: number, allowArrow: boolean): Expression | undefined {
 		if (allowArrow) {
 			const arrow = this.tryParseArrow();
 			if (arrow !== undefined) {

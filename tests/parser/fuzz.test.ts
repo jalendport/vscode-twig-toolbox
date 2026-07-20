@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parse } from '../../packages/parser/src/index';
+import { parse, visit } from '../../packages/parser/src/index';
 import { CORPUS_FILES, corpusSource } from './corpus';
 
 /**
@@ -118,6 +118,39 @@ function mutate(source: string, next: () => number): string {
 	const token = NASTY[Math.floor(next() * NASTY.length)] as string;
 	return source.slice(0, at) + token + source.slice(at);
 }
+
+describe('pathological nesting', () => {
+	// Deep enough to overflow the stack without the parser's depth caps, and an
+	// order of magnitude past them, so this fails loudly if a cap regresses.
+	const DEPTH = 10_000;
+
+	const CASES: Record<string, string> = {
+		'unclosed brackets': `{{ ${'['.repeat(DEPTH)} }}`,
+		'unclosed parens': `{{ ${'('.repeat(DEPTH)} }}`,
+		'unclosed hashes': `{{ ${'{'.repeat(DEPTH)} }}`,
+		'balanced brackets': `{{ ${'['.repeat(DEPTH)}${']'.repeat(DEPTH)} }}`,
+		'right-associative ?? chain': `{{ a${' ?? a'.repeat(DEPTH)} }}`,
+		'right-associative ** chain': `{{ a${' ** a'.repeat(DEPTH)} }}`,
+		'unclosed if tags': '{% if x %}'.repeat(DEPTH / 2),
+		'balanced if tags': `${'{% if x %}'.repeat(DEPTH / 2)}${'{% endif %}'.repeat(DEPTH / 2)}`,
+		'nested string interpolation': `{{ ${'"#{ '.repeat(DEPTH)} }}`,
+	};
+
+	for (const [label, source] of Object.entries(CASES)) {
+		it(`survives ${label} ${DEPTH} deep`, () => {
+			expectSurvives(source, label);
+		});
+	}
+
+	it('walks the deepest tree the parser produces without overflowing', () => {
+		const { template } = parse(CASES['balanced if tags'] as string);
+		let count = 0;
+		visit(template, () => {
+			count++;
+		});
+		expect(count).toBeGreaterThan(0);
+	});
+});
 
 describe('performance budget', () => {
 	it('parses a 2,000-line template well inside 20 ms', () => {

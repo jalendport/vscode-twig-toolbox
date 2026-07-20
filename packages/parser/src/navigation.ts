@@ -45,23 +45,38 @@ export function childNodes(node: AnyNode): AnyNode[] {
 	return out.sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
-/** Depth-first walk, parents before children. Return false to skip a subtree. */
+/** Marks "done with this subtree" on the explicit `visit` stack. */
+const POP = Symbol('pop');
+
+/**
+ * Depth-first walk, parents before children. Return false to skip a subtree.
+ *
+ * Iterative on purpose: the walk must survive any tree the parser can produce,
+ * and recursing per level would put tree depth back on the call stack that the
+ * parser's own nesting caps just took it off.
+ */
 export function visit(
 	root: AnyNode,
 	enter: (node: AnyNode, ancestors: AnyNode[]) => boolean | void,
 ): void {
 	const ancestors: AnyNode[] = [];
-	const walk = (node: AnyNode): void => {
-		if (enter(node, ancestors) === false) {
-			return;
+	const stack: (AnyNode | typeof POP)[] = [root];
+	while (stack.length > 0) {
+		const item = stack.pop() as AnyNode | typeof POP;
+		if (item === POP) {
+			ancestors.pop();
+			continue;
 		}
-		ancestors.push(node);
-		for (const child of childNodes(node)) {
-			walk(child);
+		if (enter(item, ancestors) === false) {
+			continue;
 		}
-		ancestors.pop();
-	};
-	walk(root);
+		ancestors.push(item);
+		stack.push(POP);
+		const children = childNodes(item);
+		for (let at = children.length - 1; at >= 0; at--) {
+			stack.push(children[at] as AnyNode);
+		}
+	}
 }
 
 /**

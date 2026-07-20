@@ -49,6 +49,14 @@ const MARKERS = ['{{', '{%', '{#'];
 
 type RegionKind = 'var' | 'block';
 
+/**
+ * Deepest `"#{ "#{ … }" }"` nesting lexed before `#{` is treated as literal
+ * string text. Each level recurses `lexString → lexInterpolation`, so a cap is
+ * what keeps `tokenize` total on pathological input; no real template nests
+ * interpolations anywhere near this deep.
+ */
+const MAX_INTERPOLATION_DEPTH = 50;
+
 /** Delimiter that legally closes each region kind. */
 const REGION_CLOSE: Record<RegionKind, string> = { var: '}}', block: '%}' };
 const REGION_UNTERMINATED: Record<RegionKind, ParseErrorCode> = {
@@ -59,6 +67,7 @@ const REGION_END_KIND: Record<RegionKind, TokenKind> = { var: 'var-end', block: 
 
 class Lexer {
 	private pos = 0;
+	private interpolationDepth = 0;
 	/** Delimiter closing the region being lexed; guides unterminated-string recovery. */
 	private regionClose: string | undefined;
 	private readonly markerCache = new Map<string, number>();
@@ -408,7 +417,12 @@ class Lexer {
 				this.pos++;
 				return;
 			}
-			if (quote === '"' && ch === '#' && source.charAt(this.pos + 1) === '{') {
+			if (
+				quote === '"' &&
+				ch === '#' &&
+				source.charAt(this.pos + 1) === '{' &&
+				this.interpolationDepth < MAX_INTERPOLATION_DEPTH
+			) {
 				flushText();
 				this.push('interpolation-start', this.pos, this.pos + 2);
 				this.pos += 2;
@@ -442,6 +456,15 @@ class Lexer {
 
 	/** Lexes `#{ … }` inside a double-quoted string, up to the matching brace. */
 	private lexInterpolation(): void {
+		this.interpolationDepth++;
+		try {
+			this.lexInterpolationBody();
+		} finally {
+			this.interpolationDepth--;
+		}
+	}
+
+	private lexInterpolationBody(): void {
 		const start = this.pos - 2;
 		let depth = 0;
 		for (;;) {

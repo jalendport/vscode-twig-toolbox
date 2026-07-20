@@ -32,7 +32,9 @@ export type ParseErrorCode =
 	| 'unclosed-parenthesis'
 	| 'unclosed-bracket'
 	| 'unclosed-brace'
-	| 'invalid-assignment-target';
+	| 'invalid-assignment-target'
+	// Parser — recovery limits
+	| 'nesting-too-deep';
 
 export interface ParseError {
 	readonly code: ParseErrorCode;

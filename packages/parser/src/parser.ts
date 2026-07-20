@@ -48,6 +48,14 @@ const KNOWN_BLOCK_TAGS = new Set(['sandbox', 'cache', 'guard']);
 /** Words that cannot be loop variables, however name-like the lexer finds them. */
 const FOR_RESERVED = new Set(['in']);
 
+/**
+ * Deepest tag nesting parsed before recovery flattens the rest. Each level of
+ * `{% if %}{% if %}…` costs a handful of stack frames, so unbounded nesting
+ * overflows the call stack and breaks the "parse never throws" contract. Past
+ * the cap, deeper tags parse as unclosed siblings — degraded, but total.
+ */
+const MAX_TAG_DEPTH = 250;
+
 class Parser extends ExpressionParser {
 	private readonly stopStack: Set<string>[] = [];
 
@@ -133,6 +141,14 @@ class Parser extends ExpressionParser {
 	}
 
 	private parseTagBody(stops: string[]): BodyResult {
+		if (this.stopStack.length >= MAX_TAG_DEPTH) {
+			// Pretend the body ended at EOF without consuming anything: closeTag
+			// records the missing end tag, and the enclosing body loop keeps
+			// consuming tokens, so deeper tags become flat siblings instead of
+			// stack frames.
+			this.missing('nesting-too-deep', 'Tags are nested too deeply.', this.current.start);
+			return { body: [], stop: { kind: 'eof' } };
+		}
 		this.stopStack.push(new Set(stops));
 		try {
 			return this.parseBody();
