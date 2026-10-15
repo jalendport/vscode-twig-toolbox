@@ -10,7 +10,7 @@
 !images/icon.png
 !README.md
 !CHANGELOG.md
-!LICENSE
+!LICENSE.md
 !package.json
 
 # Never ship sourcemaps or test fixtures that slipped into the allow-listed dirs.

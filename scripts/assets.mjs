@@ -10,7 +10,7 @@ export const extensionRoot = join(repoRoot, 'packages', 'extension');
  * physically present inside packages/extension for `vsce package` to include them.
  *
  * Entries are [source relative to repoRoot, destination relative to extensionRoot].
- * Missing sources are skipped: catalogs/ and LICENSE do not exist yet.
+ * Missing sources are skipped: catalogs/ and LICENSE.md do not exist yet.
  */
 export const COPIED_ASSETS = [
 	['syntaxes', 'syntaxes'],
@@ -19,7 +19,7 @@ export const COPIED_ASSETS = [
 	['catalogs', 'catalogs'],
 	['README.md', 'README.md'],
 	['CHANGELOG.md', 'CHANGELOG.md'],
-	['LICENSE', 'LICENSE'],
+	['LICENSE.md', 'LICENSE.md'],
 ];
 
 async function exists(path) {
